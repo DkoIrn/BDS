@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:catjam.fi)",
+      "Bash(cd \"C:/Users/danie/OneDrive/Desktop/BDS\" && node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs: complete project research\" --files .planning/research/)",
+      "Bash(git add .planning/research/ && git commit -m \"$\\(cat <<'EOF'\ndocs: complete domain research \\(stack, features, architecture, pitfalls\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git add .planning/REQUIREMENTS.md && git commit -m \"$\\(cat <<'EOF'\ndocs: define v1 requirements \\(30 requirements\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git add .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md && git commit -m \"$\\(cat <<'EOF'\ndocs: create roadmap \\(10 phases\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
