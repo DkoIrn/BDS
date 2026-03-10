@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can log out from any page and be redirected to the login screen
   4. User can request a password reset email and use the link to set a new password
   5. Application uses the brand palette (Deep Blue, Teal, Orange) and renders correctly on desktop and tablet
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 01-01-PLAN.md -- Scaffold Next.js with shadcn/ui, Supabase clients, middleware, design system, and database migration
@@ -177,7 +177,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Auth | 0/3 | Not started | - |
+| 1. Foundation & Auth | 2/3 | In Progress|  |
 | 2. Project Structure | 0/2 | Not started | - |
 | 3. File Upload & Storage | 0/1 | Not started | - |
 | 4. Ingestion Pipeline | 0/2 | Not started | - |
