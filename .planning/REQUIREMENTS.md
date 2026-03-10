@@ -125,13 +125,48 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated during roadmap creation) | | |
+| AUTH-01 | Phase 1: Foundation & Auth | Pending |
+| AUTH-02 | Phase 1: Foundation & Auth | Pending |
+| AUTH-03 | Phase 1: Foundation & Auth | Pending |
+| AUTH-04 | Phase 1: Foundation & Auth | Pending |
+| UIDE-01 | Phase 1: Foundation & Auth | Pending |
+| UIDE-02 | Phase 1: Foundation & Auth | Pending |
+| PROJ-01 | Phase 2: Project Structure | Pending |
+| PROJ-02 | Phase 2: Project Structure | Pending |
+| PROJ-03 | Phase 2: Project Structure | Pending |
+| PROJ-04 | Phase 2: Project Structure | Pending |
+| FILE-01 | Phase 3: File Upload & Storage | Pending |
+| FILE-06 | Phase 3: File Upload & Storage | Pending |
+| FILE-02 | Phase 4: Ingestion Pipeline | Pending |
+| FILE-03 | Phase 4: Ingestion Pipeline | Pending |
+| FILE-04 | Phase 4: Ingestion Pipeline | Pending |
+| PROC-03 | Phase 4: Ingestion Pipeline | Pending |
+| VALE-01 | Phase 5: Validation Engine | Pending |
+| VALE-02 | Phase 5: Validation Engine | Pending |
+| VALE-03 | Phase 5: Validation Engine | Pending |
+| VALE-04 | Phase 5: Validation Engine | Pending |
+| VALE-05 | Phase 5: Validation Engine | Pending |
+| VALE-07 | Phase 5: Validation Engine | Pending |
+| VALE-06 | Phase 6: Validation Profiles | Pending |
+| VALE-08 | Phase 6: Validation Profiles | Pending |
+| PROC-01 | Phase 7: Async Processing | Pending |
+| PROC-02 | Phase 7: Async Processing | Pending |
+| DASH-01 | Phase 8: Results Dashboard | Pending |
+| DASH-02 | Phase 8: Results Dashboard | Pending |
+| DASH-03 | Phase 8: Results Dashboard | Pending |
+| PROJ-05 | Phase 8: Results Dashboard | Pending |
+| DASH-04 | Phase 9: Reports & Export | Pending |
+| DASH-05 | Phase 9: Reports & Export | Pending |
+| FILE-05 | Phase 9: Reports & Export | Pending |
+| UIDE-03 | Phase 10: Landing Page & Subscription | Pending |
+| SUBS-01 | Phase 10: Landing Page & Subscription | Pending |
+| SUBS-02 | Phase 10: Landing Page & Subscription | Pending |
 
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 0
-- Unmapped: 30 ⚠️
+- v1 requirements: 36 total
+- Mapped to phases: 36
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-10 after initial definition*
+*Last updated: 2026-03-10 after roadmap creation*
