@@ -16,9 +16,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Project Management
 
-- [ ] **PROJ-01**: User can create a project (e.g., "Pipeline Survey - North Sea")
+- [x] **PROJ-01**: User can create a project (e.g., "Pipeline Survey - North Sea")
 - [ ] **PROJ-02**: User can create survey jobs within a project (e.g., "Phase 1 Survey")
-- [ ] **PROJ-03**: User can view list of their projects with status summaries
+- [x] **PROJ-03**: User can view list of their projects with status summaries
 - [ ] **PROJ-04**: User can view all jobs and datasets within a project
 - [ ] **PROJ-05**: User can view processing history for previous QC runs
 
@@ -131,9 +131,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 1: Foundation & Auth | Complete |
 | UIDE-01 | Phase 1: Foundation & Auth | Complete |
 | UIDE-02 | Phase 1: Foundation & Auth | Complete |
-| PROJ-01 | Phase 2: Project Structure | Pending |
+| PROJ-01 | Phase 2: Project Structure | Complete |
 | PROJ-02 | Phase 2: Project Structure | Pending |
-| PROJ-03 | Phase 2: Project Structure | Pending |
+| PROJ-03 | Phase 2: Project Structure | Complete |
 | PROJ-04 | Phase 2: Project Structure | Pending |
 | FILE-01 | Phase 3: File Upload & Storage | Pending |
 | FILE-06 | Phase 3: File Upload & Storage | Pending |
