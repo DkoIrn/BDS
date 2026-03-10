@@ -35,12 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can log out from any page and be redirected to the login screen
   4. User can request a password reset email and use the link to set a new password
   5. Application uses the brand palette (Deep Blue, Teal, Orange) and renders correctly on desktop and tablet
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md -- Scaffold Next.js with shadcn/ui, Supabase clients, middleware, design system, and database migration
+- [ ] 01-02-PLAN.md -- Auth pages (login, signup, forgot/update password) with split-screen layout and server actions
+- [ ] 01-03-PLAN.md -- App shell (collapsible sidebar, top bar, dashboard, settings) with human verification
 
 ### Phase 2: Project Structure
 **Goal**: Users can organize their survey work into projects and jobs
