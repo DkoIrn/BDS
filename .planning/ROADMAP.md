@@ -51,11 +51,11 @@ Plans:
   2. User can create survey jobs within a project
   3. User can view all their projects with status summaries on the projects page
   4. User can drill into a project to see its jobs and datasets
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md -- Database schema, types, server actions, projects list page with create dialog and nav update
+- [ ] 02-02-PLAN.md -- Project detail page with job creation dialog and jobs list
 
 ### Phase 3: File Upload & Storage
 **Goal**: Users can upload survey data files that are securely stored and associated with their jobs
