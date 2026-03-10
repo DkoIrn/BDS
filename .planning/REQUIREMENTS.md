@@ -63,8 +63,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UI & Design
 
-- [ ] **UIDE-01**: Platform has vibrant yet professional design (Deep Blue, Teal, Orange palette)
-- [ ] **UIDE-02**: Responsive layout that works on desktop and tablet
+- [x] **UIDE-01**: Platform has vibrant yet professional design (Deep Blue, Teal, Orange palette)
+- [x] **UIDE-02**: Responsive layout that works on desktop and tablet
 - [ ] **UIDE-03**: Landing page communicates value proposition to target audience
 
 ## v2 Requirements
@@ -129,8 +129,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 1: Foundation & Auth | Pending |
 | AUTH-03 | Phase 1: Foundation & Auth | Pending |
 | AUTH-04 | Phase 1: Foundation & Auth | Pending |
-| UIDE-01 | Phase 1: Foundation & Auth | Pending |
-| UIDE-02 | Phase 1: Foundation & Auth | Pending |
+| UIDE-01 | Phase 1: Foundation & Auth | Complete |
+| UIDE-02 | Phase 1: Foundation & Auth | Complete |
 | PROJ-01 | Phase 2: Project Structure | Pending |
 | PROJ-02 | Phase 2: Project Structure | Pending |
 | PROJ-03 | Phase 2: Project Structure | Pending |
