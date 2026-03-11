@@ -10,8 +10,8 @@ progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 10
-  completed_plans: 7
-  percent: 86
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 4 of 10 (Ingestion Pipeline)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In Progress
-Last activity: 2026-03-11 -- Plan 04-01 complete
+Last activity: 2026-03-11 -- Plan 04-02 complete
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 6min
-- Total execution time: 0.8 hours
+- Total execution time: 0.9 hours
 
 **By Phase:**
 
@@ -46,10 +46,10 @@ Progress: [███████░░░] 70%
 | 01-foundation-auth | 2/3 | 18min | 9min |
 | 02-project-structure | 2/2 | 8min | 4min |
 | 03-file-upload-storage | 2/2 | 11min | 5.5min |
-| 04-ingestion-pipeline | 1/3 | 4min | 4min |
+| 04-ingestion-pipeline | 2/3 | 8min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (5min), 02-02 (3min), 03-01 (4min), 03-02 (7min), 04-01 (4min)
+- Last 5 plans: 02-02 (3min), 03-01 (4min), 03-02 (7min), 04-01 (4min), 04-02 (4min)
 - Trend: Stable ~3-7min/plan
 
 *Updated after each plan completion*
@@ -80,6 +80,9 @@ Recent decisions affecting current work:
 - DropdownMenuTrigger: base-ui uses render prop pattern (not asChild) for custom trigger elements
 - Parsing: PapaParse with header:false for raw string[][] output, SheetJS raw:false with defval:'' for consistent strings
 - Column detection: Confidence scoring (high=name+data, medium=name only, low=data only) with 14 survey column types
+- Auto-parse: Fire-and-forget after upload, does not block upload queue
+- Parse API: Always updates status to 'error' on failure to prevent stuck 'parsing' state
+- Column mappings: JSONB storage for flexible schema evolution
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T03:00:27Z
-Stopped at: Completed 04-01-PLAN.md
-Resume file: .planning/phases/04-ingestion-pipeline/04-01-SUMMARY.md
+Last session: 2026-03-11T03:08:46Z
+Stopped at: Completed 04-02-PLAN.md
+Resume file: .planning/phases/04-ingestion-pipeline/04-02-SUMMARY.md
