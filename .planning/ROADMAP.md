@@ -180,7 +180,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 2/3 | In Progress|  |
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
-| 3. File Upload & Storage | 0/2 | Not started | - |
+| 3. File Upload & Storage | 1/2 | In Progress|  |
 | 4. Ingestion Pipeline | 0/2 | Not started | - |
 | 5. Validation Engine | 0/3 | Not started | - |
 | 6. Validation Profiles | 0/1 | Not started | - |

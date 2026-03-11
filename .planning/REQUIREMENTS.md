@@ -29,7 +29,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **FILE-03**: User can manually map/override column assignments via mapping interface
 - [ ] **FILE-04**: User can preview uploaded dataset before processing to confirm column mappings
 - [ ] **FILE-05**: User can download cleaned/annotated dataset as CSV or Excel
-- [ ] **FILE-06**: Files are stored securely in Supabase Storage tied to user account
+- [x] **FILE-06**: Files are stored securely in Supabase Storage tied to user account
 
 ### Validation Engine
 
@@ -136,7 +136,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-03 | Phase 2: Project Structure | Complete |
 | PROJ-04 | Phase 2: Project Structure | Complete |
 | FILE-01 | Phase 3: File Upload & Storage | Pending |
-| FILE-06 | Phase 3: File Upload & Storage | Pending |
+| FILE-06 | Phase 3: File Upload & Storage | Complete |
 | FILE-02 | Phase 4: Ingestion Pipeline | Pending |
 | FILE-03 | Phase 4: Ingestion Pipeline | Pending |
 | FILE-04 | Phase 4: Ingestion Pipeline | Pending |
