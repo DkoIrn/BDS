@@ -2,7 +2,7 @@
 phase: 3
 slug: file-upload-storage
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-03-11
 ---
@@ -38,12 +38,13 @@ created: 2026-03-11
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 3-01-01 | 01 | 1 | FILE-01 | unit | `npx vitest run tests/components/file-upload-zone.test.tsx -t "accepts"` | ❌ W0 | ⬜ pending |
-| 3-01-02 | 01 | 1 | FILE-01 | unit | `npx vitest run tests/components/file-upload-zone.test.tsx -t "rejects large"` | ❌ W0 | ⬜ pending |
-| 3-01-03 | 01 | 1 | FILE-01 | unit | `npx vitest run tests/components/file-upload-zone.test.tsx -t "upload flow"` | ❌ W0 | ⬜ pending |
-| 3-02-01 | 02 | 1 | FILE-06 | unit | `npx vitest run tests/actions/files.test.ts -t "ownership"` | ❌ W0 | ⬜ pending |
-| 3-02-02 | 02 | 1 | FILE-06 | unit | `npx vitest run tests/actions/files.test.ts -t "delete"` | ❌ W0 | ⬜ pending |
-| 3-02-03 | 02 | 1 | FILE-06 | unit | `npx vitest run tests/actions/files.test.ts -t "signed url"` | ❌ W0 | ⬜ pending |
+| 3-01-00 | 01 | 0 | FILE-01, FILE-06 | stub | `npx vitest run tests/components/file-upload-zone.test.tsx tests/actions/files.test.ts --reporter=verbose` | Created by Task 0 | ⬜ pending |
+| 3-01-01 | 01 | 1 | FILE-01 | unit | `npx vitest run tests/components/file-upload-zone.test.tsx -t "accepts"` | Created by 3-01-00 | ⬜ pending |
+| 3-01-02 | 01 | 1 | FILE-01 | unit | `npx vitest run tests/components/file-upload-zone.test.tsx -t "rejects large"` | Created by 3-01-00 | ⬜ pending |
+| 3-01-03 | 01 | 1 | FILE-01 | unit | `npx vitest run tests/components/file-upload-zone.test.tsx -t "upload flow"` | Created by 3-01-00 | ⬜ pending |
+| 3-02-01 | 01 | 1 | FILE-06 | unit | `npx vitest run tests/actions/files.test.ts -t "ownership"` | Created by 3-01-00 | ⬜ pending |
+| 3-02-02 | 01 | 1 | FILE-06 | unit | `npx vitest run tests/actions/files.test.ts -t "delete"` | Created by 3-01-00 | ⬜ pending |
+| 3-02-03 | 01 | 1 | FILE-06 | unit | `npx vitest run tests/actions/files.test.ts -t "signed url"` | Created by 3-01-00 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,9 +52,9 @@ created: 2026-03-11
 
 ## Wave 0 Requirements
 
-- [ ] `tests/components/file-upload-zone.test.tsx` — stubs for FILE-01 upload UI
-- [ ] `tests/actions/files.test.ts` — stubs for FILE-06 server actions
-- [ ] Supabase client mock setup for storage operations
+- [ ] `tests/components/file-upload-zone.test.tsx` — stubs for FILE-01 upload UI (created by Plan 01, Task 0)
+- [ ] `tests/actions/files.test.ts` — stubs for FILE-06 server actions (created by Plan 01, Task 0)
+- [ ] Supabase client mock setup for storage operations (included in test stubs)
 
 ---
 
@@ -68,11 +69,11 @@ created: 2026-03-11
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
