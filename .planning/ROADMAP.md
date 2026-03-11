@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation & Auth** - Next.js shell with Supabase auth, database schema, and design system
 - [x] **Phase 2: Project Structure** - Project and job hierarchy for organizing survey work (completed 2026-03-10)
-- [ ] **Phase 3: File Upload & Storage** - Drag-and-drop upload to Supabase Storage with secure file management
+- [x] **Phase 3: File Upload & Storage** - Drag-and-drop upload to Supabase Storage with secure file management (completed 2026-03-11)
 - [ ] **Phase 4: Ingestion Pipeline** - Column auto-detection, mapping interface, and messy data handling
 - [ ] **Phase 5: Validation Engine** - Core rule-based checks and statistical anomaly detection with explainable flags
 - [ ] **Phase 6: Validation Profiles** - Default survey templates and configurable tolerance thresholds
@@ -180,7 +180,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 2/3 | In Progress|  |
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
-| 3. File Upload & Storage | 1/2 | In Progress|  |
+| 3. File Upload & Storage | 2/2 | Complete   | 2026-03-11 |
 | 4. Ingestion Pipeline | 0/2 | Not started | - |
 | 5. Validation Engine | 0/3 | Not started | - |
 | 6. Validation Profiles | 0/1 | Not started | - |

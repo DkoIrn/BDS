@@ -24,7 +24,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### File Handling
 
-- [ ] **FILE-01**: User can upload CSV and Excel files (up to 50MB) via drag-and-drop
+- [x] **FILE-01**: User can upload CSV and Excel files (up to 50MB) via drag-and-drop
 - [ ] **FILE-02**: System auto-detects column types (KP, DOB, DOC, TOP, easting, northing, etc.)
 - [ ] **FILE-03**: User can manually map/override column assignments via mapping interface
 - [ ] **FILE-04**: User can preview uploaded dataset before processing to confirm column mappings
@@ -135,7 +135,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-02 | Phase 2: Project Structure | Complete |
 | PROJ-03 | Phase 2: Project Structure | Complete |
 | PROJ-04 | Phase 2: Project Structure | Complete |
-| FILE-01 | Phase 3: File Upload & Storage | Pending |
+| FILE-01 | Phase 3: File Upload & Storage | Complete |
 | FILE-06 | Phase 3: File Upload & Storage | Complete |
 | FILE-02 | Phase 4: Ingestion Pipeline | Pending |
 | FILE-03 | Phase 4: Ingestion Pipeline | Pending |
