@@ -1,0 +1,11 @@
+[project]
+name = "surveyqc-backend"
+version = "0.1.0"
+description = "SurveyQC Validation API - AI Data QA & Validation Platform"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
