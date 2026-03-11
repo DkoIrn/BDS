@@ -79,11 +79,12 @@ Plans:
   2. User can manually override any column assignment via a mapping interface
   3. User can preview the parsed dataset with column mappings before triggering processing
   4. System successfully parses files with mixed encodings, BOM characters, and metadata header rows
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md -- Parsing engine: types, CSV/Excel parsers, header detection, column auto-detection (TDD)
+- [ ] 04-02-PLAN.md -- DB migration, parse API route, server actions, and auto-parse trigger
+- [ ] 04-03-PLAN.md -- File detail page with column mapping UI, data preview, and status badges
 
 ### Phase 5: Validation Engine
 **Goal**: The system can run core QC checks on survey data and produce explainable flags for every detected issue
@@ -181,7 +182,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 1. Foundation & Auth | 2/3 | In Progress|  |
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
 | 3. File Upload & Storage | 2/2 | Complete   | 2026-03-11 |
-| 4. Ingestion Pipeline | 0/2 | Not started | - |
+| 4. Ingestion Pipeline | 0/3 | Not started | - |
 | 5. Validation Engine | 0/3 | Not started | - |
 | 6. Validation Profiles | 0/1 | Not started | - |
 | 7. Async Processing | 0/2 | Not started | - |
