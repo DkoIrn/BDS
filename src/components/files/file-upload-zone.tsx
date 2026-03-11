@@ -202,6 +202,16 @@ export function FileUploadZone({
             : i
         )
       )
+
+      // Trigger auto-parse (fire-and-forget so subsequent uploads proceed)
+      fetch("/api/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ datasetId: result.id }),
+      }).catch(() => {
+        // Parse errors are handled server-side via dataset status
+      })
+      toast.info(`Parsing started for ${item.file.name}`)
     } catch (err) {
       if (controller.signal.aborted) return
 
