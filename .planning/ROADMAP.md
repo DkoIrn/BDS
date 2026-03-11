@@ -64,10 +64,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can drag-and-drop a CSV or Excel file (up to 50MB) onto the upload area and see it upload successfully
   2. Uploaded files are stored in Supabase Storage and tied to the user's account (other users cannot access them)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md -- Database migration, types, server actions for file storage foundation
+- [ ] 03-02-PLAN.md -- Job detail page with upload zone, file list, and file management UI
 
 ### Phase 4: Ingestion Pipeline
 **Goal**: The system can parse uploaded files, detect column types, and let users confirm or correct mappings before processing
@@ -179,7 +180,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 2/3 | In Progress|  |
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
-| 3. File Upload & Storage | 0/1 | Not started | - |
+| 3. File Upload & Storage | 0/2 | Not started | - |
 | 4. Ingestion Pipeline | 0/2 | Not started | - |
 | 5. Validation Engine | 0/3 | Not started | - |
 | 6. Validation Profiles | 0/1 | Not started | - |
