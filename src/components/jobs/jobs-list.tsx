@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -44,8 +45,15 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
       </TableHeader>
       <TableBody>
         {jobs.map((job) => (
-          <TableRow key={job.id}>
-            <TableCell className="font-medium">{job.name}</TableCell>
+          <TableRow key={job.id} className="cursor-pointer hover:bg-muted/50">
+            <TableCell className="font-medium">
+              <Link
+                href={`/projects/${job.project_id}/jobs/${job.id}`}
+                className="hover:text-primary hover:underline"
+              >
+                {job.name}
+              </Link>
+            </TableCell>
             <TableCell>
               <Badge variant="outline">{job.survey_type}</Badge>
             </TableCell>
