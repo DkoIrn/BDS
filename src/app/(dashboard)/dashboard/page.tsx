@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-10">
       {/* Hero greeting */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-secondary p-8 text-white sm:p-10">
+      <div className="relative animate-fade-up overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-secondary p-8 text-white sm:p-10">
         <div className="absolute -right-10 -top-10 size-40 rounded-full bg-white/10 blur-2xl" />
         <div className="absolute -bottom-8 -left-8 size-32 rounded-full bg-secondary/30 blur-2xl" />
         <div className="relative">
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick action cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid animate-fade-up gap-4 [animation-delay:150ms] [animation-fill-mode:backwards] sm:grid-cols-3">
         <QuickAction
           icon={Upload}
           title="Upload Data"

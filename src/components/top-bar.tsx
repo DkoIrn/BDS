@@ -91,7 +91,7 @@ export function TopBar({ user }: TopBarProps) {
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="bottom" sideOffset={8}>
+            <DropdownMenuContent align="end" side="bottom" sideOffset={8} className="min-w-56">
               <DropdownMenuGroup>
                 <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
               </DropdownMenuGroup>

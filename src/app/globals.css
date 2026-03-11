@@ -82,6 +82,21 @@
   --sidebar-ring: #1E3A8A;
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.5s ease-out;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
