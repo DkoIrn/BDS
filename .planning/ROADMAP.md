@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Foundation & Auth** - Next.js shell with Supabase auth, database schema, and design system
 - [x] **Phase 2: Project Structure** - Project and job hierarchy for organizing survey work (completed 2026-03-10)
 - [x] **Phase 3: File Upload & Storage** - Drag-and-drop upload to Supabase Storage with secure file management (completed 2026-03-11)
-- [ ] **Phase 4: Ingestion Pipeline** - Column auto-detection, mapping interface, and messy data handling
+- [x] **Phase 4: Ingestion Pipeline** - Column auto-detection, mapping interface, and messy data handling (completed 2026-03-11)
 - [ ] **Phase 5: Validation Engine** - Core rule-based checks and statistical anomaly detection with explainable flags
 - [ ] **Phase 6: Validation Profiles** - Default survey templates and configurable tolerance thresholds
 - [ ] **Phase 7: Async Processing** - Background job execution with status tracking and notifications
@@ -79,7 +79,7 @@ Plans:
   2. User can manually override any column assignment via a mapping interface
   3. User can preview the parsed dataset with column mappings before triggering processing
   4. System successfully parses files with mixed encodings, BOM characters, and metadata header rows
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 04-01-PLAN.md -- Parsing engine: types, CSV/Excel parsers, header detection, column auto-detection (TDD)
@@ -182,7 +182,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 1. Foundation & Auth | 2/3 | In Progress|  |
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
 | 3. File Upload & Storage | 2/2 | Complete   | 2026-03-11 |
-| 4. Ingestion Pipeline | 1/3 | In Progress|  |
+| 4. Ingestion Pipeline | 3/3 | Complete   | 2026-03-11 |
 | 5. Validation Engine | 0/3 | Not started | - |
 | 6. Validation Profiles | 0/1 | Not started | - |
 | 7. Async Processing | 0/2 | Not started | - |

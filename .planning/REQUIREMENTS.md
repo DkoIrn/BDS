@@ -26,8 +26,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **FILE-01**: User can upload CSV and Excel files (up to 50MB) via drag-and-drop
 - [x] **FILE-02**: System auto-detects column types (KP, DOB, DOC, TOP, easting, northing, etc.)
-- [ ] **FILE-03**: User can manually map/override column assignments via mapping interface
-- [ ] **FILE-04**: User can preview uploaded dataset before processing to confirm column mappings
+- [x] **FILE-03**: User can manually map/override column assignments via mapping interface
+- [x] **FILE-04**: User can preview uploaded dataset before processing to confirm column mappings
 - [ ] **FILE-05**: User can download cleaned/annotated dataset as CSV or Excel
 - [x] **FILE-06**: Files are stored securely in Supabase Storage tied to user account
 
@@ -138,8 +138,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FILE-01 | Phase 3: File Upload & Storage | Complete |
 | FILE-06 | Phase 3: File Upload & Storage | Complete |
 | FILE-02 | Phase 4: Ingestion Pipeline | Complete |
-| FILE-03 | Phase 4: Ingestion Pipeline | Pending |
-| FILE-04 | Phase 4: Ingestion Pipeline | Pending |
+| FILE-03 | Phase 4: Ingestion Pipeline | Complete |
+| FILE-04 | Phase 4: Ingestion Pipeline | Complete |
 | PROC-03 | Phase 4: Ingestion Pipeline | Complete |
 | VALE-01 | Phase 5: Validation Engine | Pending |
 | VALE-02 | Phase 5: Validation Engine | Pending |
