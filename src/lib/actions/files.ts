@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import type { Dataset } from '@/lib/types/files'
+import type { Dataset, DatasetStatus } from '@/lib/types/files'
+import type { ColumnMapping } from '@/lib/parsing/types'
 
 export async function createFileRecord(data: {
   jobId: string
@@ -174,4 +175,65 @@ export async function getJobFiles(
   }
 
   return { data: datasets as Dataset[] }
+}
+
+export async function updateDatasetStatus(
+  datasetId: string,
+  status: DatasetStatus,
+  extra?: Partial<Pick<Dataset, 'parsed_metadata' | 'column_mappings' | 'header_row_index' | 'total_rows' | 'parse_warnings'>>
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { error } = await supabase
+    .from('datasets')
+    .update({ status, ...extra })
+    .eq('id', datasetId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  // Revalidate to reflect status changes in the UI
+  revalidatePath('/projects')
+  return { success: true }
+}
+
+export async function saveColumnMappings(
+  datasetId: string,
+  mappings: ColumnMapping[]
+): Promise<{ success: true } | { error: string }> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { error } = await supabase
+    .from('datasets')
+    .update({
+      column_mappings: mappings as unknown as Record<string, unknown>[],
+      status: 'mapped' as DatasetStatus,
+    })
+    .eq('id', datasetId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/projects')
+  return { success: true }
 }

@@ -1,8 +1,20 @@
+import type { ColumnMapping, DetectedColumn } from '@/lib/parsing/types'
+
 /** Status of a dataset record in the database */
-export type DatasetStatus = 'uploaded'
+export type DatasetStatus = 'uploaded' | 'parsing' | 'parsed' | 'mapped' | 'error'
 
 /** Client-side state machine for file upload progress */
 export type FileUploadStatus = 'queued' | 'uploading' | 'uploaded' | 'failed' | 'cancelled'
+
+/** Parsed metadata stored as JSONB on the dataset record */
+export interface ParsedMetadata {
+  delimiter?: string
+  encoding?: string
+  sheetName?: string
+  sheetNames?: string[]
+  originalColumnCount: number
+  detectedStartRow: number
+}
 
 /** Dataset record matching the datasets table schema */
 export interface Dataset {
@@ -14,6 +26,11 @@ export interface Dataset {
   mime_type: string
   storage_path: string
   status: DatasetStatus
+  parsed_metadata: ParsedMetadata | null
+  column_mappings: ColumnMapping[] | null
+  header_row_index: number
+  total_rows: number | null
+  parse_warnings: string[] | null
   created_at: string
   updated_at: string
 }
@@ -36,3 +53,6 @@ export const ACCEPTED_FILE_TYPES: Record<string, string[]> = {
 
 /** Maximum file size in bytes (50MB) */
 export const MAX_FILE_SIZE = 50 * 1024 * 1024
+
+// Re-export parsing types used in the API layer
+export type { ColumnMapping, DetectedColumn }
