@@ -38,6 +38,9 @@ const statusVariantMap: Record<
   parsing: "default",
   parsed: "outline",
   mapped: "default",
+  validating: "default",
+  validated: "outline",
+  validation_error: "destructive",
   error: "destructive",
 }
 

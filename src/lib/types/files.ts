@@ -1,7 +1,7 @@
 import type { ColumnMapping, DetectedColumn } from '@/lib/parsing/types'
 
 /** Status of a dataset record in the database */
-export type DatasetStatus = 'uploaded' | 'parsing' | 'parsed' | 'mapped' | 'error'
+export type DatasetStatus = 'uploaded' | 'parsing' | 'parsed' | 'mapped' | 'validating' | 'validated' | 'validation_error' | 'error'
 
 /** Client-side state machine for file upload progress */
 export type FileUploadStatus = 'queued' | 'uploading' | 'uploaded' | 'failed' | 'cancelled'
