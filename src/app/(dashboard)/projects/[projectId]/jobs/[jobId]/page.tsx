@@ -130,7 +130,7 @@ export default async function JobDetailPage({
               userId={user.id}
               existingFiles={initialFiles}
             />
-            <FileList files={initialFiles} jobId={jobId} />
+            <FileList files={initialFiles} jobId={jobId} projectId={projectId} />
           </div>
         </TabsContent>
 
