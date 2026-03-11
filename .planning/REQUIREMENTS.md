@@ -33,11 +33,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Validation Engine
 
-- [ ] **VALE-01**: System performs range and tolerance checks against configurable thresholds
-- [ ] **VALE-02**: System detects missing data points, null cells, and KP coverage gaps
-- [ ] **VALE-03**: System detects duplicate rows and near-duplicate KP entries
-- [ ] **VALE-04**: System detects statistical outliers using z-score and IQR methods
-- [ ] **VALE-05**: System validates monotonicity of KP values and logical event sequencing
+- [x] **VALE-01**: System performs range and tolerance checks against configurable thresholds
+- [x] **VALE-02**: System detects missing data points, null cells, and KP coverage gaps
+- [x] **VALE-03**: System detects duplicate rows and near-duplicate KP entries
+- [x] **VALE-04**: System detects statistical outliers using z-score and IQR methods
+- [x] **VALE-05**: System validates monotonicity of KP values and logical event sequencing
 - [ ] **VALE-06**: System provides default validation templates for DOB, DOC, and TOP survey types
 - [x] **VALE-07**: Every flagged issue includes a plain-English explanation of why it was flagged
 - [ ] **VALE-08**: User can configure tolerance thresholds for QC checks (e.g., DOC/DOB limits)
@@ -141,11 +141,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FILE-03 | Phase 4: Ingestion Pipeline | Complete |
 | FILE-04 | Phase 4: Ingestion Pipeline | Complete |
 | PROC-03 | Phase 4: Ingestion Pipeline | Complete |
-| VALE-01 | Phase 5: Validation Engine | Pending |
-| VALE-02 | Phase 5: Validation Engine | Pending |
-| VALE-03 | Phase 5: Validation Engine | Pending |
-| VALE-04 | Phase 5: Validation Engine | Pending |
-| VALE-05 | Phase 5: Validation Engine | Pending |
+| VALE-01 | Phase 5: Validation Engine | Complete |
+| VALE-02 | Phase 5: Validation Engine | Complete |
+| VALE-03 | Phase 5: Validation Engine | Complete |
+| VALE-04 | Phase 5: Validation Engine | Complete |
+| VALE-05 | Phase 5: Validation Engine | Complete |
 | VALE-07 | Phase 5: Validation Engine | Complete |
 | VALE-06 | Phase 6: Validation Profiles | Pending |
 | VALE-08 | Phase 6: Validation Profiles | Pending |

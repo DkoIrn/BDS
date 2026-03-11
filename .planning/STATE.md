@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-03-11T17:07:08Z"
-last_activity: 2026-03-11 -- Plan 05-02 complete
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-11T17:19:00Z"
+last_activity: 2026-03-11 -- Plan 05-01 complete
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 13
-  completed_plans: 10
-  percent: 77
+  completed_plans: 11
+  percent: 85
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 5 of 10 (Validation Engine)
-Plan: 2 of 3 in current phase
+Plan: 2 of 3 in current phase (05-01 and 05-02 complete)
 Status: In Progress
-Last activity: 2026-03-11 -- Plan 05-02 complete
+Last activity: 2026-03-11 -- Plan 05-01 complete
 
-Progress: [████████░░] 77%
+Progress: [████████░░] 85%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 6min
-- Total execution time: 0.98 hours
+- Total execution time: 1.21 hours
 
 **By Phase:**
 
@@ -47,11 +47,11 @@ Progress: [████████░░] 77%
 | 02-project-structure | 2/2 | 8min | 4min |
 | 03-file-upload-storage | 2/2 | 11min | 5.5min |
 | 04-ingestion-pipeline | 3/3 | 11min | 3.7min |
-| 05-validation-engine | 1/3 | 2min | 2min |
+| 05-validation-engine | 2/3 | 16min | 8min |
 
 **Recent Trend:**
-- Last 5 plans: 03-02 (7min), 04-01 (4min), 04-02 (4min), 04-03 (3min), 05-02 (2min)
-- Trend: Stable ~2-7min/plan
+- Last 5 plans: 04-01 (4min), 04-02 (4min), 04-03 (3min), 05-02 (2min), 05-01 (14min)
+- Trend: Variable ~2-14min/plan
 
 *Updated after each plan completion*
 
@@ -89,6 +89,10 @@ Recent decisions affecting current work:
 - Confidence badges: green (high), yellow (medium), gray (low) using Badge component
 - FastAPI proxy: API route handles auth/ownership, delegates to FastAPI, does not set validated status (FastAPI does)
 - Severity sorting: client-side sort in server action since Supabase order() lacks custom ordinals
+- Validators: Pure functions over classes -- simpler to test and compose, no state
+- KP gaps: Dynamic threshold (median*3) adapts to each dataset's KP density
+- Range defaults: Generous thresholds (DOB/DOC: 0-10m, depth: 0-500m) to avoid false positives
+- FastAPI endpoints: Sync def (not async def) for supabase-py compatibility
 
 ### Pending Todos
 
@@ -102,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T17:07:08Z
-Stopped at: Completed 05-02-PLAN.md
-Resume file: .planning/phases/05-validation-engine/05-02-SUMMARY.md
+Last session: 2026-03-11T17:19:00Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: .planning/phases/05-validation-engine/05-01-SUMMARY.md
