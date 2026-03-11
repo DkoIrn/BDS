@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, MoreHorizontal, Trash2 } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -11,7 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { ProjectStatusBadge } from "@/components/projects/project-status-badge"
+import { DeleteProjectDialog } from "@/components/projects/delete-project-dialog"
 import type { Project } from "@/lib/types/projects"
 
 type SortColumn = "name" | "status" | "jobs" | "updated_at"
@@ -32,6 +40,7 @@ function formatDate(dateStr: string): string {
 export function ProjectsTable({ projects }: { projects: Project[] }) {
   const [sortColumn, setSortColumn] = useState<SortColumn>("updated_at")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   function handleSort(column: SortColumn) {
     if (sortColumn === column) {
@@ -69,6 +78,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
   }
 
   return (
+    <>
     <Table>
       <TableHeader>
         <TableRow>
@@ -100,6 +110,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
             Last Updated
             <SortIcon column="updated_at" />
           </TableHead>
+          <TableHead className="w-10" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -122,9 +133,40 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
             <TableCell className="text-right text-muted-foreground">
               {formatDate(project.updated_at)}
             </TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="ghost" size="icon" className="size-8" />
+                  }
+                >
+                  <MoreHorizontal className="size-4" />
+                  <span className="sr-only">Actions</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => setDeleteTarget({ id: project.id, name: project.name })}
+                  >
+                    <Trash2 className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
+
+    {deleteTarget && (
+      <DeleteProjectDialog
+        projectId={deleteTarget.id}
+        projectName={deleteTarget.name}
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
+      />
+    )}
+    </>
   )
 }

@@ -86,3 +86,51 @@ export async function createJob(
   revalidatePath(`/projects/${projectId}`)
   return { success: true }
 }
+
+export async function deleteProject(projectId: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  // Verify ownership
+  const { data: project } = await supabase
+    .from('projects')
+    .select('id, user_id')
+    .eq('id', projectId)
+    .single()
+
+  if (!project || project.user_id !== user.id) {
+    return { error: 'Project not found' }
+  }
+
+  // Delete all files from storage for jobs in this project
+  const { data: datasets } = await supabase
+    .from('datasets')
+    .select('storage_path, job_id, jobs!inner(project_id)')
+    .eq('jobs.project_id', projectId)
+
+  if (datasets && datasets.length > 0) {
+    const paths = datasets.map((d) => d.storage_path)
+    await supabase.storage.from('datasets').remove(paths)
+  }
+
+  // Cascade delete handled by DB foreign keys (jobs → datasets)
+  // Just delete the project
+  const { error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', projectId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/projects')
+  return { success: true }
+}
