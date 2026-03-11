@@ -96,12 +96,12 @@ Plans:
   3. System detects duplicate rows and near-duplicate KP entries
   4. System identifies statistical outliers using z-score and IQR methods
   5. Every flagged issue includes a plain-English explanation stating what failed, the expected value or range, and the actual value found
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md -- FastAPI backend scaffold with TDD validators (range, missing data, duplicates, outliers, monotonicity)
+- [ ] 05-02-PLAN.md -- Database migration for validation tables, TypeScript types, and Next.js API proxy route
+- [ ] 05-03-PLAN.md -- Frontend Run QC button, progress/summary UI, Railway deployment, and end-to-end verification
 
 ### Phase 6: Validation Profiles
 **Goal**: Users can select survey-type templates and configure tolerance thresholds for their QC checks
