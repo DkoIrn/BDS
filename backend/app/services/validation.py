@@ -1,6 +1,41 @@
 import pandas as pd
 
 from app.validators.base import ValidationIssue
+from app.validators.range_check import check_range
+from app.validators.missing_data import check_missing_data, check_kp_gaps
+from app.validators.duplicates import check_duplicate_rows, check_near_duplicate_kp
+from app.validators.outliers import check_outliers_zscore, check_outliers_iqr
+from app.validators.monotonicity import check_monotonicity
+
+
+# Column types that are numeric and should be validated
+NUMERIC_COLUMN_TYPES = {
+    "dob", "doc", "depth", "top", "elevation",
+    "easting", "northing", "latitude", "longitude",
+}
+
+# Default range thresholds per column type (generous defaults)
+DEFAULT_THRESHOLDS: dict[str, dict[str, float]] = {
+    "dob": {"min": 0, "max": 10},
+    "doc": {"min": 0, "max": 10},
+    "depth": {"min": 0, "max": 500},
+}
+
+
+def _find_kp_column(column_mappings: list[dict]) -> str | None:
+    """Find the KP column name from mappings."""
+    for m in column_mappings:
+        if m.get("mappedType") == "kp" and not m.get("ignored", False):
+            return m.get("originalName", "kp")
+    return None
+
+
+def _get_mapped_columns(column_mappings: list[dict]) -> list[dict]:
+    """Get non-ignored mapped columns."""
+    return [
+        m for m in column_mappings
+        if m.get("mappedType") and not m.get("ignored", False)
+    ]
 
 
 def run_validation_pipeline(
@@ -9,4 +44,68 @@ def run_validation_pipeline(
     config: dict,
 ) -> list[ValidationIssue]:
     """Run all validation checks and return aggregated issues."""
-    return []
+    all_issues: list[ValidationIssue] = []
+    kp_column = _find_kp_column(column_mappings)
+
+    # Per-column checks for numeric mapped columns
+    for mapping in _get_mapped_columns(column_mappings):
+        col_type = mapping.get("mappedType")
+        col_name = mapping.get("originalName", col_type)
+
+        if col_type not in NUMERIC_COLUMN_TYPES:
+            continue
+
+        if col_name not in df.columns:
+            continue
+
+        # Range check (if thresholds configured)
+        threshold_key_min = f"{col_type}_min"
+        threshold_key_max = f"{col_type}_max"
+        if threshold_key_min in config and threshold_key_max in config:
+            all_issues.extend(
+                check_range(
+                    df, col_name,
+                    min_val=config[threshold_key_min],
+                    max_val=config[threshold_key_max],
+                    tolerance=config.get(f"{col_type}_tolerance", 0.0),
+                    kp_column=kp_column,
+                )
+            )
+        elif col_type in DEFAULT_THRESHOLDS:
+            defaults = DEFAULT_THRESHOLDS[col_type]
+            all_issues.extend(
+                check_range(
+                    df, col_name,
+                    min_val=defaults["min"],
+                    max_val=defaults["max"],
+                    kp_column=kp_column,
+                )
+            )
+
+        # Missing data check
+        all_issues.extend(check_missing_data(df, col_name, kp_column=kp_column))
+
+        # Outlier checks
+        zscore_threshold = config.get("zscore_threshold", 3.0)
+        iqr_multiplier = config.get("iqr_multiplier", 1.5)
+        all_issues.extend(
+            check_outliers_zscore(df, col_name, threshold=zscore_threshold, kp_column=kp_column)
+        )
+        all_issues.extend(
+            check_outliers_iqr(df, col_name, multiplier=iqr_multiplier, kp_column=kp_column)
+        )
+
+    # KP-specific checks
+    if kp_column and kp_column in df.columns:
+        kp_gap_max = config.get("kp_gap_max")
+        all_issues.extend(check_kp_gaps(df, kp_column, max_gap=kp_gap_max))
+        all_issues.extend(check_monotonicity(df, kp_column))
+        duplicate_kp_tolerance = config.get("duplicate_kp_tolerance", 0.001)
+        all_issues.extend(
+            check_near_duplicate_kp(df, kp_column, tolerance=duplicate_kp_tolerance)
+        )
+
+    # Duplicate row check (always)
+    all_issues.extend(check_duplicate_rows(df, kp_column=kp_column))
+
+    return all_issues
