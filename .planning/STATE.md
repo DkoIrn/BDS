@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: completed
 stopped_at: Phase 4 context gathered
-last_updated: "2026-03-11T02:19:33.444Z"
+last_updated: "2026-03-11T03:07:12.189Z"
 last_activity: 2026-03-11 -- Plan 03-02 complete
 progress:
   total_phases: 10
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 6
+  total_plans: 10
+  completed_plans: 7
   percent: 86
 ---
 
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 3: File Upload & Storage
+**Current focus:** Phase 4: Ingestion Pipeline
 
 ## Current Position
 
-Phase: 3 of 10 (File Upload & Storage)
-Plan: 2 of 2 in current phase
-Status: Phase Complete
-Last activity: 2026-03-11 -- Plan 03-02 complete
+Phase: 4 of 10 (Ingestion Pipeline)
+Plan: 1 of 3 in current phase
+Status: In Progress
+Last activity: 2026-03-11 -- Plan 04-01 complete
 
-Progress: [█████████░] 86%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
+- Total plans completed: 7
 - Average duration: 6min
-- Total execution time: 0.7 hours
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
@@ -46,10 +46,11 @@ Progress: [█████████░] 86%
 | 01-foundation-auth | 2/3 | 18min | 9min |
 | 02-project-structure | 2/2 | 8min | 4min |
 | 03-file-upload-storage | 2/2 | 11min | 5.5min |
+| 04-ingestion-pipeline | 1/3 | 4min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (4min), 02-01 (5min), 02-02 (3min), 03-01 (4min), 03-02 (7min)
-- Trend: Stable ~4-7min/plan
+- Last 5 plans: 02-01 (5min), 02-02 (3min), 03-01 (4min), 03-02 (7min), 04-01 (4min)
+- Trend: Stable ~3-7min/plan
 
 *Updated after each plan completion*
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - Download URLs: Signed URLs with 5-minute (300s) expiry
 - Upload UI: react-dropzone for drag-and-drop, sequential upload with AbortController cancel
 - DropdownMenuTrigger: base-ui uses render prop pattern (not asChild) for custom trigger elements
+- Parsing: PapaParse with header:false for raw string[][] output, SheetJS raw:false with defval:'' for consistent strings
+- Column detection: Confidence scoring (high=name+data, medium=name only, low=data only) with 14 survey column types
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11T02:19:33.416Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-ingestion-pipeline/04-CONTEXT.md
+Last session: 2026-03-11T03:00:27Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-ingestion-pipeline/04-01-SUMMARY.md

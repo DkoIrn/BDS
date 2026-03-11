@@ -25,7 +25,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### File Handling
 
 - [x] **FILE-01**: User can upload CSV and Excel files (up to 50MB) via drag-and-drop
-- [ ] **FILE-02**: System auto-detects column types (KP, DOB, DOC, TOP, easting, northing, etc.)
+- [x] **FILE-02**: System auto-detects column types (KP, DOB, DOC, TOP, easting, northing, etc.)
 - [ ] **FILE-03**: User can manually map/override column assignments via mapping interface
 - [ ] **FILE-04**: User can preview uploaded dataset before processing to confirm column mappings
 - [ ] **FILE-05**: User can download cleaned/annotated dataset as CSV or Excel
@@ -46,7 +46,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **PROC-01**: Processing runs asynchronously — user uploads and is notified when complete
 - [ ] **PROC-02**: User can see processing status (queued, processing, complete, failed)
-- [ ] **PROC-03**: Processing handles messy real-world data (mixed encodings, BOM chars, metadata rows)
+- [x] **PROC-03**: Processing handles messy real-world data (mixed encodings, BOM chars, metadata rows)
 
 ### Dashboard & Reports
 
@@ -137,10 +137,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-04 | Phase 2: Project Structure | Complete |
 | FILE-01 | Phase 3: File Upload & Storage | Complete |
 | FILE-06 | Phase 3: File Upload & Storage | Complete |
-| FILE-02 | Phase 4: Ingestion Pipeline | Pending |
+| FILE-02 | Phase 4: Ingestion Pipeline | Complete |
 | FILE-03 | Phase 4: Ingestion Pipeline | Pending |
 | FILE-04 | Phase 4: Ingestion Pipeline | Pending |
-| PROC-03 | Phase 4: Ingestion Pipeline | Pending |
+| PROC-03 | Phase 4: Ingestion Pipeline | Complete |
 | VALE-01 | Phase 5: Validation Engine | Pending |
 | VALE-02 | Phase 5: Validation Engine | Pending |
 | VALE-03 | Phase 5: Validation Engine | Pending |
