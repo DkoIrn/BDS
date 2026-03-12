@@ -220,6 +220,8 @@ export function FileDetailView({
         completeness_score: null,
         status: data.status,
         created_at: new Date().toISOString(),
+        config_snapshot: null,
+        profile_id: null,
       })
       setDatasetStatus("validated")
       toast.success("Validation complete")
