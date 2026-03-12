@@ -87,8 +87,12 @@ export function ThresholdEditor({
     [config, onChange]
   )
 
-  const relevantRanges = Object.keys(config.ranges).filter((col) =>
+  // Show mapped ranges first, then remaining ranges from config
+  const mappedRanges = Object.keys(config.ranges).filter((col) =>
     mappedColumnTypes.includes(col)
+  )
+  const otherRanges = Object.keys(config.ranges).filter(
+    (col) => !mappedColumnTypes.includes(col)
   )
 
   return (
@@ -102,19 +106,23 @@ export function ThresholdEditor({
       </div>
 
       {/* Range Thresholds */}
-      {relevantRanges.length > 0 && (
+      {(mappedRanges.length > 0 || otherRanges.length > 0) && (
         <div className="space-y-3">
           <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             Range Thresholds
           </h4>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {relevantRanges.map((colType) => {
+            {[...mappedRanges, ...otherRanges].map((colType) => {
               const range = config.ranges[colType]
               const label = COLUMN_LABELS[colType] ?? colType
               const errKey = `range_${colType}`
+              const isMapped = mappedColumnTypes.includes(colType)
               return (
-                <div key={colType} className="space-y-1.5">
-                  <Label className="text-xs">{label}</Label>
+                <div key={colType} className={`space-y-1.5 ${!isMapped ? "opacity-50" : ""}`}>
+                  <Label className="text-xs">
+                    {label}
+                    {!isMapped && <span className="ml-1 text-muted-foreground">(not mapped)</span>}
+                  </Label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
