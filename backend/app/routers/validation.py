@@ -5,7 +5,8 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 
 from app.dependencies import get_supabase_client
-from app.models.schemas import ValidateRequest, ValidateResponse
+from app.models.schemas import ProfileConfig, ValidateRequest, ValidateResponse
+from app.services.templates import resolve_config
 from app.services.validation import run_validation_pipeline
 from app.validators.base import Severity
 
@@ -66,17 +67,10 @@ def validate_dataset(request: ValidateRequest):
             if col in numeric_types:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
 
-        # Run validation pipeline with default config
-        config = {
-            "dob_min": 0, "dob_max": 10,
-            "doc_min": 0, "doc_max": 10,
-            "depth_min": 0, "depth_max": 500,
-            "kp_gap_max": 0.1,
-            "duplicate_kp_tolerance": 0.001,
-            "zscore_threshold": 3.0,
-            "iqr_multiplier": 1.5,
-        }
-        issues = run_validation_pipeline(df, mappings, config)
+        # Resolve validation config from request (or use General Survey defaults)
+        profile_config = request.config or ProfileConfig()
+        flat_config, enabled_checks = resolve_config(profile_config)
+        issues = run_validation_pipeline(df, mappings, flat_config, enabled_checks=enabled_checks)
 
         # Count by severity
         critical_count = sum(1 for i in issues if i.severity == Severity.CRITICAL)
@@ -89,7 +83,7 @@ def validate_dataset(request: ValidateRequest):
         rows_with_critical = len(set(i.row_number for i in issues if i.severity == Severity.CRITICAL))
         pass_rate = ((total_rows - rows_with_critical) / total_rows * 100) if total_rows > 0 else 100.0
 
-        # Create validation run record
+        # Create validation run record with config snapshot
         run_id = str(uuid.uuid4())
         supabase.table("validation_runs").insert({
             "id": run_id,
@@ -100,6 +94,7 @@ def validate_dataset(request: ValidateRequest):
             "info_count": info_count,
             "pass_rate": pass_rate,
             "status": "completed",
+            "config_snapshot": profile_config.model_dump(),
         }).execute()
 
         # Batch insert validation issues

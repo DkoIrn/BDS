@@ -42,9 +42,18 @@ def run_validation_pipeline(
     df: pd.DataFrame,
     column_mappings: list[dict],
     config: dict,
+    enabled_checks: dict | None = None,
 ) -> list[ValidationIssue]:
-    """Run all validation checks and return aggregated issues."""
+    """Run all validation checks and return aggregated issues.
+
+    Args:
+        enabled_checks: Optional dict of check toggles. When None, all checks
+            run (backward compatible). Keys: range_check, missing_data,
+            duplicate_rows, near_duplicate_kp, outliers_zscore, outliers_iqr,
+            kp_gaps, monotonicity.
+    """
     all_issues: list[ValidationIssue] = []
+    checks = enabled_checks or {}
     kp_column = _find_kp_column(column_mappings)
 
     # Per-column checks for numeric mapped columns
@@ -58,54 +67,62 @@ def run_validation_pipeline(
         if col_name not in df.columns:
             continue
 
-        # Range check (if thresholds configured)
-        threshold_key_min = f"{col_type}_min"
-        threshold_key_max = f"{col_type}_max"
-        if threshold_key_min in config and threshold_key_max in config:
-            all_issues.extend(
-                check_range(
-                    df, col_name,
-                    min_val=config[threshold_key_min],
-                    max_val=config[threshold_key_max],
-                    tolerance=config.get(f"{col_type}_tolerance", 0.0),
-                    kp_column=kp_column,
+        # Range check (if thresholds configured and check enabled)
+        if checks.get("range_check", True):
+            threshold_key_min = f"{col_type}_min"
+            threshold_key_max = f"{col_type}_max"
+            if threshold_key_min in config and threshold_key_max in config:
+                all_issues.extend(
+                    check_range(
+                        df, col_name,
+                        min_val=config[threshold_key_min],
+                        max_val=config[threshold_key_max],
+                        tolerance=config.get(f"{col_type}_tolerance", 0.0),
+                        kp_column=kp_column,
+                    )
                 )
-            )
-        elif col_type in DEFAULT_THRESHOLDS:
-            defaults = DEFAULT_THRESHOLDS[col_type]
-            all_issues.extend(
-                check_range(
-                    df, col_name,
-                    min_val=defaults["min"],
-                    max_val=defaults["max"],
-                    kp_column=kp_column,
+            elif col_type in DEFAULT_THRESHOLDS:
+                defaults = DEFAULT_THRESHOLDS[col_type]
+                all_issues.extend(
+                    check_range(
+                        df, col_name,
+                        min_val=defaults["min"],
+                        max_val=defaults["max"],
+                        kp_column=kp_column,
+                    )
                 )
-            )
 
         # Missing data check
-        all_issues.extend(check_missing_data(df, col_name, kp_column=kp_column))
+        if checks.get("missing_data", True):
+            all_issues.extend(check_missing_data(df, col_name, kp_column=kp_column))
 
         # Outlier checks
-        zscore_threshold = config.get("zscore_threshold", 3.0)
-        iqr_multiplier = config.get("iqr_multiplier", 1.5)
-        all_issues.extend(
-            check_outliers_zscore(df, col_name, threshold=zscore_threshold, kp_column=kp_column)
-        )
-        all_issues.extend(
-            check_outliers_iqr(df, col_name, multiplier=iqr_multiplier, kp_column=kp_column)
-        )
+        if checks.get("outliers_zscore", True):
+            zscore_threshold = config.get("zscore_threshold", 3.0)
+            all_issues.extend(
+                check_outliers_zscore(df, col_name, threshold=zscore_threshold, kp_column=kp_column)
+            )
+        if checks.get("outliers_iqr", True):
+            iqr_multiplier = config.get("iqr_multiplier", 1.5)
+            all_issues.extend(
+                check_outliers_iqr(df, col_name, multiplier=iqr_multiplier, kp_column=kp_column)
+            )
 
     # KP-specific checks
     if kp_column and kp_column in df.columns:
-        kp_gap_max = config.get("kp_gap_max")
-        all_issues.extend(check_kp_gaps(df, kp_column, max_gap=kp_gap_max))
-        all_issues.extend(check_monotonicity(df, kp_column))
-        duplicate_kp_tolerance = config.get("duplicate_kp_tolerance", 0.001)
-        all_issues.extend(
-            check_near_duplicate_kp(df, kp_column, tolerance=duplicate_kp_tolerance)
-        )
+        if checks.get("kp_gaps", True):
+            kp_gap_max = config.get("kp_gap_max")
+            all_issues.extend(check_kp_gaps(df, kp_column, max_gap=kp_gap_max))
+        if checks.get("monotonicity", True):
+            all_issues.extend(check_monotonicity(df, kp_column))
+        if checks.get("near_duplicate_kp", True):
+            duplicate_kp_tolerance = config.get("duplicate_kp_tolerance", 0.001)
+            all_issues.extend(
+                check_near_duplicate_kp(df, kp_column, tolerance=duplicate_kp_tolerance)
+            )
 
-    # Duplicate row check (always)
-    all_issues.extend(check_duplicate_rows(df, kp_column=kp_column))
+    # Duplicate row check
+    if checks.get("duplicate_rows", True):
+        all_issues.extend(check_duplicate_rows(df, kp_column=kp_column))
 
     return all_issues
