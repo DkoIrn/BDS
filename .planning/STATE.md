@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-12T04:26:40.437Z"
-last_activity: 2026-03-11 -- Plan 05-01 complete
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-03-12T04:53:53.687Z"
+last_activity: 2026-03-12 -- Plan 06-02 complete
 progress:
   total_phases: 10
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 12
-  percent: 85
+  total_plans: 16
+  completed_plans: 14
+  percent: 87
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 5: Validation Engine
+**Current focus:** Phase 6: Validation Profiles
 
 ## Current Position
 
-Phase: 5 of 10 (Validation Engine)
-Plan: 2 of 3 in current phase (05-01 and 05-02 complete)
+Phase: 6 of 10 (Validation Profiles)
+Plan: 2 of 4 in current phase (06-01 and 06-02 complete)
 Status: In Progress
-Last activity: 2026-03-11 -- Plan 05-01 complete
+Last activity: 2026-03-12 -- Plan 06-02 complete
 
-Progress: [████████░░] 85%
+Progress: [████████░░] 87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 13
 - Average duration: 6min
-- Total execution time: 1.21 hours
+- Total execution time: 1.28 hours
 
 **By Phase:**
 
@@ -48,9 +48,10 @@ Progress: [████████░░] 85%
 | 03-file-upload-storage | 2/2 | 11min | 5.5min |
 | 04-ingestion-pipeline | 3/3 | 11min | 3.7min |
 | 05-validation-engine | 2/3 | 16min | 8min |
+| 06-validation-profiles | 2/4 | 4min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (4min), 04-02 (4min), 04-03 (3min), 05-02 (2min), 05-01 (14min)
+- Last 5 plans: 04-02 (4min), 04-03 (3min), 05-02 (2min), 05-01 (14min), 06-02 (2min)
 - Trend: Variable ~2-14min/plan
 
 *Updated after each plan completion*
@@ -93,6 +94,9 @@ Recent decisions affecting current work:
 - KP gaps: Dynamic threshold (median*3) adapts to each dataset's KP density
 - Range defaults: Generous thresholds (DOB/DOC: 0-10m, depth: 0-500m) to avoid false positives
 - FastAPI endpoints: Sync def (not async def) for supabase-py compatibility
+- Validation templates: Typed constants with `as const satisfies` for compile-time safety
+- Profile config: JSONB cast via unknown for Supabase insert compatibility (same pattern as column_mappings)
+- EnabledChecks: Separate interface for reuse in reset/default functionality
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T04:26:40.431Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-validation-profiles/06-CONTEXT.md
+Last session: 2026-03-12T04:52:22Z
+Stopped at: Completed 06-02-PLAN.md
+Resume file: .planning/phases/06-validation-profiles/06-02-SUMMARY.md

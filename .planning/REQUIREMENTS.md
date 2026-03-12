@@ -38,9 +38,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **VALE-03**: System detects duplicate rows and near-duplicate KP entries
 - [x] **VALE-04**: System detects statistical outliers using z-score and IQR methods
 - [x] **VALE-05**: System validates monotonicity of KP values and logical event sequencing
-- [ ] **VALE-06**: System provides default validation templates for DOB, DOC, and TOP survey types
+- [x] **VALE-06**: System provides default validation templates for DOB, DOC, and TOP survey types
 - [x] **VALE-07**: Every flagged issue includes a plain-English explanation of why it was flagged
-- [ ] **VALE-08**: User can configure tolerance thresholds for QC checks (e.g., DOC/DOB limits)
+- [x] **VALE-08**: User can configure tolerance thresholds for QC checks (e.g., DOC/DOB limits)
 
 ### Processing
 
@@ -147,8 +147,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VALE-04 | Phase 5: Validation Engine | Complete |
 | VALE-05 | Phase 5: Validation Engine | Complete |
 | VALE-07 | Phase 5: Validation Engine | Complete |
-| VALE-06 | Phase 6: Validation Profiles | Pending |
-| VALE-08 | Phase 6: Validation Profiles | Pending |
+| VALE-06 | Phase 6: Validation Profiles | Complete |
+| VALE-08 | Phase 6: Validation Profiles | Complete |
 | PROC-01 | Phase 7: Async Processing | Pending |
 | PROC-02 | Phase 7: Async Processing | Pending |
 | DASH-01 | Phase 8: Results Dashboard | Pending |

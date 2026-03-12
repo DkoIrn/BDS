@@ -110,7 +110,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can select from default validation templates for DOB, DOC, and TOP survey types
   2. User can configure tolerance thresholds (e.g., DOC/DOB limits) and see those thresholds applied during processing
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 06-01-PLAN.md -- Backend: DB migration, Pydantic config models, template definitions, pipeline config passthrough with enabled_checks
@@ -186,7 +186,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 3. File Upload & Storage | 2/2 | Complete   | 2026-03-11 |
 | 4. Ingestion Pipeline | 3/3 | Complete   | 2026-03-11 |
 | 5. Validation Engine | 1/3 | In Progress|  |
-| 6. Validation Profiles | 0/3 | Not started | - |
+| 6. Validation Profiles | 2/3 | In Progress|  |
 | 7. Async Processing | 0/2 | Not started | - |
 | 8. Results Dashboard | 0/2 | Not started | - |
 | 9. Reports & Export | 0/2 | Not started | - |
