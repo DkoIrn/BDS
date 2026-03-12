@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { FileSpreadsheet, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { createClient } from "@/lib/supabase/client"
 import {
   Table,
   TableBody,
@@ -53,6 +55,21 @@ function StatusBadge({ status }: { status: DatasetStatus }) {
           {label}
         </Badge>
       )
+    case "validating":
+      return (
+        <Badge variant="default" className="gap-1 animate-pulse">
+          <Loader2 className="size-3 animate-spin" />
+          Processing...
+        </Badge>
+      )
+    case "validated":
+      return (
+        <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+          Validated
+        </Badge>
+      )
+    case "validation_error":
+      return <Badge variant="destructive">Error</Badge>
     case "error":
       return <Badge variant="destructive">{label}</Badge>
     default:
@@ -69,7 +86,45 @@ export function FileList({
   jobId: string
   projectId: string
 }) {
-  if (files.length === 0) {
+  const [localFiles, setLocalFiles] = useState(files)
+
+  // Sync with prop changes
+  useEffect(() => {
+    setLocalFiles(files)
+  }, [files])
+
+  // Realtime subscription for job-scoped dataset status changes
+  useEffect(() => {
+    const supabase = createClient()
+
+    const channel = supabase
+      .channel("file-list-" + jobId)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "datasets",
+          filter: `job_id=eq.${jobId}`,
+        },
+        (payload: { new: { id: string; status: DatasetStatus } }) => {
+          setLocalFiles((prev) =>
+            prev.map((f) =>
+              f.id === payload.new.id
+                ? { ...f, status: payload.new.status }
+                : f
+            )
+          )
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [jobId])
+
+  if (localFiles.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
         <FileSpreadsheet className="size-8 text-muted-foreground" />
@@ -95,7 +150,7 @@ export function FileList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {files.map((file) => (
+        {localFiles.map((file) => (
           <TableRow key={file.id}>
             <TableCell>
               <div className="flex items-center gap-2">

@@ -11,6 +11,7 @@ import { DataPreviewTable } from "@/components/files/data-preview-table"
 import { ValidationProgress } from "@/components/files/validation-progress"
 import { ValidationSummary } from "@/components/files/validation-summary"
 import { ProfileSelector } from "@/components/files/profile-selector"
+import { createClient } from "@/lib/supabase/client"
 import { saveColumnMappings } from "@/lib/actions/files"
 import { getValidationRuns } from "@/lib/actions/validation"
 import {
@@ -345,36 +346,23 @@ export function FileDetailView({
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}))
-        throw new Error(
+        const message =
           (errData as { error?: string }).error ?? "Validation failed"
-        )
+        setValidationError(message)
+        setDatasetStatus("validation_error")
+        setValidating(false)
+        toast.error(message)
+        return
       }
 
-      const data = (await response.json()) as ValidateApiResponse
-      setValidationRun({
-        id: data.run_id,
-        dataset_id: dataset.id,
-        run_at: new Date().toISOString(),
-        total_issues: data.total_issues,
-        critical_count: data.critical_count,
-        warning_count: data.warning_count,
-        info_count: data.info_count,
-        pass_rate: data.pass_rate,
-        completeness_score: null,
-        status: data.status,
-        created_at: new Date().toISOString(),
-        config_snapshot: currentConfig ?? null,
-        profile_id: selectedProfileId || null,
-      })
-      setDatasetStatus("validated")
-      toast.success("Validation complete")
+      // 202 Accepted -- validation runs in the background.
+      // Realtime subscription will update state when complete.
     } catch (err) {
       const message = err instanceof Error ? err.message : "Validation failed"
       setValidationError(message)
       setDatasetStatus("validation_error")
-      toast.error(message)
-    } finally {
       setValidating(false)
+      toast.error(message)
     }
   }
 
@@ -395,6 +383,45 @@ export function FileDetailView({
       })
     }
   }, [dataset.status, dataset.id, validationRun])
+
+  // Realtime subscription for this dataset's status changes
+  useEffect(() => {
+    const supabase = createClient()
+
+    const channel = supabase
+      .channel("file-detail-" + dataset.id)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "datasets",
+          filter: `id=eq.${dataset.id}`,
+        },
+        (payload: { new: { status: DatasetStatus } }) => {
+          const newStatus = payload.new.status
+          setDatasetStatus(newStatus)
+
+          if (newStatus === "validated") {
+            setValidating(false)
+            // Fetch the latest validation run data
+            getValidationRuns(dataset.id).then((result) => {
+              if ("data" in result && result.data.length > 0) {
+                setValidationRun(result.data[0])
+              }
+            })
+          } else if (newStatus === "validation_error") {
+            setValidating(false)
+            setValidationError("Validation failed")
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [dataset.id])
 
   if (loading) {
     return (
