@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import type { ProfileConfig } from '@/lib/types/validation'
 
 export const maxDuration = 120
 
@@ -16,8 +17,8 @@ export async function POST(request: Request) {
   }
 
   // Parse request body
-  const body = (await request.json()) as { datasetId?: string }
-  const { datasetId } = body
+  const body = (await request.json()) as { datasetId?: string; config?: ProfileConfig }
+  const { datasetId, config } = body
 
   if (!datasetId) {
     return NextResponse.json({ error: 'datasetId is required' }, { status: 400 })
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
     const response = await fetch(`${fastApiUrl}/api/v1/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dataset_id: datasetId }),
+      body: JSON.stringify({ dataset_id: datasetId, config: config ?? null }),
     })
 
     if (!response.ok) {
