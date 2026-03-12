@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { ProfileConfig } from '@/lib/types/validation'
 
-export const maxDuration = 120
-
 export async function POST(request: Request) {
   const supabase = await createClient()
 
@@ -48,14 +46,14 @@ export async function POST(request: Request) {
     )
   }
 
-  // Update status to validating
+  // Update status to validating (Next.js sets this, not FastAPI -- avoids race condition)
   await supabase
     .from('datasets')
     .update({ status: 'validating' })
     .eq('id', datasetId)
 
   try {
-    // Proxy validation request to FastAPI
+    // Fire-and-forget proxy to FastAPI -- await only to confirm service is reachable
     const fastApiUrl = process.env.FASTAPI_URL
     if (!fastApiUrl) {
       throw new Error('FASTAPI_URL is not configured')
@@ -68,21 +66,38 @@ export async function POST(request: Request) {
     })
 
     if (!response.ok) {
+      // FastAPI rejected the request -- set error status and inform user
       const errorBody = await response.text()
-      throw new Error(`FastAPI validation failed: ${errorBody}`)
+      await supabase
+        .from('datasets')
+        .update({ status: 'validation_error' })
+        .eq('id', datasetId)
+
+      return NextResponse.json(
+        { error: `Validation service error: ${errorBody}` },
+        { status: 502 }
+      )
     }
 
-    const result = await response.json()
-    return NextResponse.json(result)
+    // FastAPI accepted (202) -- return 202 to frontend
+    // Results will arrive via Supabase Realtime subscription
+    return NextResponse.json(
+      { status: 'accepted', datasetId },
+      { status: 202 }
+    )
   } catch (err) {
-    // Update status to validation_error on failure
-    const errorMessage = err instanceof Error ? err.message : 'Validation failed'
+    // Connection error (FastAPI unreachable) -- immediate feedback
+    const errorMessage =
+      err instanceof Error ? err.message : 'Processing service unavailable'
 
     await supabase
       .from('datasets')
       .update({ status: 'validation_error' })
       .eq('id', datasetId)
 
-    return NextResponse.json({ error: errorMessage }, { status: 500 })
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: 503 }
+    )
   }
 }
