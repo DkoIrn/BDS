@@ -84,13 +84,13 @@ export const DEFAULT_TEMPLATES: ValidationTemplate[] = [
     config: {
       ...COMMON_CONFIG,
       ranges: {
-        dob: { min: -10, max: 20 },
-        doc: { min: -10, max: 20 },
+        dob: { min: 0, max: 10 },
+        doc: { min: 0, max: 10 },
         top: { min: -500, max: 500 },
-        depth: { min: 0, max: 1000 },
-        easting: { min: 0, max: 1000000 },
-        northing: { min: 0, max: 10000000 },
+        depth: { min: 0, max: 500 },
         elevation: { min: -500, max: 500 },
+        easting: { min: 100000, max: 900000 },
+        northing: { min: 0, max: 10000000 },
         latitude: { min: -90, max: 90 },
         longitude: { min: -180, max: 180 },
       },
