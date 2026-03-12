@@ -10,10 +10,22 @@ import { ColumnMappingTable } from "@/components/files/column-mapping-table"
 import { DataPreviewTable } from "@/components/files/data-preview-table"
 import { ValidationProgress } from "@/components/files/validation-progress"
 import { ValidationSummary } from "@/components/files/validation-summary"
+import { ProfileSelector } from "@/components/files/profile-selector"
 import { saveColumnMappings } from "@/lib/actions/files"
 import { getValidationRuns } from "@/lib/actions/validation"
+import {
+  getProfiles,
+  createProfile,
+  updateProfile,
+  deleteProfile,
+} from "@/lib/actions/profiles"
+import {
+  DEFAULT_TEMPLATES,
+  suggestProfile,
+  getTemplateById,
+} from "@/lib/validation/templates"
 import type { Dataset, DatasetStatus } from "@/lib/types/files"
-import type { ValidationRun } from "@/lib/types/validation"
+import type { ValidationRun, ProfileConfig, ValidationProfile } from "@/lib/types/validation"
 import type { SurveyType } from "@/lib/types/projects"
 import type {
   DetectedColumn,
@@ -78,6 +90,12 @@ export function FileDetailView({
   const [validationError, setValidationError] = useState<string | null>(null)
   const [datasetStatus, setDatasetStatus] = useState<DatasetStatus>(dataset.status)
 
+  // Profile state
+  const [selectedProfileId, setSelectedProfileId] = useState("")
+  const [currentConfig, setCurrentConfig] = useState<ProfileConfig | null>(null)
+  const [userProfiles, setUserProfiles] = useState<ValidationProfile[]>([])
+  const [configErrors, setConfigErrors] = useState<Record<string, string>>({})
+
   const fetchParseData = useCallback(async () => {
     setLoading(true)
     try {
@@ -133,6 +151,128 @@ export function FileDetailView({
       setLoading(false)
     }
   }, [dataset.id])
+
+  /** Validate a profile config, returning a map of field → error message */
+  const validateConfig = useCallback(
+    (config: ProfileConfig): Record<string, string> => {
+      const errs: Record<string, string> = {}
+      for (const [col, range] of Object.entries(config.ranges)) {
+        if (typeof range.min === "number" && typeof range.max === "number" && range.min > range.max) {
+          errs[`range_${col}`] = "Min must be ≤ Max"
+        }
+      }
+      if (typeof config.zscore_threshold === "number" && config.zscore_threshold <= 0) {
+        errs.zscore_threshold = "Must be > 0"
+      }
+      if (typeof config.iqr_multiplier === "number" && config.iqr_multiplier <= 0) {
+        errs.iqr_multiplier = "Must be > 0"
+      }
+      if (typeof config.duplicate_kp_tolerance === "number" && config.duplicate_kp_tolerance < 0) {
+        errs.duplicate_kp_tolerance = "Must be ≥ 0"
+      }
+      return errs
+    },
+    []
+  )
+
+  /** Handle config changes from the threshold editor */
+  const handleConfigChange = useCallback(
+    (config: ProfileConfig) => {
+      setCurrentConfig(config)
+      setConfigErrors(validateConfig(config))
+    },
+    [validateConfig]
+  )
+
+  /** Handle profile selection */
+  const handleProfileChange = useCallback(
+    (id: string, config: ProfileConfig) => {
+      setSelectedProfileId(id)
+      setCurrentConfig(config)
+      setConfigErrors(validateConfig(config))
+    },
+    [validateConfig]
+  )
+
+  /** Reset to original template/profile config */
+  const handleReset = useCallback(() => {
+    const template = getTemplateById(selectedProfileId)
+    if (template) {
+      setCurrentConfig({ ...template.config })
+      setConfigErrors({})
+      return
+    }
+    const profile = userProfiles.find((p) => p.id === selectedProfileId)
+    if (profile) {
+      setCurrentConfig({ ...profile.config })
+      setConfigErrors({})
+    }
+  }, [selectedProfileId, userProfiles])
+
+  const loadUserProfiles = useCallback(async () => {
+    const result = await getProfiles()
+    if ("data" in result) {
+      setUserProfiles(result.data)
+    }
+  }, [])
+
+  /** Auto-suggest profile when mappings become confirmed */
+  useEffect(() => {
+    if (confirmed && mappings.length > 0 && !selectedProfileId) {
+      const suggestedId = suggestProfile(mappings)
+      const template = getTemplateById(suggestedId)
+      if (template) {
+        setSelectedProfileId(suggestedId)
+        setCurrentConfig({ ...template.config })
+      }
+      loadUserProfiles()
+    }
+  }, [confirmed, mappings, selectedProfileId, loadUserProfiles])
+
+  /** Derive mapped column types from current mappings */
+  const mappedColumnTypes = mappings
+    .filter((m) => !m.ignored && m.mappedType)
+    .map((m) => m.mappedType!)
+
+  /** Profile CRUD handlers */
+  const handleSaveProfile = useCallback(
+    async (name: string, config: ProfileConfig) => {
+      const suggestedTemplate = getTemplateById(selectedProfileId)
+      const surveyType = suggestedTemplate?.survey_type ?? null
+      const result = await createProfile(name, surveyType, config)
+      if ("error" in result) throw new Error(result.error)
+      await loadUserProfiles()
+    },
+    [selectedProfileId, loadUserProfiles]
+  )
+
+  const handleUpdateProfile = useCallback(
+    async (id: string, name: string, config: ProfileConfig) => {
+      const result = await updateProfile(id, name, config)
+      if ("error" in result) throw new Error(result.error)
+      await loadUserProfiles()
+    },
+    [loadUserProfiles]
+  )
+
+  const handleDeleteProfile = useCallback(
+    async (id: string) => {
+      const result = await deleteProfile(id)
+      if ("error" in result) throw new Error(result.error)
+      // If deleting the selected profile, switch to suggested default
+      if (id === selectedProfileId) {
+        const suggestedId = suggestProfile(mappings)
+        const template = getTemplateById(suggestedId)
+        if (template) {
+          setSelectedProfileId(suggestedId)
+          setCurrentConfig({ ...template.config })
+          setConfigErrors({})
+        }
+      }
+      await loadUserProfiles()
+    },
+    [selectedProfileId, mappings, loadUserProfiles]
+  )
 
   useEffect(() => {
     // If already parsed with mappings stored, we need to fetch preview data from API
@@ -197,7 +337,10 @@ export function FileDetailView({
       const response = await fetch("/api/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ datasetId: dataset.id }),
+        body: JSON.stringify({
+          datasetId: dataset.id,
+          config: currentConfig ?? undefined,
+        }),
       })
 
       if (!response.ok) {
@@ -220,8 +363,8 @@ export function FileDetailView({
         completeness_score: null,
         status: data.status,
         created_at: new Date().toISOString(),
-        config_snapshot: null,
-        profile_id: null,
+        config_snapshot: currentConfig ?? null,
+        profile_id: selectedProfileId || null,
       })
       setDatasetStatus("validated")
       toast.success("Validation complete")
@@ -326,13 +469,41 @@ export function FileDetailView({
         />
       </div>
 
+      {/* Validation profile selector */}
+      {confirmed && currentConfig && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">Validation Profile</h2>
+          <ProfileSelector
+            selectedProfileId={selectedProfileId}
+            onProfileChange={handleProfileChange}
+            userProfiles={userProfiles}
+            onSaveProfile={handleSaveProfile}
+            onUpdateProfile={handleUpdateProfile}
+            onDeleteProfile={handleDeleteProfile}
+            mappedColumnTypes={mappedColumnTypes}
+            currentConfig={currentConfig}
+            onConfigChange={handleConfigChange}
+            onReset={handleReset}
+            configErrors={configErrors}
+          />
+        </div>
+      )}
+
       {/* Validation section */}
       {confirmed && !validating && datasetStatus === "mapped" && (
         <div className="flex items-center gap-3">
-          <Button onClick={handleRunValidation}>
+          <Button
+            onClick={handleRunValidation}
+            disabled={Object.keys(configErrors).length > 0}
+          >
             <Play className="mr-1.5 size-3.5" />
             Run QC
           </Button>
+          {Object.keys(configErrors).length > 0 && (
+            <span className="text-xs text-red-500">
+              Fix configuration errors before running
+            </span>
+          )}
         </div>
       )}
 
