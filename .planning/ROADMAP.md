@@ -125,11 +125,11 @@ Plans:
   1. User uploads a file and is immediately free to navigate the app while processing runs in the background
   2. User can see the current processing status (queued, processing, complete, failed) update in real time
   3. User receives a notification when processing completes or fails
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md -- Backend async conversion: FastAPI BackgroundTasks, Next.js 202 fire-and-forget route, Realtime publication migration
+- [ ] 07-02-PLAN.md -- Frontend Realtime integration: RealtimeProvider toasts, FileDetailView fire-and-forget, FileList live status badges
 
 ### Phase 8: Results Dashboard
 **Goal**: Users can review all QC results in an interactive dashboard with issue details and processing history
