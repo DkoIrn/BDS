@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { TopBar } from "@/components/top-bar"
+import { RealtimeProvider } from "@/components/realtime-provider"
 
 export default async function DashboardLayout({
   children,
@@ -31,7 +32,9 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <TopBar user={userData} />
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <RealtimeProvider userId={user.id}>{children}</RealtimeProvider>
+      </main>
     </div>
   )
 }
