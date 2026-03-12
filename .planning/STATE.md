@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 7 context gathered
-last_updated: "2026-03-12T20:23:37.643Z"
+last_updated: "2026-03-12T20:43:03.498Z"
 last_activity: 2026-03-12 -- Plan 06-02 complete
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 16
-  completed_plans: 15
+  total_plans: 18
+  completed_plans: 16
   percent: 87
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 6: Validation Profiles
+**Current focus:** Phase 7: Async Processing
 
 ## Current Position
 
-Phase: 6 of 10 (Validation Profiles)
-Plan: 2 of 4 in current phase (06-01 and 06-02 complete)
+Phase: 7 of 10 (Async Processing)
+Plan: 1 of 2 in current phase (07-01 complete)
 Status: In Progress
-Last activity: 2026-03-12 -- Plan 06-02 complete
+Last activity: 2026-03-12 -- Plan 07-01 complete
 
-Progress: [████████░░] 87%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -49,13 +49,13 @@ Progress: [████████░░] 87%
 | 04-ingestion-pipeline | 3/3 | 11min | 3.7min |
 | 05-validation-engine | 2/3 | 16min | 8min |
 | 06-validation-profiles | 2/4 | 4min | 2min |
+| 07-async-processing | 1/2 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (4min), 04-03 (3min), 05-02 (2min), 05-01 (14min), 06-02 (2min)
+- Last 5 plans: 04-03 (3min), 05-02 (2min), 05-01 (14min), 06-02 (2min), 07-01 (2min)
 - Trend: Variable ~2-14min/plan
 
 *Updated after each plan completion*
-| Phase 06 P01 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -89,7 +89,9 @@ Recent decisions affecting current work:
 - FileDetailView: Client orchestrator pattern -- server page fetches, client component manages interactive state
 - Column reorder in preview: mapped first, unmapped second, ignored last
 - Confidence badges: green (high), yellow (medium), gray (low) using Badge component
-- FastAPI proxy: API route handles auth/ownership, delegates to FastAPI, does not set validated status (FastAPI does)
+- FastAPI proxy: API route handles auth/ownership, delegates to FastAPI, returns 202 Accepted (fire-and-forget)
+- Async validation: Next.js sets 'validating' status (not FastAPI) to avoid race conditions
+- Background error safety: broad try/except ensures datasets never stuck in 'validating' state
 - Severity sorting: client-side sort in server action since Supabase order() lacks custom ordinals
 - Validators: Pure functions over classes -- simpler to test and compose, no state
 - KP gaps: Dynamic threshold (median*3) adapts to each dataset's KP density
@@ -111,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T20:23:37.637Z
-Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-async-processing/07-CONTEXT.md
+Last session: 2026-03-12T20:42:23Z
+Stopped at: Completed 07-01-PLAN.md
+Resume file: .planning/phases/07-async-processing/07-01-SUMMARY.md

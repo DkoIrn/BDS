@@ -125,7 +125,7 @@ Plans:
   1. User uploads a file and is immediately free to navigate the app while processing runs in the background
   2. User can see the current processing status (queued, processing, complete, failed) update in real time
   3. User receives a notification when processing completes or fails
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 07-01-PLAN.md -- Backend async conversion: FastAPI BackgroundTasks, Next.js 202 fire-and-forget route, Realtime publication migration
@@ -187,7 +187,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 4. Ingestion Pipeline | 3/3 | Complete   | 2026-03-11 |
 | 5. Validation Engine | 1/3 | In Progress|  |
 | 6. Validation Profiles | 2/3 | In Progress|  |
-| 7. Async Processing | 0/2 | Not started | - |
+| 7. Async Processing | 1/2 | In Progress|  |
 | 8. Results Dashboard | 0/2 | Not started | - |
 | 9. Reports & Export | 0/2 | Not started | - |
 | 10. Landing Page & Subscription | 0/1 | Not started | - |

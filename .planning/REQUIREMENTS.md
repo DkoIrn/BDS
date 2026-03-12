@@ -44,7 +44,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Processing
 
-- [ ] **PROC-01**: Processing runs asynchronously — user uploads and is notified when complete
+- [x] **PROC-01**: Processing runs asynchronously — user uploads and is notified when complete
 - [ ] **PROC-02**: User can see processing status (queued, processing, complete, failed)
 - [x] **PROC-03**: Processing handles messy real-world data (mixed encodings, BOM chars, metadata rows)
 
@@ -149,7 +149,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VALE-07 | Phase 5: Validation Engine | Complete |
 | VALE-06 | Phase 6: Validation Profiles | Complete |
 | VALE-08 | Phase 6: Validation Profiles | Complete |
-| PROC-01 | Phase 7: Async Processing | Pending |
+| PROC-01 | Phase 7: Async Processing | Complete |
 | PROC-02 | Phase 7: Async Processing | Pending |
 | DASH-01 | Phase 8: Results Dashboard | Pending |
 | DASH-02 | Phase 8: Results Dashboard | Pending |
