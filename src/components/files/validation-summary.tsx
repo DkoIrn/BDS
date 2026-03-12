@@ -75,7 +75,7 @@ export function ValidationSummary({ run, onRerun }: ValidationSummaryProps) {
           {run.pass_rate != null && (
             <span>
               <strong className="text-foreground">
-                {(run.pass_rate * 100).toFixed(1)}%
+                {run.pass_rate.toFixed(1)}%
               </strong>{" "}
               pass rate
             </span>

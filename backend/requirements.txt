@@ -3,7 +3,8 @@ uvicorn[standard]>=0.34
 pandas>=2.2
 numpy>=2.1
 scipy>=1.14
-supabase>=2.0
+# supabase SDK replaced with lightweight httpx client (avoids C++ build deps)
+# httpx is already listed below
 pydantic-settings>=2.0
 python-dotenv>=1.0
 pytest>=8.0

@@ -96,14 +96,19 @@ export function FileDetailView({
 
       const data = (await response.json()) as ParseApiResponse
       setColumns(data.columns)
-      setMappings(
-        data.columns.map((col) => ({
-          index: col.index,
-          originalName: col.originalName,
-          mappedType: col.detectedType,
-          ignored: false,
-        }))
-      )
+      // Use saved mappings if available, otherwise use auto-detected ones
+      if (dataset.column_mappings && dataset.column_mappings.length > 0) {
+        setMappings(dataset.column_mappings)
+      } else {
+        setMappings(
+          data.columns.map((col) => ({
+            index: col.index,
+            originalName: col.originalName,
+            mappedType: col.detectedType,
+            ignored: false,
+          }))
+        )
+      }
       setPreview(data.preview)
       setTotalRows(data.totalRows)
       setMissingExpected(data.missingExpected)
@@ -171,6 +176,7 @@ export function FileDetailView({
       }
       toast.success("Column mappings confirmed")
       setConfirmed(true)
+      setDatasetStatus("mapped")
     } catch {
       toast.error("Failed to save mappings")
     } finally {

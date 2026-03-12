@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   // Only mapped/validated datasets can be validated (allow re-runs)
-  const validStatuses = ['mapped', 'validated', 'validation_error']
+  const validStatuses = ['parsed', 'mapped', 'validated', 'validation_error']
   if (!validStatuses.includes(dataset.status as string)) {
     return NextResponse.json(
       { error: 'Dataset must be in "mapped" or "validated" status to validate' },
