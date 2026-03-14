@@ -140,11 +140,11 @@ Plans:
   2. User can view summary statistics including total issues, pass rate, and data completeness
   3. User can click into any flagged row to see the full explanation and surrounding data context
   4. User can view processing history for previous QC runs on a dataset
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- Server actions, severity utilities, and results dashboard components (stat cards, issues table, expandable rows, run switcher)
+- [ ] 08-02-PLAN.md -- FileDetailView tab restructure, job-level results table, and page wiring
 
 ### Phase 9: Reports & Export
 **Goal**: Users can download professional QC reports and cleaned datasets from their results
