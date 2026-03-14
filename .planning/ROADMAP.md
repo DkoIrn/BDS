@@ -140,9 +140,10 @@ Plans:
   2. User can view summary statistics including total issues, pass rate, and data completeness
   3. User can click into any flagged row to see the full explanation and surrounding data context
   4. User can view processing history for previous QC runs on a dataset
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
+- [ ] 08-00-PLAN.md -- Wave 0: Create test stub files for dashboard components (issues table, stat cards, issue detail, run switcher)
 - [ ] 08-01-PLAN.md -- Server actions, severity utilities, and results dashboard components (stat cards, issues table, expandable rows, run switcher)
 - [ ] 08-02-PLAN.md -- FileDetailView tab restructure, job-level results table, and page wiring
 
@@ -188,6 +189,6 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 5. Validation Engine | 1/3 | In Progress|  |
 | 6. Validation Profiles | 2/3 | In Progress|  |
 | 7. Async Processing | 2/2 | Complete   | 2026-03-12 |
-| 8. Results Dashboard | 0/2 | Not started | - |
+| 8. Results Dashboard | 0/3 | Not started | - |
 | 9. Reports & Export | 0/2 | Not started | - |
 | 10. Landing Page & Subscription | 0/1 | Not started | - |
