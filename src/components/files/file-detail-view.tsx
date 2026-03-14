@@ -5,11 +5,12 @@ import { toast } from "sonner"
 import { Loader2, Check, Pencil, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ParsingWarningBanner } from "@/components/files/parsing-warning-banner"
 import { ColumnMappingTable } from "@/components/files/column-mapping-table"
 import { DataPreviewTable } from "@/components/files/data-preview-table"
 import { ValidationProgress } from "@/components/files/validation-progress"
-import { ValidationSummary } from "@/components/files/validation-summary"
+import { ResultsDashboard } from "@/components/files/results-dashboard"
 import { ProfileSelector } from "@/components/files/profile-selector"
 import { createClient } from "@/lib/supabase/client"
 import { saveColumnMappings } from "@/lib/actions/files"
@@ -83,6 +84,11 @@ export function FileDetailView({
     dataset.status === "validated" ||
     dataset.status === "validating" ||
     dataset.status === "validation_error"
+  )
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState<string>(
+    dataset.status === "validated" ? "results" : "mapping"
   )
 
   // Validation state
@@ -404,6 +410,7 @@ export function FileDetailView({
 
           if (newStatus === "validated") {
             setValidating(false)
+            setActiveTab("results")
             // Fetch the latest validation run data
             getValidationRuns(dataset.id).then((result) => {
               if ("data" in result && result.data.length > 0) {
@@ -449,129 +456,166 @@ export function FileDetailView({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Warning banner */}
-      <ParsingWarningBanner
-        warnings={warnings}
-        missingExpected={missingExpected}
-      />
+    <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <TabsList>
+        <TabsTrigger value="mapping">Mapping</TabsTrigger>
+        <TabsTrigger value="results">Results</TabsTrigger>
+        <TabsTrigger value="preview">Data Preview</TabsTrigger>
+      </TabsList>
 
-      {/* Column mapping table */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Column Mappings</h2>
-          <div className="flex items-center gap-2">
-            {confirmed ? (
+      <TabsContent value="mapping">
+        <div className="space-y-6 pt-4">
+          {/* Warning banner */}
+          <ParsingWarningBanner
+            warnings={warnings}
+            missingExpected={missingExpected}
+          />
+
+          {/* Column mapping table */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Column Mappings</h2>
+              <div className="flex items-center gap-2">
+                {confirmed ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEditMappings}
+                  >
+                    <Pencil className="mr-1.5 size-3.5" />
+                    Edit Mappings
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleConfirmMappings}
+                    disabled={saving}
+                  >
+                    {saving ? (
+                      <Loader2 className="mr-1.5 size-3.5 animate-spin" />
+                    ) : (
+                      <Check className="mr-1.5 size-3.5" />
+                    )}
+                    Confirm Mappings
+                  </Button>
+                )}
+              </div>
+            </div>
+            <ColumnMappingTable
+              columns={columns}
+              mappings={mappings}
+              onMappingChange={handleMappingChange}
+              disabled={confirmed}
+            />
+          </div>
+
+          {/* Validation profile selector */}
+          {confirmed && currentConfig && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Validation Profile</h2>
+              <ProfileSelector
+                selectedProfileId={selectedProfileId}
+                onProfileChange={handleProfileChange}
+                userProfiles={userProfiles}
+                onSaveProfile={handleSaveProfile}
+                onUpdateProfile={handleUpdateProfile}
+                onDeleteProfile={handleDeleteProfile}
+                mappedColumnTypes={mappedColumnTypes}
+                currentConfig={currentConfig}
+                onConfigChange={handleConfigChange}
+                onReset={handleReset}
+                configErrors={configErrors}
+              />
+            </div>
+          )}
+
+          {/* Validation section */}
+          {confirmed && !validating && datasetStatus === "mapped" && (
+            <div className="flex items-center gap-3">
               <Button
-                type="button"
+                onClick={handleRunValidation}
+                disabled={Object.keys(configErrors).length > 0}
+              >
+                <Play className="mr-1.5 size-3.5" />
+                Run QC
+              </Button>
+              {Object.keys(configErrors).length > 0 && (
+                <span className="text-xs text-red-500">
+                  Fix configuration errors before running
+                </span>
+              )}
+            </div>
+          )}
+
+          {validating && (
+            <ValidationProgress statusText="Running validation..." />
+          )}
+
+          {datasetStatus === "validation_error" && validationError && (
+            <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-600 dark:bg-red-950/30">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                Validation failed
+              </p>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                {validationError}
+              </p>
+              <Button
                 variant="outline"
                 size="sm"
-                onClick={handleEditMappings}
+                className="mt-3"
+                onClick={handleRerun}
               >
-                <Pencil className="mr-1.5 size-3.5" />
-                Edit Mappings
+                Retry Validation
               </Button>
-            ) : (
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleConfirmMappings}
-                disabled={saving}
-              >
-                {saving ? (
-                  <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-                ) : (
-                  <Check className="mr-1.5 size-3.5" />
-                )}
-                Confirm Mappings
-              </Button>
-            )}
-          </div>
-        </div>
-        <ColumnMappingTable
-          columns={columns}
-          mappings={mappings}
-          onMappingChange={handleMappingChange}
-          disabled={confirmed}
-        />
-      </div>
-
-      {/* Validation profile selector */}
-      {confirmed && currentConfig && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Validation Profile</h2>
-          <ProfileSelector
-            selectedProfileId={selectedProfileId}
-            onProfileChange={handleProfileChange}
-            userProfiles={userProfiles}
-            onSaveProfile={handleSaveProfile}
-            onUpdateProfile={handleUpdateProfile}
-            onDeleteProfile={handleDeleteProfile}
-            mappedColumnTypes={mappedColumnTypes}
-            currentConfig={currentConfig}
-            onConfigChange={handleConfigChange}
-            onReset={handleReset}
-            configErrors={configErrors}
-          />
-        </div>
-      )}
-
-      {/* Validation section */}
-      {confirmed && !validating && datasetStatus === "mapped" && (
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleRunValidation}
-            disabled={Object.keys(configErrors).length > 0}
-          >
-            <Play className="mr-1.5 size-3.5" />
-            Run QC
-          </Button>
-          {Object.keys(configErrors).length > 0 && (
-            <span className="text-xs text-red-500">
-              Fix configuration errors before running
-            </span>
+            </div>
           )}
         </div>
-      )}
+      </TabsContent>
 
-      {validating && (
-        <ValidationProgress statusText="Running validation..." />
-      )}
-
-      {datasetStatus === "validation_error" && validationError && (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-600 dark:bg-red-950/30">
-          <p className="text-sm font-medium text-red-800 dark:text-red-200">
-            Validation failed
-          </p>
-          <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-            {validationError}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-3"
-            onClick={handleRerun}
-          >
-            Retry Validation
-          </Button>
+      <TabsContent value="results">
+        <div className="space-y-6 pt-4">
+          {datasetStatus === "validated" || validationRun ? (
+            <>
+              <ResultsDashboard datasetId={dataset.id} />
+              <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={handleRerun}>
+                  <Play className="mr-1.5 size-3.5" />
+                  Re-run QC
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <p className="text-muted-foreground">
+                No validation results yet. Run QC from the Mapping tab to see results.
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </TabsContent>
 
-      {datasetStatus === "validated" && validationRun && (
-        <ValidationSummary run={validationRun} onRerun={handleRerun} />
-      )}
-
-      {/* Data preview table */}
-      {preview.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Data Preview</h2>
-          <DataPreviewTable
-            preview={preview}
-            mappings={mappings}
-            totalRows={totalRows}
-          />
+      <TabsContent value="preview">
+        <div className="space-y-3 pt-4">
+          {preview.length > 0 ? (
+            <>
+              <h2 className="text-lg font-semibold">Data Preview</h2>
+              <DataPreviewTable
+                preview={preview}
+                mappings={mappings}
+                totalRows={totalRows}
+              />
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <p className="text-muted-foreground">
+                Data preview will be available after file parsing.
+              </p>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </TabsContent>
+    </Tabs>
   )
 }
