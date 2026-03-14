@@ -58,7 +58,7 @@ export function ResultsStatCards({ run, onSeverityClick }: ResultsStatCardsProps
                 return (
                   <Badge
                     key={key}
-                    className={`cursor-pointer gap-1 ${colors.badge}`}
+                    className={`cursor-pointer gap-1 transition-transform hover:scale-105 active:scale-95 ${colors.badge}`}
                     onClick={() => onSeverityClick(key)}
                   >
                     <Icon className="size-3" />

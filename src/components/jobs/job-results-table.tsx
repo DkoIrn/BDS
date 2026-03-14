@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -22,6 +23,7 @@ interface JobResultsTableProps {
 }
 
 export function JobResultsTable({ jobId, projectId }: JobResultsTableProps) {
+  const router = useRouter()
   const [summaries, setSummaries] = useState<JobDatasetSummary[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -84,7 +86,11 @@ export function JobResultsTable({ jobId, projectId }: JobResultsTableProps) {
         </TableHeader>
         <TableBody>
           {summaries.map((summary) => (
-            <TableRow key={summary.id}>
+            <TableRow
+              key={summary.id}
+              className="cursor-pointer transition-colors hover:bg-muted/50"
+              onClick={() => router.push(`/projects/${projectId}/jobs/${jobId}/files/${summary.id}`)}
+            >
               <TableCell>
                 <Link
                   href={`/projects/${projectId}/jobs/${jobId}/files/${summary.id}`}

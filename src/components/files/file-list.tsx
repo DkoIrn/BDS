@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { FileSpreadsheet, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
@@ -86,6 +87,7 @@ export function FileList({
   jobId: string
   projectId: string
 }) {
+  const router = useRouter()
   const [localFiles, setLocalFiles] = useState(files)
 
   // Sync with prop changes
@@ -151,7 +153,11 @@ export function FileList({
       </TableHeader>
       <TableBody>
         {localFiles.map((file) => (
-          <TableRow key={file.id}>
+          <TableRow
+            key={file.id}
+            className="cursor-pointer transition-colors hover:bg-muted/50"
+            onClick={() => router.push(fileDetailUrl(file.id))}
+          >
             <TableCell>
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="size-4 shrink-0 text-muted-foreground" />

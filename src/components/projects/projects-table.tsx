@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ChevronDown, ChevronUp, MoreHorizontal, Trash2 } from "lucide-react"
 import {
   Table,
@@ -38,6 +39,7 @@ function formatDate(dateStr: string): string {
 }
 
 export function ProjectsTable({ projects }: { projects: Project[] }) {
+  const router = useRouter()
   const [sortColumn, setSortColumn] = useState<SortColumn>("updated_at")
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
@@ -115,7 +117,11 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
       </TableHeader>
       <TableBody>
         {sorted.map((project) => (
-          <TableRow key={project.id} className="group">
+          <TableRow
+            key={project.id}
+            className="group cursor-pointer transition-colors hover:bg-muted/50"
+            onClick={() => router.push(`/projects/${project.id}`)}
+          >
             <TableCell>
               <Link
                 href={`/projects/${project.id}`}

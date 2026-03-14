@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -31,6 +32,8 @@ function formatDate(dateStr: string): string {
 }
 
 export function JobsList({ jobs }: { jobs: Job[] }) {
+  const router = useRouter()
+
   if (jobs.length === 0) return null
 
   return (
@@ -45,7 +48,11 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
       </TableHeader>
       <TableBody>
         {jobs.map((job) => (
-          <TableRow key={job.id} className="cursor-pointer hover:bg-muted/50">
+          <TableRow
+            key={job.id}
+            className="cursor-pointer transition-colors hover:bg-muted/50"
+            onClick={() => router.push(`/projects/${job.project_id}/jobs/${job.id}`)}
+          >
             <TableCell className="font-medium">
               <Link
                 href={`/projects/${job.project_id}/jobs/${job.id}`}

@@ -19,13 +19,18 @@ interface RunSwitcherProps {
 export function RunSwitcher({ runs, selectedRunId, onRunChange }: RunSwitcherProps) {
   if (runs.length <= 1) return null
 
+  const selectedRun = runs.find((r) => r.id === selectedRunId)
+  const triggerLabel = selectedRun
+    ? `${formatRunDate(selectedRun.run_at)} — ${selectedRun.total_issues} issues`
+    : "Select run"
+
   return (
     <Select
       value={selectedRunId}
       onValueChange={(v) => { if (v) onRunChange(v) }}
     >
       <SelectTrigger className="w-[280px]">
-        <SelectValue />
+        <SelectValue placeholder={triggerLabel}>{triggerLabel}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         {runs.map((run) => (
