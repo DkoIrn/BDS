@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
-import { BarChart3 } from "lucide-react"
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -12,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { JobResultsTable } from "@/components/jobs/job-results-table"
 import { FileUploadZone } from "@/components/files/file-upload-zone"
 import { FileList } from "@/components/files/file-list"
 import { getJobFiles } from "@/lib/actions/files"
@@ -135,15 +135,7 @@ export default async function JobDetailPage({
         </TabsContent>
 
         <TabsContent value="results">
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-              <BarChart3 className="size-6 text-muted-foreground" />
-            </div>
-            <h2 className="mt-4 text-lg font-semibold">No results yet</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              QC results will appear here after processing
-            </p>
-          </div>
+          <JobResultsTable jobId={jobId} projectId={projectId} />
         </TabsContent>
       </Tabs>
     </div>
