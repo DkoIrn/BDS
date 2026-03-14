@@ -1,7 +1,9 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import type { ValidationRun, ValidationIssue } from '@/lib/types/validation'
+import { parseCSV } from '@/lib/parsing/csv-parser'
+import { parseExcel } from '@/lib/parsing/excel-parser'
+import type { ValidationRun, ValidationIssue, JobDatasetSummary } from '@/lib/types/validation'
 
 /**
  * Fetch all validation runs for a dataset, ordered by most recent first.
@@ -110,4 +112,140 @@ export async function getValidationIssues(
   })
 
   return { data: sorted }
+}
+
+/**
+ * Fetch surrounding rows from the original dataset file for context display.
+ * Downloads the file from Supabase Storage, parses it, and extracts rows
+ * around the flagged row number.
+ */
+export async function getIssueContext(
+  datasetId: string,
+  rowNumber: number,
+  contextSize: number = 5
+): Promise<
+  | { data: { headers: string[]; rows: { rowNumber: number; cells: string[]; isFlagged: boolean }[] } }
+  | { error: string }
+> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { data: dataset, error: datasetError } = await supabase
+    .from('datasets')
+    .select('id, storage_path, file_name, mime_type, header_row_index, user_id')
+    .eq('id', datasetId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (datasetError || !dataset) {
+    return { error: 'Dataset not found or access denied' }
+  }
+
+  const { data: fileData, error: downloadError } = await supabase.storage
+    .from('datasets')
+    .download(dataset.storage_path as string)
+
+  if (downloadError || !fileData) {
+    return { error: `File download failed: ${downloadError?.message ?? 'Unknown error'}` }
+  }
+
+  const fileName = dataset.file_name as string
+  const mimeType = dataset.mime_type as string
+  const isCSV = mimeType === 'text/csv' || fileName.endsWith('.csv')
+  const isExcel =
+    mimeType === 'application/vnd.ms-excel' ||
+    mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    fileName.endsWith('.xls') ||
+    fileName.endsWith('.xlsx')
+
+  let allRows: string[][]
+
+  if (isCSV) {
+    const text = await fileData.text()
+    allRows = parseCSV(text).rows
+  } else if (isExcel) {
+    const buffer = await fileData.arrayBuffer()
+    allRows = parseExcel(buffer).rows
+  } else {
+    return { error: `Unsupported file type: ${mimeType}` }
+  }
+
+  const headerRowIndex = (dataset.header_row_index as number) ?? 0
+  const headers = allRows[headerRowIndex] ?? []
+  const dataRows = allRows.slice(headerRowIndex + 1)
+
+  // rowNumber is 1-based (matching validation_issues.row_number)
+  const startIdx = Math.max(0, rowNumber - 1 - contextSize)
+  const endIdx = Math.min(dataRows.length, rowNumber - 1 + contextSize + 1)
+  const contextRows = dataRows.slice(startIdx, endIdx).map((cells, i) => ({
+    rowNumber: startIdx + i + 1,
+    cells,
+    isFlagged: startIdx + i + 1 === rowNumber,
+  }))
+
+  return { data: { headers, rows: contextRows } }
+}
+
+/**
+ * Fetch a summary of validation results for all datasets in a job.
+ * Returns one entry per dataset with the latest run's stats.
+ */
+export async function getJobValidationSummary(
+  jobId: string
+): Promise<{ data: JobDatasetSummary[] } | { error: string }> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { data: datasets, error: datasetsError } = await supabase
+    .from('datasets')
+    .select('id, file_name, status, validation_runs(id, total_issues, critical_count, pass_rate, run_at)')
+    .eq('job_id', jobId)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true })
+
+  if (datasetsError) {
+    return { error: datasetsError.message }
+  }
+
+  const summaries: JobDatasetSummary[] = (datasets ?? []).map((ds) => {
+    const runs = (ds.validation_runs as Array<{
+      id: string
+      total_issues: number
+      critical_count: number
+      pass_rate: number | null
+      run_at: string
+    }>) ?? []
+
+    // Sort runs by run_at desc to get latest
+    const sorted = [...runs].sort(
+      (a, b) => new Date(b.run_at).getTime() - new Date(a.run_at).getTime()
+    )
+    const latest = sorted[0] ?? null
+
+    return {
+      id: ds.id as string,
+      fileName: ds.file_name as string,
+      verdict: latest ? (latest.critical_count > 0 ? 'FAIL' : 'PASS') : null,
+      issueCount: latest?.total_issues ?? 0,
+      passRate: latest?.pass_rate ?? null,
+      lastRunAt: latest?.run_at ?? null,
+      isValidated: (ds.status as string) === 'validated',
+    }
+  })
+
+  return { data: summaries }
 }

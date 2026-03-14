@@ -77,3 +77,14 @@ export interface ValidationIssue {
   kp_value: number | null
   created_at: string
 }
+
+/** Summary of validation results for a single dataset within a job */
+export interface JobDatasetSummary {
+  id: string
+  fileName: string
+  verdict: 'PASS' | 'FAIL' | null
+  issueCount: number
+  passRate: number | null
+  lastRunAt: string | null
+  isValidated: boolean
+}
