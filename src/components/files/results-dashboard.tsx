@@ -6,6 +6,7 @@ import { getValidationRuns, getValidationIssues } from "@/lib/actions/validation
 import { ResultsStatCards } from "@/components/files/results-stat-cards"
 import { IssuesTable } from "@/components/files/issues-table"
 import { RunSwitcher } from "@/components/files/run-switcher"
+import { ExportButtons } from "@/components/files/export-buttons"
 import type { ValidationRun, ValidationIssue, ValidationSeverity } from "@/lib/types/validation"
 
 interface ResultsDashboardProps {
@@ -87,11 +88,16 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Results</h3>
-        <RunSwitcher
-          runs={runs}
-          selectedRunId={selectedRunId}
-          onRunChange={setSelectedRunId}
-        />
+        <div className="flex items-center gap-3">
+          <RunSwitcher
+            runs={runs}
+            selectedRunId={selectedRunId}
+            onRunChange={setSelectedRunId}
+          />
+          {selectedRunId && (
+            <ExportButtons runId={selectedRunId} datasetId={datasetId} />
+          )}
+        </div>
       </div>
 
       {/* Stat cards */}
