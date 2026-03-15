@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **FILE-02**: System auto-detects column types (KP, DOB, DOC, TOP, easting, northing, etc.)
 - [x] **FILE-03**: User can manually map/override column assignments via mapping interface
 - [x] **FILE-04**: User can preview uploaded dataset before processing to confirm column mappings
-- [ ] **FILE-05**: User can download cleaned/annotated dataset as CSV or Excel
+- [x] **FILE-05**: User can download cleaned/annotated dataset as CSV or Excel
 - [x] **FILE-06**: Files are stored securely in Supabase Storage tied to user account
 
 ### Validation Engine
@@ -53,8 +53,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **DASH-01**: User can view results dashboard with flagged issues grouped by severity
 - [ ] **DASH-02**: User can view summary statistics (total issues, pass rate, data completeness)
 - [ ] **DASH-03**: User can view individual flagged rows with explanations
-- [ ] **DASH-04**: User can download formatted QC report as PDF
-- [ ] **DASH-05**: QC report includes summary, methodology, issue table, and pass/fail status
+- [x] **DASH-04**: User can download formatted QC report as PDF
+- [x] **DASH-05**: QC report includes summary, methodology, issue table, and pass/fail status
 
 ### Subscription
 
@@ -155,9 +155,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-02 | Phase 8: Results Dashboard | Pending |
 | DASH-03 | Phase 8: Results Dashboard | Pending |
 | PROJ-05 | Phase 8: Results Dashboard | Pending |
-| DASH-04 | Phase 9: Reports & Export | Pending |
-| DASH-05 | Phase 9: Reports & Export | Pending |
-| FILE-05 | Phase 9: Reports & Export | Pending |
+| DASH-04 | Phase 9: Reports & Export | Complete |
+| DASH-05 | Phase 9: Reports & Export | Complete |
+| FILE-05 | Phase 9: Reports & Export | Complete |
 | UIDE-03 | Phase 10: Landing Page & Subscription | Pending |
 | SUBS-01 | Phase 10: Landing Page & Subscription | Pending |
 | SUBS-02 | Phase 10: Landing Page & Subscription | Pending |
