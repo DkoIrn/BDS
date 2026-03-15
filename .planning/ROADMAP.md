@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 6: Validation Profiles** - Default survey templates and configurable tolerance thresholds
 - [x] **Phase 7: Async Processing** - Background job execution with status tracking and notifications (completed 2026-03-12)
 - [ ] **Phase 8: Results Dashboard** - Issue viewer with severity grouping, statistics, and processing history
-- [ ] **Phase 9: Reports & Export** - PDF QC reports and downloadable cleaned datasets
+- [x] **Phase 9: Reports & Export** - PDF QC reports and downloadable cleaned datasets (completed 2026-03-15)
 - [ ] **Phase 10: Landing Page & Subscription** - Public landing page and 3-tier subscription structure
 
 ## Phase Details
@@ -155,11 +155,11 @@ Plans:
   1. User can download a formatted PDF QC report from the results page
   2. QC report includes summary section, methodology description, issue table, and overall pass/fail status
   3. User can download the cleaned/annotated dataset as CSV or Excel with flagged issues marked
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 09-01-PLAN.md -- Backend: fpdf2 PDF report builder, openpyxl/pandas dataset export services, FastAPI endpoints with tests
-- [ ] 09-02-PLAN.md -- Frontend: Next.js auth proxy routes, ExportButtons component, results dashboard integration with human verification
+- [x] 09-01-PLAN.md -- Backend: fpdf2 PDF report builder, openpyxl/pandas dataset export services, FastAPI endpoints with tests
+- [x] 09-02-PLAN.md -- Frontend: Next.js auth proxy routes, ExportButtons component, results dashboard integration with human verification
 
 ### Phase 10: Landing Page & Subscription
 **Goal**: The platform has a public-facing landing page and visible subscription tier structure
@@ -169,10 +169,11 @@ Plans:
   1. Landing page clearly communicates the value proposition to survey/engineering companies
   2. Platform defines and displays 3 subscription tiers (Starter, Professional, Enterprise) with feature breakdowns
   3. Landing page includes a clear call-to-action to sign up
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 10-01: TBD
+- [ ] 10-01-PLAN.md -- Test stubs and all landing page section components (hero, features, how-it-works, pricing, CTA, footer)
+- [ ] 10-02-PLAN.md -- Landing navbar, page composition, root page auth gate, smooth scroll, and human verification
 
 ## Progress
 
@@ -190,5 +191,5 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 6. Validation Profiles | 2/3 | In Progress|  |
 | 7. Async Processing | 2/2 | Complete   | 2026-03-12 |
 | 8. Results Dashboard | 0/3 | Not started | - |
-| 9. Reports & Export | 0/2 | Not started | - |
-| 10. Landing Page & Subscription | 0/1 | Not started | - |
+| 9. Reports & Export | 2/2 | Complete | 2026-03-15 |
+| 10. Landing Page & Subscription | 0/2 | Not started | - |
