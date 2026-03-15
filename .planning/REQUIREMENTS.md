@@ -58,14 +58,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Subscription
 
-- [ ] **SUBS-01**: Platform defines 3 tiers — Starter, Professional, Enterprise
-- [ ] **SUBS-02**: Tier structure is visible on the platform (pricing/features page)
+- [x] **SUBS-01**: Platform defines 3 tiers — Starter, Professional, Enterprise
+- [x] **SUBS-02**: Tier structure is visible on the platform (pricing/features page)
 
 ### UI & Design
 
 - [x] **UIDE-01**: Platform has vibrant yet professional design (Deep Blue, Teal, Orange palette)
 - [x] **UIDE-02**: Responsive layout that works on desktop and tablet
-- [ ] **UIDE-03**: Landing page communicates value proposition to target audience
+- [x] **UIDE-03**: Landing page communicates value proposition to target audience
 
 ## v2 Requirements
 
@@ -158,9 +158,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-04 | Phase 9: Reports & Export | Complete |
 | DASH-05 | Phase 9: Reports & Export | Complete |
 | FILE-05 | Phase 9: Reports & Export | Complete |
-| UIDE-03 | Phase 10: Landing Page & Subscription | Pending |
-| SUBS-01 | Phase 10: Landing Page & Subscription | Pending |
-| SUBS-02 | Phase 10: Landing Page & Subscription | Pending |
+| UIDE-03 | Phase 10: Landing Page & Subscription | Complete |
+| SUBS-01 | Phase 10: Landing Page & Subscription | Complete |
+| SUBS-02 | Phase 10: Landing Page & Subscription | Complete |
 
 **Coverage:**
 - v1 requirements: 36 total
