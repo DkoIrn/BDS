@@ -45,6 +45,15 @@ class TableQuery:
         self.headers["Accept"] = "application/vnd.pgrst.object+json"
         return self
 
+    def order(self, column: str, *, desc: bool = False) -> "TableQuery":
+        direction = "desc" if desc else "asc"
+        self._filters.append(f"order={column}.{direction}")
+        return self
+
+    def limit(self, count: int) -> "TableQuery":
+        self._filters.append(f"limit={count}")
+        return self
+
     def execute(self) -> "QueryResult":
         params = f"select={self._select}"
         if self._filters:
