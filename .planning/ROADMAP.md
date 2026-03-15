@@ -155,11 +155,11 @@ Plans:
   1. User can download a formatted PDF QC report from the results page
   2. QC report includes summary section, methodology description, issue table, and overall pass/fail status
   3. User can download the cleaned/annotated dataset as CSV or Excel with flagged issues marked
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- Backend: fpdf2 PDF report builder, openpyxl/pandas dataset export services, FastAPI endpoints with tests
+- [ ] 09-02-PLAN.md -- Frontend: Next.js auth proxy routes, ExportButtons component, results dashboard integration with human verification
 
 ### Phase 10: Landing Page & Subscription
 **Goal**: The platform has a public-facing landing page and visible subscription tier structure
