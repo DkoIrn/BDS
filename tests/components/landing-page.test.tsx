@@ -20,7 +20,9 @@ describe('LandingPage', () => {
 
     it('renders how-it-works section', () => {
       render(<LandingPage />)
-      expect(screen.getByText(/how it works/i)).toBeDefined()
+      // Multiple matches: navbar anchor link + section heading
+      const matches = screen.getAllByText(/how it works/i)
+      expect(matches.length).toBeGreaterThanOrEqual(1)
     })
 
     it('renders pricing section', () => {
@@ -39,7 +41,9 @@ describe('LandingPage', () => {
 
     it('renders footer', () => {
       render(<LandingPage />)
-      expect(screen.getByText(/surveyqc/i)).toBeDefined()
+      // Multiple matches: navbar logo + hero mockup URL + footer logo
+      const matches = screen.getAllByText(/surveyqc/i)
+      expect(matches.length).toBeGreaterThanOrEqual(1)
     })
   })
 
