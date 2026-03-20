@@ -9,63 +9,14 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { tiers, formatPrice, type CurrencyConfig } from '@/lib/pricing-tiers'
 
-interface PricingTier {
-  name: string
-  price: number | null
-  description: string
-  features: string[]
-  highlighted: boolean
-}
-
-const tiers: PricingTier[] = [
-  {
-    name: 'Starter',
-    price: 49,
-    description: 'For small teams getting started with automated QC.',
-    features: [
-      '5 projects',
-      '10 uploads per month',
-      '25MB file size limit',
-      'Basic validators',
-      'PDF reports',
-      'Email support',
-    ],
-    highlighted: false,
-  },
-  {
-    name: 'Professional',
-    price: 149,
-    description: 'For growing survey operations that need full QC coverage.',
-    features: [
-      'Unlimited projects',
-      '100 uploads per month',
-      '50MB file size limit',
-      'All validators + profiles',
-      'PDF + dataset export',
-      'Priority processing',
-      'Custom validation profiles',
-    ],
-    highlighted: true,
-  },
-  {
-    name: 'Enterprise',
-    price: null,
-    description: 'For large organizations with custom requirements.',
-    features: [
-      'Everything in Professional',
-      'Unlimited uploads',
-      '100MB file size limit',
-      'API access',
-      'Custom validators',
-      'Dedicated support',
-      'SSO integration',
-    ],
-    highlighted: false,
-  },
-]
+// GBP is the base currency — no detection needed
+const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
 
 export function PricingSection() {
+  const currency = gbp
+
   return (
     <section id="pricing" className="scroll-mt-16 bg-muted/30 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -84,7 +35,7 @@ export function PricingSection() {
               key={tier.name}
               className={
                 tier.highlighted
-                  ? 'relative border-secondary ring-2 ring-secondary'
+                  ? 'relative overflow-visible border-secondary ring-2 ring-secondary'
                   : ''
               }
             >
@@ -98,10 +49,10 @@ export function PricingSection() {
                 <CardTitle className="text-xl">{tier.name}</CardTitle>
                 <CardDescription>{tier.description}</CardDescription>
                 <div className="mt-4">
-                  {tier.price !== null ? (
+                  {tier.basePrice !== null ? (
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-bold text-foreground">
-                        ${tier.price}
+                        {formatPrice(tier.basePrice, currency)}
                       </span>
                       <span className="text-sm text-muted-foreground">
                         /month
@@ -137,7 +88,7 @@ export function PricingSection() {
                       : 'border border-input bg-background text-foreground hover:bg-muted'
                   }`}
                 >
-                  {tier.price !== null ? 'Get Started' : 'Contact Sales'}
+                  {tier.basePrice !== null ? 'Get Started' : 'Contact Sales'}
                 </Link>
               </CardFooter>
             </Card>

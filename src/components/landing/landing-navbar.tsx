@@ -34,7 +34,7 @@ export function LandingNavbar() {
     <header
       className={`sticky top-0 z-50 transition-colors ${
         scrolled
-          ? "border-b bg-background/95 backdrop-blur supports-backdrop-filter:backdrop-blur"
+          ? "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur"
           : "bg-transparent"
       }`}
     >
