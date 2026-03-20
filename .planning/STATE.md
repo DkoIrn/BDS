@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 10-01-PLAN.md
-last_updated: "2026-03-15T15:01:16.383Z"
-last_activity: 2026-03-15 -- Plan 09-02 complete (Phase 9 complete)
+stopped_at: Completed 10-02-PLAN.md
+last_updated: "2026-03-20T17:36:13.031Z"
+last_activity: 2026-03-20 -- Plan 10-02 complete (landing page composition and wiring)
 progress:
   total_phases: 10
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 25
-  completed_plans: 23
-  percent: 95
+  completed_plans: 24
+  percent: 96
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 10 of 10 (Landing Page & Subscription)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase
 Status: In Progress
-Last activity: 2026-03-15 -- Plan 10-01 complete (landing page sections)
+Last activity: 2026-03-20 -- Plan 10-02 complete (landing page composition and wiring)
 
-Progress: [█████████░] 92%
+Progress: [██████████] 96%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [█████████░] 92%
 
 *Updated after each plan completion*
 | Phase 10 P01 | 3min | 2 tasks | 8 files |
+| Phase 10 P02 | 8min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting current work:
 - Realtime toasts: RealtimeProvider handles global toast notifications; FileDetailView handles local state only -- no duplicate toasts
 - FileList Realtime: Local state synced with Realtime subscription for live status updates without page refresh
 - [Phase 10]: Server components for landing sections (no use client needed for presentational content)
+- [Phase 10]: GBP as base currency for pricing tiers (Starter £39, Professional £119)
+- [Phase 10]: Extracted pricing tiers to shared module (src/lib/pricing-tiers.ts) for reuse in subscription flows
 
 ### Pending Todos
 
@@ -119,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15T15:01:16.378Z
-Stopped at: Completed 10-01-PLAN.md
+Last session: 2026-03-20T17:36:13.000Z
+Stopped at: Completed 10-02-PLAN.md
 Resume file: None
