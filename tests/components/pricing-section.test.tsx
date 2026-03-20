@@ -11,13 +11,13 @@ describe('PricingSection', () => {
       expect(screen.getByText('Enterprise')).toBeDefined()
     })
 
-    it('displays dollar prices for Starter and Professional tiers', () => {
+    it('displays GBP prices for Starter and Professional tiers', () => {
       render(<PricingSection />)
-      expect(screen.getByText('$49')).toBeDefined()
-      expect(screen.getByText('$149')).toBeDefined()
+      expect(screen.getByText('£39')).toBeDefined()
+      expect(screen.getByText('£119')).toBeDefined()
     })
 
-    it('displays "Contact Us" for Enterprise tier instead of a dollar price', () => {
+    it('displays "Contact Us" for Enterprise tier instead of a price', () => {
       render(<PricingSection />)
       expect(screen.getByText('Contact Us')).toBeDefined()
     })
