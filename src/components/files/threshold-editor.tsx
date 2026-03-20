@@ -57,7 +57,7 @@ export function ThresholdEditor({
           ...config.ranges,
           [colType]: {
             ...config.ranges[colType],
-            [field]: value === "" || value === "-" ? value : num,
+            [field]: value === "" || value === "-" ? 0 : num,
           },
         },
       })
@@ -69,7 +69,7 @@ export function ThresholdEditor({
     (field: keyof ProfileConfig, value: string) => {
       const num = value === "" ? 0 : Number(value)
       if (value !== "" && isNaN(num)) return
-      onChange({ ...config, [field]: value === "" ? "" : num })
+      onChange({ ...config, [field]: value === "" ? 0 : num })
     },
     [config, onChange]
   )
