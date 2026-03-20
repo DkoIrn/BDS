@@ -2,7 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Settings } from "lucide-react"
+import {
+  LayoutDashboard,
+  Settings,
+  FolderOpen,
+  BarChart3,
+} from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +27,16 @@ const navItems = [
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Projects",
+    href: "/projects",
+    icon: FolderOpen,
+  },
+  {
+    title: "Reports",
+    href: "/reports",
+    icon: BarChart3,
   },
   {
     title: "Settings",
@@ -82,18 +97,24 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href}
-                    tooltip={item.title}
-                    render={<Link href={item.href} />}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navItems.map((item) => {
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/dashboard" &&
+                    pathname.startsWith(item.href))
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      tooltip={item.title}
+                      render={<Link href={item.href} />}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
