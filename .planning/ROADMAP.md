@@ -12,7 +12,7 @@ SurveyQC AI goes from zero to MVP in 10 phases over 2 months. The journey starts
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Auth** - Next.js shell with Supabase auth, database schema, and design system
+- [x] **Phase 1: Foundation & Auth** - Next.js shell with Supabase auth, database schema, and design system (completed 2026-03-20)
 - [x] **Phase 2: Project Structure** - Project and job hierarchy for organizing survey work (completed 2026-03-10)
 - [x] **Phase 3: File Upload & Storage** - Drag-and-drop upload to Supabase Storage with secure file management (completed 2026-03-11)
 - [x] **Phase 4: Ingestion Pipeline** - Column auto-detection, mapping interface, and messy data handling (completed 2026-03-11)
@@ -35,12 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can log out from any page and be redirected to the login screen
   4. User can request a password reset email and use the link to set a new password
   5. Application uses the brand palette (Deep Blue, Teal, Orange) and renders correctly on desktop and tablet
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 01-01-PLAN.md -- Scaffold Next.js with shadcn/ui, Supabase clients, middleware, design system, and database migration
-- [ ] 01-02-PLAN.md -- Auth pages (login, signup, forgot/update password) with split-screen layout and server actions
-- [ ] 01-03-PLAN.md -- App shell (collapsible sidebar, top bar, dashboard, settings) with human verification
+- [x] 01-01-PLAN.md -- Scaffold Next.js with shadcn/ui, Supabase clients, middleware, design system, and database migration
+- [x] 01-02-PLAN.md -- Auth pages (login, signup, forgot/update password) with split-screen layout and server actions
+- [x] 01-03-PLAN.md -- App shell (collapsible sidebar, top bar, dashboard, settings) with human verification
 
 ### Phase 2: Project Structure
 **Goal**: Users can organize their survey work into projects and jobs
@@ -183,7 +183,7 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Auth | 2/3 | In Progress|  |
+| 1. Foundation & Auth | 3/3 | Complete   | 2026-03-20 |
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
 | 3. File Upload & Storage | 2/2 | Complete   | 2026-03-11 |
 | 4. Ingestion Pipeline | 3/3 | Complete   | 2026-03-11 |
