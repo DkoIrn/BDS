@@ -229,13 +229,24 @@ Plans:
 - [ ] 12-02-PLAN.md -- Next.js auth proxy route, three-step converter UI at /tools/convert, human verification
 
 ### Phase 13: Map Visualization
-**Goal:** Users can plot spatial survey data on an interactive map with layer controls, tooltips, and coordinate display
-**Requirements**: TBD
+**Goal:** Users can upload spatial files and plot them on an interactive Leaflet map with layer controls, base map switching, tooltips, coordinate display, measurement tools, and screenshot export -- all without requiring login
+**Requirements**: MAP-01, MAP-02, MAP-03, MAP-04, MAP-05, MAP-06, MAP-07, MAP-08, MAP-09, MAP-10, MAP-11, MAP-12
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. User can access /tools/visualize without logging in
+  2. User can upload GeoJSON, KML/KMZ, and Shapefile ZIP files and see features plotted on the map
+  3. User can switch between OpenStreetMap, satellite, and topographic base maps
+  4. User can manage layers (toggle visibility, change colors, remove)
+  5. User sees hover tooltips and click popups with feature attributes
+  6. User sees cursor coordinates update as mouse moves
+  7. User can measure distance between points on the map
+  8. User can capture a PNG screenshot of the current map view
+  9. Layers persist across page reload via sessionStorage
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 13 to break down)
+- [ ] 13-01-PLAN.md -- Dependencies, lib modules (parser, colors, session store), public route setup, Leaflet map with layers, upload, tooltips, coordinate display
+- [ ] 13-02-PLAN.md -- Data table panel, measurement tool, screenshot export, and human verification
 
 ### Phase 14: Data Transform Tools
 **Goal:** Users can transform survey data -- CRS/datum conversion, merge multiple files, split by region, and auto-clean flagged issues
