@@ -67,6 +67,15 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **UIDE-02**: Responsive layout that works on desktop and tablet
 - [x] **UIDE-03**: Landing page communicates value proposition to target audience
 
+### File Format Parsers
+
+- [x] **FMT-01**: System parses GeoJSON files (FeatureCollection with Point/LineString/Polygon) into tabular rows
+- [x] **FMT-02**: System parses Shapefile ZIP archives (.shp/.dbf/.shx) into attribute rows with coordinates
+- [x] **FMT-03**: System parses KML/KMZ files extracting placemarks with name, description, and coordinates
+- [x] **FMT-04**: System parses LandXML files extracting CgPoints and Alignment coordinate data
+- [x] **FMT-05**: System parses DXF files extracting entity coordinates (POINT, LINE, LWPOLYLINE, INSERT, etc.)
+- [x] **FMT-06**: System routes files to correct parser by extension and integrates with upload/parse pipeline
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -161,6 +170,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UIDE-03 | Phase 10: Landing Page & Subscription | Complete |
 | SUBS-01 | Phase 10: Landing Page & Subscription | Complete |
 | SUBS-02 | Phase 10: Landing Page & Subscription | Complete |
+| FMT-01 | Phase 11: File Format Parsers | Complete |
+| FMT-02 | Phase 11: File Format Parsers | Complete |
+| FMT-03 | Phase 11: File Format Parsers | Complete |
+| FMT-04 | Phase 11: File Format Parsers | Complete |
+| FMT-05 | Phase 11: File Format Parsers | Complete |
+| FMT-06 | Phase 11: File Format Parsers | Complete |
 
 **Coverage:**
 - v1 requirements: 36 total
