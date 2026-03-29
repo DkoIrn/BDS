@@ -42,11 +42,58 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Dataset not found or access denied' }, { status: 404 })
   }
 
-  // Set status to 'parsing' immediately
-  await supabase
-    .from('datasets')
-    .update({ status: 'parsing' })
-    .eq('id', datasetId)
+  // Only set status to 'parsing' if not already mapped/validated
+  const currentStatus = dataset.status as string
+  const alreadyMapped = ['mapped', 'validating', 'validated', 'validation_error'].includes(currentStatus)
+
+  if (!alreadyMapped) {
+    await supabase
+      .from('datasets')
+      .update({ status: 'parsing' })
+      .eq('id', datasetId)
+  }
+
+  // Detect geospatial formats — proxy to FastAPI instead of parsing locally
+  const fileName = dataset.file_name as string
+  const fileExt = fileName.substring(fileName.lastIndexOf('.')).toLowerCase()
+  const geospatialExtensions = ['.geojson', '.json', '.zip', '.kml', '.kmz', '.xml', '.dxf']
+  const isGeospatial = geospatialExtensions.includes(fileExt)
+
+  if (isGeospatial) {
+    try {
+      const fastApiUrl = process.env.FASTAPI_URL
+      if (!fastApiUrl) {
+        throw new Error('FASTAPI_URL is not configured')
+      }
+
+      const response = await fetch(`${fastApiUrl}/api/v1/parse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: datasetId }),
+      })
+
+      if (!response.ok) {
+        const errorBody = await response.text()
+        throw new Error(`Parse service error: ${errorBody}`)
+      }
+
+      return NextResponse.json(await response.json())
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Parse failed'
+
+      if (!alreadyMapped) {
+        await supabase
+          .from('datasets')
+          .update({
+            status: 'error',
+            parse_warnings: [errorMessage],
+          })
+          .eq('id', datasetId)
+      }
+
+      return NextResponse.json({ error: errorMessage }, { status: 500 })
+    }
+  }
 
   try {
     // Fetch the job to get survey_type
@@ -122,9 +169,9 @@ export async function POST(request: Request) {
     // Compute total data rows (excluding header and any rows before it)
     const totalRows = rows.length - headerRowIndex - 1
 
-    // Compute preview: first 50 data rows after header
+    // Compute preview: up to 250 data rows after header
     const previewStart = headerRowIndex + 1
-    const previewEnd = Math.min(previewStart + 50, rows.length)
+    const previewEnd = Math.min(previewStart + 250, rows.length)
     const preview = rows.slice(previewStart, previewEnd)
 
     // Add missing column warnings
@@ -142,18 +189,31 @@ export async function POST(request: Request) {
       ignored: false,
     }))
 
-    // Update dataset with parsed data
-    await supabase
-      .from('datasets')
-      .update({
-        status: 'parsed',
-        header_row_index: headerRowIndex,
-        total_rows: totalRows,
-        parsed_metadata: parsedMeta,
-        column_mappings: columnMappings,
-        parse_warnings: parseWarnings.length > 0 ? parseWarnings : null,
-      })
-      .eq('id', datasetId)
+    // Update dataset with parsed data — preserve status & mappings if already mapped
+    if (alreadyMapped) {
+      // Only update metadata, not status or user-confirmed mappings
+      await supabase
+        .from('datasets')
+        .update({
+          header_row_index: headerRowIndex,
+          total_rows: totalRows,
+          parsed_metadata: parsedMeta,
+          parse_warnings: parseWarnings.length > 0 ? parseWarnings : null,
+        })
+        .eq('id', datasetId)
+    } else {
+      await supabase
+        .from('datasets')
+        .update({
+          status: 'parsed',
+          header_row_index: headerRowIndex,
+          total_rows: totalRows,
+          parsed_metadata: parsedMeta,
+          column_mappings: columnMappings,
+          parse_warnings: parseWarnings.length > 0 ? parseWarnings : null,
+        })
+        .eq('id', datasetId)
+    }
 
     return NextResponse.json({
       columns: detectedColumns,
@@ -165,16 +225,18 @@ export async function POST(request: Request) {
       ...(parsedMeta.sheetNames ? { sheetNames: parsedMeta.sheetNames } : {}),
     })
   } catch (err) {
-    // Always update status to 'error' to prevent stuck 'parsing' state
     const errorMessage = err instanceof Error ? err.message : 'Parse failed'
 
-    await supabase
-      .from('datasets')
-      .update({
-        status: 'error',
-        parse_warnings: [errorMessage],
-      })
-      .eq('id', datasetId)
+    // Only set error status if we weren't already mapped/validated
+    if (!alreadyMapped) {
+      await supabase
+        .from('datasets')
+        .update({
+          status: 'error',
+          parse_warnings: [errorMessage],
+        })
+        .eq('id', datasetId)
+    }
 
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }

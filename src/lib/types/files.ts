@@ -49,7 +49,16 @@ export const ACCEPTED_FILE_TYPES: Record<string, string[]> = {
   'text/csv': ['.csv'],
   'application/vnd.ms-excel': ['.xls'],
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+  'application/geo+json': ['.geojson'],
+  'application/vnd.google-earth.kml+xml': ['.kml'],
+  'application/vnd.google-earth.kmz': ['.kmz'],
+  'application/xml': ['.xml'],
+  'application/dxf': ['.dxf'],
+  'application/zip': ['.zip'],
 }
+
+/** File extensions that need FastAPI geospatial parsing (not local CSV/Excel) */
+export const GEOSPATIAL_EXTENSIONS = ['.geojson', '.json', '.zip', '.kml', '.kmz', '.xml', '.dxf'] as const
 
 /** Maximum file size in bytes (50MB) */
 export const MAX_FILE_SIZE = 50 * 1024 * 1024
