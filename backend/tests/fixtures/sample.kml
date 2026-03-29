@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Sample Survey Points</name>
+    <Placemark>
+      <name>WP-001</name>
+      <description>First waypoint</description>
+      <Point>
+        <coordinates>1.5,51.0,10.5</coordinates>
+      </Point>
+      <ExtendedData>
+        <Data name="depth">
+          <value>12.3</value>
+        </Data>
+      </ExtendedData>
+    </Placemark>
+    <Placemark>
+      <name>WP-002</name>
+      <description>Second waypoint</description>
+      <Point>
+        <coordinates>1.6,51.1,11.0</coordinates>
+      </Point>
+      <ExtendedData>
+        <Data name="depth">
+          <value>14.7</value>
+        </Data>
+      </ExtendedData>
+    </Placemark>
+    <Placemark>
+      <name>WP-003</name>
+      <description>Third waypoint</description>
+      <Point>
+        <coordinates>1.7,51.2,9.8</coordinates>
+      </Point>
+      <ExtendedData>
+        <Data name="depth">
+          <value>8.1</value>
+        </Data>
+      </ExtendedData>
+    </Placemark>
+  </Document>
+</kml>
