@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import L from "leaflet"
 import {
   MapContainer,
@@ -10,15 +10,21 @@ import {
   useMap,
 } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
+import { useState } from "react"
 
 import type { MapLayer, TileLayerKey } from "../lib/types"
 import { TILE_LAYERS } from "../lib/types"
+import { MeasurementTool } from "./measurement-tool"
+import { ScreenshotButton } from "./screenshot-button"
 
 interface LeafletMapProps {
   layers: MapLayer[]
   baseMap: TileLayerKey
   activeLayerId: string | null
   fitBoundsKey: number
+  measurementActive: boolean
+  zoomToFeatureIndex: number | null
+  onZoomToFeatureHandled: () => void
 }
 
 // Sub-component: Coordinate display on mouse move
@@ -98,6 +104,49 @@ function FitBounds({
   return null
 }
 
+// Sub-component: Zoom to a specific feature by index in the active layer
+function ZoomToFeature({
+  layers,
+  activeLayerId,
+  featureIndex,
+  onHandled,
+}: {
+  layers: MapLayer[]
+  activeLayerId: string | null
+  featureIndex: number | null
+  onHandled: () => void
+}) {
+  const map = useMap()
+  const prevIndex = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (featureIndex === null || featureIndex === prevIndex.current) return
+    prevIndex.current = featureIndex
+
+    const activeLayer = layers.find((l) => l.id === activeLayerId)
+    if (!activeLayer) return
+
+    const feature = activeLayer.geojson.features[featureIndex]
+    if (!feature) return
+
+    try {
+      const featureLayer = L.geoJSON(
+        { type: "FeatureCollection", features: [feature] } as GeoJSON.FeatureCollection
+      )
+      const bounds = featureLayer.getBounds()
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [80, 80], maxZoom: 16 })
+      }
+    } catch {
+      // Skip invalid features
+    }
+
+    onHandled()
+  }, [featureIndex, layers, activeLayerId, map, onHandled])
+
+  return null
+}
+
 // Feature tooltip/popup helpers
 function getFeatureLabel(feature: GeoJSON.Feature): string {
   const props = feature.properties || {}
@@ -132,6 +181,9 @@ export default function LeafletMap({
   baseMap,
   activeLayerId,
   fitBoundsKey,
+  measurementActive,
+  zoomToFeatureIndex,
+  onZoomToFeatureHandled,
 }: LeafletMapProps) {
   const tileConfig = TILE_LAYERS[baseMap]
 
@@ -190,6 +242,14 @@ export default function LeafletMap({
 
       <CoordinateDisplay />
       <FitBounds layers={layers} fitKey={fitBoundsKey} />
+      <ZoomToFeature
+        layers={layers}
+        activeLayerId={activeLayerId}
+        featureIndex={zoomToFeatureIndex}
+        onHandled={onZoomToFeatureHandled}
+      />
+      <MeasurementTool active={measurementActive} />
+      <ScreenshotButton />
     </MapContainer>
   )
 }

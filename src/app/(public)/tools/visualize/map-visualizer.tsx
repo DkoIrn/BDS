@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
-import { Crosshair, ArrowLeft } from "lucide-react"
+import { Crosshair, ArrowLeft, Ruler, Table2 } from "lucide-react"
 import Link from "next/link"
 import type { MapLayer, TileLayerKey } from "./lib/types"
 import { getLayerColor } from "./lib/layer-colors"
 import { saveLayers, loadLayers } from "./lib/session-store"
 import { UploadPanel } from "./components/upload-panel"
 import { LayerPanel } from "./components/layer-panel"
+import { DataTablePanel } from "./components/data-table-panel"
 
 const LeafletMap = dynamic(() => import("./components/leaflet-map"), {
   ssr: false,
@@ -24,6 +25,9 @@ export function MapVisualizer() {
   const [activeLayerId, setActiveLayerId] = useState<string | null>(null)
   const [baseMap, setBaseMap] = useState<TileLayerKey>("osm")
   const [fitBoundsKey, setFitBoundsKey] = useState(0)
+  const [showDataTable, setShowDataTable] = useState(false)
+  const [measurementActive, setMeasurementActive] = useState(false)
+  const [zoomToFeatureIndex, setZoomToFeatureIndex] = useState<number | null>(null)
   const initialized = useRef(false)
 
   // Load layers from sessionStorage on mount
@@ -96,6 +100,16 @@ export function MapVisualizer() {
     setFitBoundsKey((k) => k + 1)
   }, [])
 
+  const handleZoomToFeature = useCallback((featureIndex: number) => {
+    setZoomToFeatureIndex(featureIndex)
+  }, [])
+
+  const handleZoomToFeatureHandled = useCallback(() => {
+    setZoomToFeatureIndex(null)
+  }, [])
+
+  const activeLayer = layers.find((l) => l.id === activeLayerId) ?? null
+
   return (
     <div className="relative h-screen w-full">
       {/* Map fills entire viewport */}
@@ -104,6 +118,9 @@ export function MapVisualizer() {
         baseMap={baseMap}
         activeLayerId={activeLayerId}
         fitBoundsKey={fitBoundsKey}
+        measurementActive={measurementActive}
+        zoomToFeatureIndex={zoomToFeatureIndex}
+        onZoomToFeatureHandled={handleZoomToFeatureHandled}
       />
 
       {/* Back navigation */}
@@ -134,15 +151,56 @@ export function MapVisualizer() {
         />
       </div>
 
-      {/* Zoom to fit button */}
-      <button
-        onClick={handleZoomToFit}
-        className="absolute right-3 top-3 z-[1000] flex size-9 items-center justify-center rounded-lg bg-white shadow-md hover:bg-gray-50"
-        title="Zoom to fit all layers"
-      >
-        <Crosshair className="size-4 text-gray-700" />
-      </button>
+      {/* Floating toolbar - top right */}
+      <div className="absolute right-3 top-3 z-[1000] flex flex-col gap-1.5">
+        {/* Zoom to fit */}
+        <button
+          onClick={handleZoomToFit}
+          className="flex size-9 items-center justify-center rounded-lg bg-white shadow-md hover:bg-gray-50"
+          title="Zoom to fit all layers"
+        >
+          <Crosshair className="size-4 text-gray-700" />
+        </button>
 
+        {/* Measurement toggle */}
+        <button
+          onClick={() => setMeasurementActive((v) => !v)}
+          className={`flex size-9 items-center justify-center rounded-lg shadow-md ${
+            measurementActive
+              ? "bg-red-50 ring-2 ring-red-400"
+              : "bg-white hover:bg-gray-50"
+          }`}
+          title={measurementActive ? "Disable measurement" : "Measure distance"}
+        >
+          <Ruler
+            className={`size-4 ${measurementActive ? "text-red-600" : "text-gray-700"}`}
+          />
+        </button>
+
+        {/* Data table toggle */}
+        <button
+          onClick={() => setShowDataTable((v) => !v)}
+          className={`flex size-9 items-center justify-center rounded-lg shadow-md ${
+            showDataTable
+              ? "bg-blue-50 ring-2 ring-blue-400"
+              : "bg-white hover:bg-gray-50"
+          }`}
+          title={showDataTable ? "Hide data table" : "Show data table"}
+        >
+          <Table2
+            className={`size-4 ${showDataTable ? "text-blue-600" : "text-gray-700"}`}
+          />
+        </button>
+      </div>
+
+      {/* Data table panel */}
+      {showDataTable && (
+        <DataTablePanel
+          layer={activeLayer}
+          onZoomToFeature={handleZoomToFeature}
+          onClose={() => setShowDataTable(false)}
+        />
+      )}
     </div>
   )
 }
