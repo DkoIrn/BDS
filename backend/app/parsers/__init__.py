@@ -9,6 +9,7 @@ from app.parsers.shapefile_parser import parse_shapefile_zip
 from app.parsers.kml_parser import parse_kml, parse_kmz
 from app.parsers.landxml_parser import parse_landxml
 from app.parsers.dxf_parser import parse_dxf
+from app.parsers.tabular_parser import parse_csv_file, parse_excel_file
 
 # Maps file extension (lowercase, with dot) to parser function
 PARSER_REGISTRY: dict[str, Callable[[bytes], ParseResult]] = {
@@ -19,6 +20,9 @@ PARSER_REGISTRY: dict[str, Callable[[bytes], ParseResult]] = {
     ".kmz": parse_kmz,
     ".xml": parse_landxml,
     ".dxf": parse_dxf,
+    ".csv": parse_csv_file,
+    ".xlsx": parse_excel_file,
+    ".xls": parse_excel_file,
 }
 
 
