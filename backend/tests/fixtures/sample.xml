@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2">
+  <Project name="TestSurvey" />
+  <CgPoints>
+    <CgPoint name="PT-001">5000.000 1000.000 10.500</CgPoint>
+    <CgPoint name="PT-002">5100.000 1050.000 11.200</CgPoint>
+    <CgPoint name="PT-003">5200.000 1100.000 9.800</CgPoint>
+  </CgPoints>
+  <Alignments>
+    <Alignment name="CL-01" length="150.0">
+      <CoordGeom>
+        <Line>
+          <Start>5000.000 1000.000</Start>
+          <End>5150.000 1075.000</End>
+        </Line>
+      </CoordGeom>
+    </Alignment>
+  </Alignments>
+</LandXML>
