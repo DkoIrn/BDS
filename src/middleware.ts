@@ -33,11 +33,13 @@ export async function middleware(request: NextRequest) {
   // Redirect unauthenticated users away from protected routes
   if (
     !user &&
+    request.nextUrl.pathname !== '/' &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/signup') &&
     !request.nextUrl.pathname.startsWith('/forgot-password') &&
     !request.nextUrl.pathname.startsWith('/update-password') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !request.nextUrl.pathname.startsWith('/auth') &&
+    !request.nextUrl.pathname.startsWith('/tools/visualize')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
