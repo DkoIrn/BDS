@@ -7,6 +7,8 @@ import Link from "next/link"
 import type { MapLayer, TileLayerKey } from "./lib/types"
 import { getLayerColor } from "./lib/layer-colors"
 import { saveLayers, loadLayers } from "./lib/session-store"
+import { UploadPanel } from "./components/upload-panel"
+import { LayerPanel } from "./components/layer-panel"
 
 const LeafletMap = dynamic(() => import("./components/leaflet-map"), {
   ssr: false,
@@ -113,11 +115,24 @@ export function MapVisualizer() {
         Home
       </Link>
 
-      {/* Upload panel placeholder -- wired in Task 3 */}
-      <div id="upload-panel-slot" className="absolute left-3 top-14 z-[1000]" />
+      {/* Upload panel */}
+      <div className="absolute left-3 top-14 z-[1000]">
+        <UploadPanel onFileParsed={handleFileParsed} />
+      </div>
 
-      {/* Layer panel placeholder -- wired in Task 3 */}
-      <div id="layer-panel-slot" className="absolute left-3 top-48 z-[1000]" />
+      {/* Layer panel */}
+      <div className="absolute left-3 top-48 z-[1000]">
+        <LayerPanel
+          layers={layers}
+          activeLayerId={activeLayerId}
+          baseMap={baseMap}
+          onToggleVisibility={handleToggleVisibility}
+          onColorChange={handleColorChange}
+          onRemoveLayer={handleRemoveLayer}
+          onSelectLayer={handleSelectLayer}
+          onBaseMapChange={handleBaseMapChange}
+        />
+      </div>
 
       {/* Zoom to fit button */}
       <button
@@ -128,18 +143,6 @@ export function MapVisualizer() {
         <Crosshair className="size-4 text-gray-700" />
       </button>
 
-      {/* Export handler props for Task 3 wiring */}
-      <input type="hidden" data-layers={layers.length} />
     </div>
   )
-}
-
-// Export handlers type for child components
-export type MapVisualizerHandlers = {
-  onFileParsed: (file: File, geojson: GeoJSON.FeatureCollection) => void
-  onToggleVisibility: (layerId: string) => void
-  onColorChange: (layerId: string, color: string) => void
-  onRemoveLayer: (layerId: string) => void
-  onSelectLayer: (layerId: string) => void
-  onBaseMapChange: (key: TileLayerKey) => void
 }
