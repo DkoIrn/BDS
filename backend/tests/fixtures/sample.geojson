@@ -1,0 +1,41 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [1.5, 51.0, 10.5]
+      },
+      "properties": {
+        "name": "WP-001",
+        "depth": 12.3,
+        "description": "Waypoint one"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [1.6, 51.1, 11.0]
+      },
+      "properties": {
+        "name": "WP-002",
+        "depth": 14.7,
+        "description": "Waypoint two"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [1.7, 51.2, 9.8]
+      },
+      "properties": {
+        "name": "WP-003",
+        "depth": 8.1,
+        "description": "Waypoint three"
+      }
+    }
+  ]
+}
