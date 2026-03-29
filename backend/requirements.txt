@@ -17,3 +17,5 @@ pyshp>=2.3
 fastkml>=1.0
 lxml>=5.0
 ezdxf>=1.4
+# Phase 12: Format conversion (multipart file upload)
+python-multipart>=0.0.9
