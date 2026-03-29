@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 12 of 16 (12-format-conversion)
-Plan: 2 of 2
-Status: Phase Complete
-Last activity: 2026-03-29 -- Plan 12-02 complete (converter frontend UI + auth proxy)
+Phase: 13 of 16 (13-map-visualization)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-03-29 -- Plan 13-01 complete (map visualization core)
 
 Progress: [██████████] 100%
 
@@ -62,6 +62,7 @@ Progress: [██████████] 100%
 | Phase 11 P01 | 4min | 3 tasks | 11 files |
 | Phase 12 P01 | 5min | 2 tasks | 14 files |
 | Phase 12 P02 | 5min | 2 tasks | 3 files |
+| Phase 13 P01 | 6min | 4 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,11 @@ Recent decisions affecting current work:
 - [Phase 12]: Inline react-dropzone for converter (not FileUploadZone) to avoid dataset-specific dependencies
 - [Phase 12]: Raw body forwarding preserves multipart boundaries in auth proxy
 - [Phase 12]: Blob URL download via hidden anchor element for cross-browser file download
+- [Phase 13]: Public route group (public) with passthrough layout for unauthenticated tool pages
+- [Phase 13]: circleMarker instead of icon markers to avoid Leaflet broken icon path issue
+- [Phase 13]: Inline react-dropzone in upload panel (same pattern as converter)
+- [Phase 13]: sessionStorage for layer persistence (no server storage, no database)
+- [Phase 13]: ESRI World Imagery for satellite tiles (free, no API key)
 
 ### Roadmap Evolution
 
@@ -144,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T20:10:53.342Z
-Stopped at: Phase 13 context gathered
-Resume file: .planning/phases/13-map-visualization/13-CONTEXT.md
+Last session: 2026-03-29T21:08:02Z
+Stopped at: Completed 13-01-PLAN.md
+Resume file: .planning/phases/13-map-visualization/13-01-SUMMARY.md
