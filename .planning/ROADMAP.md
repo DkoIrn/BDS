@@ -242,7 +242,7 @@ Plans:
   7. User can measure distance between points on the map
   8. User can capture a PNG screenshot of the current map view
   9. Layers persist across page reload via sessionStorage
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 13-01-PLAN.md -- Dependencies, lib modules (parser, colors, session store), public route setup, Leaflet map with layers, upload, tooltips, coordinate display
