@@ -222,7 +222,7 @@ Plans:
   3. Target format selection is smart-filtered (excludes same format, excludes spatial outputs for non-spatial input)
   4. Conversion errors display inline with clear explanations
   5. Partial conversions succeed with warnings for skipped rows
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 12-01-PLAN.md -- Backend writers (CSV, GeoJSON, KML), CSV/Excel parser registration, FastAPI /api/v1/convert endpoint with tests

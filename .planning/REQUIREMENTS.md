@@ -78,11 +78,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Format Conversion
 
-- [ ] **CONV-01**: User can upload any supported format file (CSV, Excel, GeoJSON, Shapefile, KML/KMZ, LandXML, DXF) for conversion
-- [ ] **CONV-02**: User can select target format (CSV, GeoJSON, KML) with smart filtering based on input type
-- [ ] **CONV-03**: System converts file and provides download with correct filename and format
-- [ ] **CONV-04**: Conversion handles errors gracefully with clear inline messages
-- [ ] **CONV-05**: Partial conversions succeed with warnings for skipped rows
+- [x] **CONV-01**: User can upload any supported format file (CSV, Excel, GeoJSON, Shapefile, KML/KMZ, LandXML, DXF) for conversion
+- [x] **CONV-02**: User can select target format (CSV, GeoJSON, KML) with smart filtering based on input type
+- [x] **CONV-03**: System converts file and provides download with correct filename and format
+- [x] **CONV-04**: Conversion handles errors gracefully with clear inline messages
+- [x] **CONV-05**: Partial conversions succeed with warnings for skipped rows
 
 ## v2 Requirements
 
@@ -184,11 +184,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FMT-04 | Phase 11: File Format Parsers | Complete |
 | FMT-05 | Phase 11: File Format Parsers | Complete |
 | FMT-06 | Phase 11: File Format Parsers | Complete |
-| CONV-01 | Phase 12: Format Conversion Tool | Pending |
-| CONV-02 | Phase 12: Format Conversion Tool | Pending |
-| CONV-03 | Phase 12: Format Conversion Tool | Pending |
-| CONV-04 | Phase 12: Format Conversion Tool | Pending |
-| CONV-05 | Phase 12: Format Conversion Tool | Pending |
+| CONV-01 | Phase 12: Format Conversion Tool | Complete |
+| CONV-02 | Phase 12: Format Conversion Tool | Complete |
+| CONV-03 | Phase 12: Format Conversion Tool | Complete |
+| CONV-04 | Phase 12: Format Conversion Tool | Complete |
+| CONV-05 | Phase 12: Format Conversion Tool | Complete |
 
 **Coverage:**
 - v1 requirements: 41 total
