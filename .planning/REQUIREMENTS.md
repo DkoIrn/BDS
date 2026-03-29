@@ -84,6 +84,20 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CONV-04**: Conversion handles errors gracefully with clear inline messages
 - [x] **CONV-05**: Partial conversions succeed with warnings for skipped rows
 
+### Data Transform Tools
+
+- [ ] **XFRM-01**: System transforms coordinates between CRS (WGS84, UTM zones, OSGB36) using pyproj
+- [ ] **XFRM-02**: System auto-detects source CRS from coordinate value ranges
+- [ ] **XFRM-03**: System merges multiple datasets with union columns and missing value padding
+- [ ] **XFRM-04**: System splits datasets by KP range into separate output files
+- [ ] **XFRM-05**: System splits datasets by column value into one file per unique value
+- [ ] **XFRM-06**: Transform endpoints accept file uploads and return transformed output via FastAPI
+- [ ] **XFRM-07**: Landing page shows clickable tool cards with Coming Soon badge on Auto-Clean
+- [ ] **XFRM-08**: CRS tool provides upload, auto-detect source CRS, target CRS selection, and download flow
+- [ ] **XFRM-09**: Merge tool provides multi-file upload, preview, and single merged file download
+- [ ] **XFRM-10**: Split tool supports both KP range and column value split modes
+- [ ] **XFRM-11**: Split output provides ZIP download with one file per split segment
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -132,7 +146,6 @@ Explicitly excluded. Documented to prevent scope creep.
 | Built-in data editing/correction | Turns QC tool into a spreadsheet. Flag issues for engineers to fix in their preferred tool |
 | Custom ML model training | Requires ML ops infrastructure beyond solo dev capacity |
 | Video/image annotation for ROV data | Different product category with massive storage requirements |
-| Coordinate transformations | Complex geodetic edge cases; accept data in whatever CRS user provides |
 | Real-time collaboration/commenting | Complex sync infrastructure; single-user review for MVP |
 | Mobile app | Web-first, responsive design covers tablet use |
 
@@ -189,12 +202,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONV-03 | Phase 12: Format Conversion Tool | Complete |
 | CONV-04 | Phase 12: Format Conversion Tool | Complete |
 | CONV-05 | Phase 12: Format Conversion Tool | Complete |
+| XFRM-01 | Phase 14: Data Transform Tools | Pending |
+| XFRM-02 | Phase 14: Data Transform Tools | Pending |
+| XFRM-03 | Phase 14: Data Transform Tools | Pending |
+| XFRM-04 | Phase 14: Data Transform Tools | Pending |
+| XFRM-05 | Phase 14: Data Transform Tools | Pending |
+| XFRM-06 | Phase 14: Data Transform Tools | Pending |
+| XFRM-07 | Phase 14: Data Transform Tools | Pending |
+| XFRM-08 | Phase 14: Data Transform Tools | Pending |
+| XFRM-09 | Phase 14: Data Transform Tools | Pending |
+| XFRM-10 | Phase 14: Data Transform Tools | Pending |
+| XFRM-11 | Phase 14: Data Transform Tools | Pending |
 
 **Coverage:**
-- v1 requirements: 41 total
-- Mapped to phases: 41
+- v1 requirements: 52 total
+- Mapped to phases: 52
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-10*
-*Last updated: 2026-03-29 after Phase 12 planning*
+*Last updated: 2026-03-30 after Phase 14 planning*

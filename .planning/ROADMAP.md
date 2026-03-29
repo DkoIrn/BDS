@@ -249,13 +249,21 @@ Plans:
 - [ ] 13-02-PLAN.md -- Data table panel, measurement tool, screenshot export, and human verification
 
 ### Phase 14: Data Transform Tools
-**Goal:** Users can transform survey data -- CRS/datum conversion, merge multiple files, split by region, and auto-clean flagged issues
-**Requirements**: TBD
+**Goal:** Users can transform survey data -- CRS/datum conversion, merge multiple files, and split by KP range or column value -- via standalone tool pages with upload, configure, and download flow
+**Requirements**: XFRM-01, XFRM-02, XFRM-03, XFRM-04, XFRM-05, XFRM-06, XFRM-07, XFRM-08, XFRM-09, XFRM-10, XFRM-11
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. User can convert coordinates between WGS84, UTM zones, and OSGB36 with source CRS auto-detection
+  2. User can merge multiple survey files into a single output with union columns
+  3. User can split a dataset by KP range or by column value and download results as ZIP
+  4. Landing page shows clickable tool cards with Coming Soon badge on Auto-Clean
+  5. All three tools follow the upload, configure, download three-step pattern
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 14 to break down)
+- [ ] 14-01-PLAN.md -- Backend: pyproj dependency, transform functions (CRS, merge, split), FastAPI router with tests
+- [ ] 14-02-PLAN.md -- Frontend: landing page update, API proxy routes, CRS tool page, merge tool page
+- [ ] 14-03-PLAN.md -- Frontend: split tool page with KP range and column value modes, human verification
 
 ### Phase 15: Dataset Comparison
 **Goal:** Users can compare two datasets (e.g. as-built vs as-designed) and see a visual diff of differences, deviations, and mismatches
