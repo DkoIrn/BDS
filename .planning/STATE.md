@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-03-20T18:11:52.183Z"
-last_activity: 2026-03-20 -- Plan 01-03 complete (app shell with sidebar, top bar, dashboard, settings)
+status: in-progress
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-29T14:45:18Z"
+last_activity: 2026-03-29 -- Plan 11-01 complete (GeoJSON, Shapefile, KML/KMZ parsers with TDD)
 progress:
-  total_phases: 10
+  total_phases: 16
   completed_phases: 10
-  total_plans: 25
-  completed_plans: 25
-  percent: 100
+  total_plans: 27
+  completed_plans: 26
+  percent: 96
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** All phases complete
+**Current focus:** Phase 11 - File Format Parsers
 
 ## Current Position
 
-Phase: 10 of 10 (All phases complete)
-Plan: All plans complete
-Status: Complete
-Last activity: 2026-03-20 -- Plan 01-03 complete (app shell with sidebar, top bar, dashboard, settings)
+Phase: 11 of 16 (11-file-format-parsers)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-03-29 -- Plan 11-01 complete (GeoJSON, Shapefile, KML/KMZ parsers with TDD)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 96%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [██████████] 100%
 | Phase 10 P01 | 3min | 2 tasks | 8 files |
 | Phase 10 P02 | 8min | 2 tasks | 8 files |
 | Phase 01 P03 | 5min | 3 tasks | 3 files |
+| Phase 11 P01 | 4min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,18 @@ Recent decisions affecting current work:
 - [Phase 10]: Server components for landing sections (no use client needed for presentational content)
 - [Phase 10]: GBP as base currency for pricing tiers (Starter £39, Professional £119)
 - [Phase 10]: Extracted pricing tiers to shared module (src/lib/pricing-tiers.ts) for reuse in subscription flows
+- [Phase 11]: ParseResult dataclass as shared contract -- string[][] rows for column detection pipeline compatibility
+- [Phase 11]: KML parser uses lxml with namespace-aware XPath (not fastkml) for reliable parsing
+- [Phase 11]: flatten_geometry helper shared across parsers for consistent coordinate normalization
+
+### Roadmap Evolution
+
+- Phase 11 added: File Format Parsers (GeoJSON, Shapefile, KML, LandXML, DXF)
+- Phase 12 added: Format Conversion Tool (standalone convert UI + API)
+- Phase 13 added: Map Visualization (interactive Leaflet map for spatial data)
+- Phase 14 added: Data Transform Tools (CRS conversion, merge, split, clean)
+- Phase 15 added: Dataset Comparison (as-built vs as-designed diff)
+- Phase 16 added: Pipeline Workflow (guided step-by-step processing flow)
 
 ### Pending Todos
 
@@ -123,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-20T17:58:00.000Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-03-29T14:45:18Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None
