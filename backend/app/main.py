@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers.parsing import router as parsing_router
 from app.routers.reports import router as reports_router
 from app.routers.validation import router as validation_router
 
@@ -19,6 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(parsing_router)
 app.include_router(reports_router)
 app.include_router(validation_router)
 
