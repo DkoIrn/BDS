@@ -214,12 +214,19 @@ Plans:
 
 ### Phase 12: Format Conversion Tool
 **Goal:** Users can convert between survey file formats (e.g. DXF to GeoJSON, SHP to CSV) via a standalone tool UI and API
-**Requirements**: TBD
+**Requirements**: CONV-01, CONV-02, CONV-03, CONV-04, CONV-05
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. User can upload any supported format file and select a target output format
+  2. System converts the file and provides a download with correct filename and content type
+  3. Target format selection is smart-filtered (excludes same format, excludes spatial outputs for non-spatial input)
+  4. Conversion errors display inline with clear explanations
+  5. Partial conversions succeed with warnings for skipped rows
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md -- Backend writers (CSV, GeoJSON, KML), CSV/Excel parser registration, FastAPI /api/v1/convert endpoint with tests
+- [ ] 12-02-PLAN.md -- Next.js auth proxy route, three-step converter UI at /tools/convert, human verification
 
 ### Phase 13: Map Visualization
 **Goal:** Users can plot spatial survey data on an interactive map with layer controls, tooltips, and coordinate display
