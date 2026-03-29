@@ -193,3 +193,66 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 8. Results Dashboard | 0/3 | Not started | - |
 | 9. Reports & Export | 2/2 | Complete | 2026-03-15 |
 | 10. Landing Page & Subscription | 2/2 | Complete    | 2026-03-20 |
+
+### Phase 11: File Format Parsers
+**Goal:** The platform can ingest GeoJSON, Shapefile, KML, LandXML, and DXF files -- extracting coordinates, attributes, and metadata into tabular form for QC and conversion
+**Requirements**: FMT-01, FMT-02, FMT-03, FMT-04, FMT-05, FMT-06
+**Depends on:** Phase 4
+**Success Criteria** (what must be TRUE):
+  1. System parses GeoJSON files and extracts features as tabular rows with coordinate and property columns
+  2. System parses Shapefile ZIP archives and extracts attributes and coordinates
+  3. System parses KML/KMZ files and extracts placemarks with name, description, and coordinates
+  4. System parses LandXML files and extracts survey points and alignment data
+  5. System parses DXF files and extracts entity coordinates with layer information
+  6. All parsed formats produce output compatible with existing column detection and validation pipeline
+**Plans:** 3 plans
+
+Plans:
+- [ ] 11-01-PLAN.md -- ParseResult base, GeoJSON/Shapefile/KML parsers with TDD and test fixtures
+- [ ] 11-02-PLAN.md -- LandXML/DXF parsers with TDD and dispatch registry
+- [ ] 11-03-PLAN.md -- FastAPI parse endpoint, Next.js proxy update, frontend file acceptance
+
+### Phase 12: Format Conversion Tool
+**Goal:** Users can convert between survey file formats (e.g. DXF to GeoJSON, SHP to CSV) via a standalone tool UI and API
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 12 to break down)
+
+### Phase 13: Map Visualization
+**Goal:** Users can plot spatial survey data on an interactive map with layer controls, tooltips, and coordinate display
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 13 to break down)
+
+### Phase 14: Data Transform Tools
+**Goal:** Users can transform survey data -- CRS/datum conversion, merge multiple files, split by region, and auto-clean flagged issues
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14 to break down)
+
+### Phase 15: Dataset Comparison
+**Goal:** Users can compare two datasets (e.g. as-built vs as-designed) and see a visual diff of differences, deviations, and mismatches
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 15 to break down)
+
+### Phase 16: Pipeline Workflow
+**Goal:** Users can process datasets through a guided step-by-step flow (upload -> preview -> validate -> clean -> export) with a visual progress bar
+**Requirements**: TBD
+**Depends on:** Phase 12, Phase 13, Phase 14
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 16 to break down)
