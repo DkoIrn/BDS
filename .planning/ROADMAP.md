@@ -258,7 +258,7 @@ Plans:
   3. User can split a dataset by KP range or by column value and download results as ZIP
   4. Landing page shows clickable tool cards with Coming Soon badge on Auto-Clean
   5. All three tools follow the upload, configure, download three-step pattern
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 14-01-PLAN.md -- Backend: pyproj dependency, transform functions (CRS, merge, split), FastAPI router with tests

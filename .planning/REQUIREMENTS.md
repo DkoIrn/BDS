@@ -86,12 +86,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Transform Tools
 
-- [ ] **XFRM-01**: System transforms coordinates between CRS (WGS84, UTM zones, OSGB36) using pyproj
-- [ ] **XFRM-02**: System auto-detects source CRS from coordinate value ranges
-- [ ] **XFRM-03**: System merges multiple datasets with union columns and missing value padding
-- [ ] **XFRM-04**: System splits datasets by KP range into separate output files
-- [ ] **XFRM-05**: System splits datasets by column value into one file per unique value
-- [ ] **XFRM-06**: Transform endpoints accept file uploads and return transformed output via FastAPI
+- [x] **XFRM-01**: System transforms coordinates between CRS (WGS84, UTM zones, OSGB36) using pyproj
+- [x] **XFRM-02**: System auto-detects source CRS from coordinate value ranges
+- [x] **XFRM-03**: System merges multiple datasets with union columns and missing value padding
+- [x] **XFRM-04**: System splits datasets by KP range into separate output files
+- [x] **XFRM-05**: System splits datasets by column value into one file per unique value
+- [x] **XFRM-06**: Transform endpoints accept file uploads and return transformed output via FastAPI
 - [ ] **XFRM-07**: Landing page shows clickable tool cards with Coming Soon badge on Auto-Clean
 - [ ] **XFRM-08**: CRS tool provides upload, auto-detect source CRS, target CRS selection, and download flow
 - [ ] **XFRM-09**: Merge tool provides multi-file upload, preview, and single merged file download
@@ -202,12 +202,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONV-03 | Phase 12: Format Conversion Tool | Complete |
 | CONV-04 | Phase 12: Format Conversion Tool | Complete |
 | CONV-05 | Phase 12: Format Conversion Tool | Complete |
-| XFRM-01 | Phase 14: Data Transform Tools | Pending |
-| XFRM-02 | Phase 14: Data Transform Tools | Pending |
-| XFRM-03 | Phase 14: Data Transform Tools | Pending |
-| XFRM-04 | Phase 14: Data Transform Tools | Pending |
-| XFRM-05 | Phase 14: Data Transform Tools | Pending |
-| XFRM-06 | Phase 14: Data Transform Tools | Pending |
+| XFRM-01 | Phase 14: Data Transform Tools | Complete |
+| XFRM-02 | Phase 14: Data Transform Tools | Complete |
+| XFRM-03 | Phase 14: Data Transform Tools | Complete |
+| XFRM-04 | Phase 14: Data Transform Tools | Complete |
+| XFRM-05 | Phase 14: Data Transform Tools | Complete |
+| XFRM-06 | Phase 14: Data Transform Tools | Complete |
 | XFRM-07 | Phase 14: Data Transform Tools | Pending |
 | XFRM-08 | Phase 14: Data Transform Tools | Pending |
 | XFRM-09 | Phase 14: Data Transform Tools | Pending |
