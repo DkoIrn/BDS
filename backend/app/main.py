@@ -6,6 +6,7 @@ from app.routers.parsing import router as parsing_router
 from app.routers.reports import router as reports_router
 from app.routers.validation import router as validation_router
 from app.routers.conversion import router as conversion_router
+from app.routers.transform import router as transform_router
 
 app = FastAPI(
     title="SurveyQC Validation API",
@@ -25,6 +26,7 @@ app.include_router(parsing_router)
 app.include_router(reports_router)
 app.include_router(validation_router)
 app.include_router(conversion_router)
+app.include_router(transform_router)
 
 
 @app.get("/health")
