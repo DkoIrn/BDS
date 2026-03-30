@@ -92,9 +92,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **XFRM-04**: System splits datasets by KP range into separate output files
 - [x] **XFRM-05**: System splits datasets by column value into one file per unique value
 - [x] **XFRM-06**: Transform endpoints accept file uploads and return transformed output via FastAPI
-- [ ] **XFRM-07**: Landing page shows clickable tool cards with Coming Soon badge on Auto-Clean
-- [ ] **XFRM-08**: CRS tool provides upload, auto-detect source CRS, target CRS selection, and download flow
-- [ ] **XFRM-09**: Merge tool provides multi-file upload, preview, and single merged file download
+- [x] **XFRM-07**: Landing page shows clickable tool cards with Coming Soon badge on Auto-Clean
+- [x] **XFRM-08**: CRS tool provides upload, auto-detect source CRS, target CRS selection, and download flow
+- [x] **XFRM-09**: Merge tool provides multi-file upload, preview, and single merged file download
 - [ ] **XFRM-10**: Split tool supports both KP range and column value split modes
 - [ ] **XFRM-11**: Split output provides ZIP download with one file per split segment
 
@@ -208,9 +208,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | XFRM-04 | Phase 14: Data Transform Tools | Complete |
 | XFRM-05 | Phase 14: Data Transform Tools | Complete |
 | XFRM-06 | Phase 14: Data Transform Tools | Complete |
-| XFRM-07 | Phase 14: Data Transform Tools | Pending |
-| XFRM-08 | Phase 14: Data Transform Tools | Pending |
-| XFRM-09 | Phase 14: Data Transform Tools | Pending |
+| XFRM-07 | Phase 14: Data Transform Tools | Complete |
+| XFRM-08 | Phase 14: Data Transform Tools | Complete |
+| XFRM-09 | Phase 14: Data Transform Tools | Complete |
 | XFRM-10 | Phase 14: Data Transform Tools | Pending |
 | XFRM-11 | Phase 14: Data Transform Tools | Pending |
 

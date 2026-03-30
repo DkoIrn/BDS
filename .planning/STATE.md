@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 14-01-PLAN.md
-last_updated: "2026-03-30T00:07:02.570Z"
-last_activity: 2026-03-30 -- Plan 14-01 complete (backend transform functions and FastAPI endpoints)
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-30T00:13:04.431Z"
+last_activity: 2026-03-30 -- Plan 14-02 complete (CRS & merge tool UI, preview table, API proxies)
 progress:
   total_phases: 16
   completed_phases: 13
   total_plans: 35
-  completed_plans: 33
+  completed_plans: 34
   percent: 94
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 14 of 16 (14-data-transform-tools)
-Plan: 1 of 3
+Plan: 2 of 3
 Status: In Progress
-Last activity: 2026-03-30 -- Plan 14-01 complete (backend transform functions and FastAPI endpoints)
+Last activity: 2026-03-30 -- Plan 14-02 complete (CRS & merge tool UI, preview table, API proxies)
 
 Progress: [█████████░] 94%
 
@@ -65,6 +65,7 @@ Progress: [█████████░] 94%
 | Phase 13 P01 | 6min | 4 tasks | 18 files |
 | Phase 13 P02 | 8min | 2 tasks | 8 files |
 | Phase 14 P01 | 5min | 2 tasks | 13 files |
+| Phase 14 P02 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,8 @@ Recent decisions affecting current work:
 - [Phase 14]: Default output format matches input extension, fallback to GeoJSON
 - [Phase 14]: Split returns ZIP for multiple outputs, single file for single_value/single_range retrieval
 - [Phase 14]: CRS detection heuristics: WGS84 lon/lat ranges, OSGB36 easting/northing ranges, UTM ambiguous returns None
+- [Phase 14]: OutputPreviewTable as lightweight shared component (not reusing data-preview-table.tsx)
+- [Phase 14]: Dual text/blob response reading for preview + download in transform tools
 
 ### Roadmap Evolution
 
@@ -157,6 +160,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T00:07:02.563Z
-Stopped at: Completed 14-01-PLAN.md
+Last session: 2026-03-30T00:13:04.424Z
+Stopped at: Completed 14-02-PLAN.md
 Resume file: None
