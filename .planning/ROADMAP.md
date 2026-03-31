@@ -275,10 +275,19 @@ Plans:
 - [ ] TBD (run /gsd:plan-phase 15 to break down)
 
 ### Phase 16: Pipeline Workflow
-**Goal:** Users can process datasets through a guided step-by-step flow (upload -> preview -> validate -> clean -> export) with a visual progress bar
-**Requirements**: TBD
+**Goal:** Users can process datasets through a guided 5-stage flow (Import, Inspect, Validate, Clean, Export) with a visual stepper, smart stage gating, and sessionStorage persistence
+**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06, PIPE-07
 **Depends on:** Phase 12, Phase 13, Phase 14
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. User can access /pipeline from the sidebar and see a horizontal 5-stage stepper
+  2. User can upload a file or select an existing dataset in the Import stage
+  3. Inspect stage auto-parses the file and shows a data preview with column/row counts
+  4. User can run QC validation or skip it (with a warning indicator on the stepper)
+  5. Clean stage offers quick fixes and links to transform tools
+  6. User can choose an output format and download the dataset in the Export stage
+  7. Pipeline state persists in sessionStorage so users can leave and return
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 16 to break down)
+- [ ] 16-01-PLAN.md -- State machine, sessionStorage persistence, stepper component, pipeline page shell, and navigation update
+- [ ] 16-02-PLAN.md -- All 5 stage panels (Import, Inspect, Validate, Clean, Export), workflow wiring, and human verification
