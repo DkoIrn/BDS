@@ -38,9 +38,9 @@ export default async function ProjectsPage() {
       {typedProjects.length > 0 ? (
         <ProjectsTable projects={typedProjects} />
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-          <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-            <FolderOpen className="size-6 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-16">
+          <div className="flex size-12 items-center justify-center rounded-2xl bg-blue-50">
+            <FolderOpen className="size-6 text-blue-600" />
           </div>
           <h2 className="mt-4 text-lg font-semibold">No projects yet</h2>
           <p className="mt-1 text-sm text-muted-foreground">

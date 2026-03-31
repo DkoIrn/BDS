@@ -41,7 +41,7 @@ export async function login(formData: FormData) {
     return { error: error.message }
   }
 
-  redirect('/dashboard')
+  redirect('/splash')
 }
 
 export async function logout() {
@@ -82,5 +82,5 @@ export async function updatePassword(formData: FormData) {
     return { error: error.message }
   }
 
-  redirect('/dashboard')
+  redirect('/splash')
 }

@@ -42,9 +42,12 @@ export function UploadPanel({ onFileParsed }: UploadPanelProps) {
     onDrop,
     multiple: false,
     validator: (file) => {
-      const ext = file.name
-        .substring(file.name.lastIndexOf("."))
-        .toLowerCase()
+      const name = file.name ?? ""
+      const dotIndex = name.lastIndexOf(".")
+      if (dotIndex === -1) {
+        return { code: "file-invalid-type", message: "No file extension" }
+      }
+      const ext = name.substring(dotIndex).toLowerCase()
       if (!ACCEPTED_EXTENSIONS.includes(ext)) {
         return {
           code: "file-invalid-type",
@@ -56,7 +59,7 @@ export function UploadPanel({ onFileParsed }: UploadPanelProps) {
   })
 
   return (
-    <div className="w-64 rounded-lg bg-white shadow-lg">
+    <div>
       {/* Header */}
       <button
         onClick={() => setCollapsed(!collapsed)}

@@ -1,13 +1,43 @@
 {
   "permissions": {
     "allow": [
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(python:*)",
+      "Bash(source:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(test:*)",
+      "Bash(mkdir:*)",
+      "Bash(pkill:*)",
+      "Bash(cd:*)",
       "WebSearch",
-      "WebFetch(domain:catjam.fi)",
-      "Bash(cd \"C:/Users/danie/OneDrive/Desktop/BDS\" && node \"$HOME/.claude/get-shit-done/bin/gsd-tools.cjs\" commit \"docs: complete project research\" --files .planning/research/)",
-      "Bash(git add .planning/research/ && git commit -m \"$\\(cat <<'EOF'\ndocs: complete domain research \\(stack, features, architecture, pitfalls\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git add .planning/REQUIREMENTS.md && git commit -m \"$\\(cat <<'EOF'\ndocs: define v1 requirements \\(30 requirements\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git add .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md && git commit -m \"$\\(cat <<'EOF'\ndocs: create roadmap \\(10 phases\\)\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(ls \"C:/Users/danie/OneDrive/Desktop/BDS/src/app/\\(marketing\\)/\" 2>/dev/null || echo \"No marketing dir\")"
-    ]
+      "WebFetch",
+      "Skill(gsd:*)",
+      "Bash(tasklist)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 24328 //F)",
+      "Bash(echo \"✗ SUMMARY.md\" git log --oneline --all --grep=\"13-02\")",
+      "Bash(ls /c/Users/danie/OneDrive/Desktop/BDS/src/app/\\\\\\(public\\\\\\)/tools/visualize/)",
+      "Bash(ls /c/Users/danie/OneDrive/Desktop/BDS/src/app/\\\\\\(public\\\\\\)/tools/visualize/components/)",
+      "Bash(ls /c/Users/danie/OneDrive/Desktop/BDS/src/app/\\\\\\(public\\\\\\)/tools/visualize/lib/)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(uvicorn app.main:app --reload --host 0.0.0.0 --port 8000)",
+      "Bash(taskkill:*)",
+      "Bash(git clone:*)",
+      "Bash(find \"C:\\\\Users\\\\danie\\\\OneDrive\\\\Desktop\\\\BDS\\\\src\\\\app\\\\\\(dashboard\\)\" -type f -name \"*.tsx\")",
+      "Bash(npx next:*)"
+    ],
+    "defaultMode": "acceptEdits"
   }
 }

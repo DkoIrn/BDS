@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { FileSpreadsheet, Loader2 } from "lucide-react"
+import { FileSpreadsheet, FileText, Loader2, ChevronRight, Clock, LayoutList, LayoutGrid } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import {
   Table,
@@ -31,51 +32,37 @@ function formatDate(dateStr: string): string {
   })
 }
 
-function StatusBadge({ status }: { status: DatasetStatus }) {
-  const label = status.charAt(0).toUpperCase() + status.slice(1)
+function getFileIcon(name: string) {
+  const ext = name.split(".").pop()?.toLowerCase()
+  if (ext === "csv") return FileText
+  return FileSpreadsheet
+}
 
-  switch (status) {
-    case "uploaded":
-      return <Badge variant="secondary">{label}</Badge>
-    case "parsing":
-      return (
-        <Badge variant="default" className="gap-1">
-          <Loader2 className="size-3 animate-spin" />
-          {label}
-        </Badge>
-      )
-    case "parsed":
-      return (
-        <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-          {label}
-        </Badge>
-      )
-    case "mapped":
-      return (
-        <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-          {label}
-        </Badge>
-      )
-    case "validating":
-      return (
-        <Badge variant="default" className="gap-1 animate-pulse">
-          <Loader2 className="size-3 animate-spin" />
-          Processing...
-        </Badge>
-      )
-    case "validated":
-      return (
-        <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-          Validated
-        </Badge>
-      )
-    case "validation_error":
-      return <Badge variant="destructive">Error</Badge>
-    case "error":
-      return <Badge variant="destructive">{label}</Badge>
-    default:
-      return <Badge variant="secondary">{label}</Badge>
-  }
+const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
+  uploaded: { label: "Uploaded", className: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400", dot: "bg-slate-400" },
+  parsing: { label: "Parsing", className: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400", dot: "bg-blue-500 animate-pulse" },
+  parsed: { label: "Ready to Map", className: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400", dot: "bg-amber-500" },
+  mapped: { label: "Mapped", className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400", dot: "bg-emerald-500" },
+  validating: { label: "Processing", className: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400", dot: "bg-blue-500 animate-pulse" },
+  validated: { label: "Validated", className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400", dot: "bg-emerald-500" },
+  validation_error: { label: "Error", className: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400", dot: "bg-red-500" },
+  error: { label: "Error", className: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400", dot: "bg-red-500" },
+}
+
+function StatusBadge({ status }: { status: DatasetStatus }) {
+  const config = statusConfig[status] || statusConfig.uploaded
+  const isLoading = status === "parsing" || status === "validating"
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${config.className}`}>
+      {isLoading ? (
+        <Loader2 className="size-3 animate-spin" />
+      ) : (
+        <span className={`size-1.5 rounded-full ${config.dot}`} />
+      )}
+      {config.label}
+    </span>
+  )
 }
 
 export function FileList({
@@ -126,12 +113,19 @@ export function FileList({
     }
   }, [jobId])
 
+  const [view, setView] = useState<"cards" | "table">("cards")
+
   if (localFiles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-        <FileSpreadsheet className="size-8 text-muted-foreground" />
-        <p className="mt-2 text-sm text-muted-foreground">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-14">
+        <div className="rounded-lg bg-muted p-3">
+          <FileSpreadsheet className="size-6 text-muted-foreground/40" />
+        </div>
+        <p className="mt-3 text-sm font-medium text-muted-foreground">
           No files uploaded yet
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground/60">
+          Drop files above to get started
         </p>
       </div>
     )
@@ -141,61 +135,129 @@ export function FileList({
     `/projects/${projectId}/jobs/${jobId}/files/${fileId}`
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>File Name</TableHead>
-          <TableHead>Size</TableHead>
-          <TableHead>Uploaded</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="w-[50px]" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {localFiles.map((file) => (
-          <TableRow
-            key={file.id}
-            className="cursor-pointer transition-colors hover:bg-muted/50"
-            onClick={() => router.push(fileDetailUrl(file.id))}
+    <div className="space-y-3">
+      {/* View toggle */}
+      <div className="flex justify-end">
+        <div className="flex rounded-md border bg-muted/50 p-0.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`size-7 rounded-sm ${view === "cards" ? "bg-background shadow-sm" : "hover:bg-transparent"}`}
+            onClick={() => setView("cards")}
           >
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <FileSpreadsheet className="size-4 shrink-0 text-muted-foreground" />
-                <Link
-                  href={fileDetailUrl(file.id)}
-                  className={`font-medium hover:underline ${
-                    file.status === "parsed"
-                      ? "font-semibold text-primary"
-                      : ""
-                  }`}
-                >
-                  {file.file_name}
-                </Link>
-                {file.status === "parsed" && (
-                  <Link
-                    href={fileDetailUrl(file.id)}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Map Columns
-                  </Link>
-                )}
+            <LayoutGrid className="size-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`size-7 rounded-sm ${view === "table" ? "bg-background shadow-sm" : "hover:bg-transparent"}`}
+            onClick={() => setView("table")}
+          >
+            <LayoutList className="size-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      {view === "cards" ? (
+        <div className="space-y-1.5">
+          {localFiles.map((file) => {
+            const FileIcon = getFileIcon(file.file_name)
+            const needsAction = file.status === "parsed"
+            return (
+              <div
+                key={file.id}
+                className="group flex items-center gap-3.5 rounded-lg border bg-card px-3.5 py-3 transition-all cursor-pointer hover:shadow-sm hover:border-border"
+                onClick={() => router.push(fileDetailUrl(file.id))}
+              >
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
+                  <FileIcon className="size-4 text-muted-foreground" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={fileDetailUrl(file.id)}
+                      className="truncate text-sm font-medium text-foreground group-hover:text-primary transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {file.file_name}
+                    </Link>
+                    {needsAction && (
+                      <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                        Map columns
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-0.5 flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <span>{formatFileSize(file.file_size)}</span>
+                    <span className="size-0.5 rounded-full bg-muted-foreground/30" />
+                    <span>{formatDate(file.created_at)}</span>
+                  </div>
+                </div>
+
+                <StatusBadge status={file.status} />
+
+                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <FileRowActions fileId={file.id} fileName={file.file_name} />
+                </div>
+
+                <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/20 transition-colors group-hover:text-muted-foreground" />
               </div>
-            </TableCell>
-            <TableCell className="text-muted-foreground">
-              {formatFileSize(file.file_size)}
-            </TableCell>
-            <TableCell className="text-muted-foreground">
-              {formatDate(file.created_at)}
-            </TableCell>
-            <TableCell>
-              <StatusBadge status={file.status} />
-            </TableCell>
-            <TableCell>
-              <FileRowActions fileId={file.id} fileName={file.file_name} />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead className="w-24">Size</TableHead>
+                <TableHead className="w-28">Uploaded</TableHead>
+                <TableHead className="w-28">Status</TableHead>
+                <TableHead className="w-10" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {localFiles.map((file) => {
+                const FileIcon = getFileIcon(file.file_name)
+                return (
+                  <TableRow
+                    key={file.id}
+                    className="cursor-pointer"
+                    onClick={() => router.push(fileDetailUrl(file.id))}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-2.5">
+                        <FileIcon className="size-4 shrink-0 text-muted-foreground" />
+                        <Link
+                          href={fileDetailUrl(file.id)}
+                          className="text-sm font-medium hover:text-primary transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {file.file_name}
+                        </Link>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {formatFileSize(file.file_size)}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {formatDate(file.created_at)}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={file.status} />
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <FileRowActions fileId={file.id} fileName={file.file_name} />
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
   )
 }

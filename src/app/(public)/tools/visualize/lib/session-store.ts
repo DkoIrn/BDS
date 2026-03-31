@@ -1,6 +1,13 @@
-import type { MapLayer } from "./types"
+import type { MapLayer, TileLayerKey } from "./types"
 
 const STORAGE_KEY = "map-visualizer-layers"
+const VIEW_KEY = "map-visualizer-view"
+
+export interface MapViewState {
+  center: [number, number]
+  zoom: number
+  baseMap: TileLayerKey
+}
 
 export function saveLayers(layers: MapLayer[]): void {
   try {
@@ -26,5 +33,23 @@ export function clearLayers(): void {
     sessionStorage.removeItem(STORAGE_KEY)
   } catch {
     // Ignore errors
+  }
+}
+
+export function saveViewState(view: MapViewState): void {
+  try {
+    sessionStorage.setItem(VIEW_KEY, JSON.stringify(view))
+  } catch {
+    // Silently fail
+  }
+}
+
+export function loadViewState(): MapViewState | null {
+  try {
+    const data = sessionStorage.getItem(VIEW_KEY)
+    if (!data) return null
+    return JSON.parse(data) as MapViewState
+  } catch {
+    return null
   }
 }

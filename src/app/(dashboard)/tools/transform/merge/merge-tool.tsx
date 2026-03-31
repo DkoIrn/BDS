@@ -47,6 +47,7 @@ type MergeState =
   | { step: "error"; files: File[]; message: string }
 
 function getFileExtension(name: string): string {
+  if (!name) return ""
   return name.substring(name.lastIndexOf(".")).toLowerCase()
 }
 
@@ -104,10 +105,10 @@ export function MergeTool() {
     onDrop,
     maxSize: MAX_FILE_SIZE,
     multiple: true,
-    noClick: state.step === "upload" && state.files.length > 0,
+    noClick: false,
     validator: (file) => {
-      const ext = getFileExtension(file.name)
-      if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+      const ext = getFileExtension(file.name || "")
+      if (ext && !ACCEPTED_EXTENSIONS.includes(ext)) {
         return { code: "file-invalid-type", message: `Unsupported file type: ${ext}` }
       }
       return null
@@ -214,7 +215,11 @@ export function MergeTool() {
             <Upload className="size-5 text-muted-foreground" />
           </div>
           <p className="mt-4 text-sm font-medium">
-            {isDragActive ? "Drop files here" : "Drop files here or click to browse"}
+            {isDragActive
+              ? "Drop files here"
+              : state.files.length > 0
+                ? "Drop or click to add more files"
+                : "Drop files here or click to browse"}
           </p>
           <p className="mt-1.5 text-xs text-muted-foreground">
             CSV, Excel, GeoJSON, Shapefile (ZIP), KML, KMZ, LandXML, DXF -- up to 50 MB each

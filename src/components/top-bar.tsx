@@ -53,10 +53,23 @@ function getPageName(pathname: string): string {
     projects: "Projects",
     reports: "Reports",
     settings: "Settings",
+    tools: "Tools",
+  }
+
+  const toolNames: Record<string, string> = {
+    convert: "Convert",
+    visualize: "Visualize",
+    transform: "Transform",
+    compare: "Compare",
   }
 
   // Use the first segment for the primary page name
   const primary = routeNames[segments[0]] || segments[0]
+
+  // Show tool sub-page name
+  if (segments[0] === "tools" && segments[1]) {
+    return toolNames[segments[1]] || segments[1]
+  }
 
   // If there are deeper segments (e.g., /projects/[id]/jobs/[id]),
   // just show the primary route name

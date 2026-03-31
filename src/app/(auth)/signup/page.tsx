@@ -16,7 +16,7 @@ export default function SignupPage() {
   const [state, formAction, isPending] = useActionState(signupAction, null)
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="text-2xl">Create your account</CardTitle>
         <CardDescription>Start validating survey data in minutes</CardDescription>
@@ -31,6 +31,7 @@ export default function SignupPage() {
               type="text"
               placeholder="John Doe"
               autoComplete="name"
+              className="rounded-xl"
             />
           </div>
 
@@ -43,6 +44,7 @@ export default function SignupPage() {
               placeholder="you@example.com"
               required
               autoComplete="email"
+              className="rounded-xl"
             />
           </div>
 
@@ -55,6 +57,7 @@ export default function SignupPage() {
               required
               minLength={6}
               autoComplete="new-password"
+              className="rounded-xl"
             />
             <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
           </div>
@@ -63,14 +66,14 @@ export default function SignupPage() {
             <p className="text-sm text-destructive">{state.error}</p>
           )}
 
-          <Button type="submit" className="w-full" size="lg" disabled={isPending}>
+          <Button type="submit" className="w-full rounded-xl bg-foreground text-background hover:bg-foreground/90" size="lg" disabled={isPending}>
             {isPending ? 'Creating account...' : 'Create account'}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-medium text-foreground hover:underline">
             Sign in
           </Link>
         </p>

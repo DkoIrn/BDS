@@ -16,7 +16,7 @@ export default function ForgotPasswordPage() {
   const [state, formAction, isPending] = useActionState(resetAction, null)
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="text-2xl">Reset your password</CardTitle>
         <CardDescription>
@@ -34,6 +34,7 @@ export default function ForgotPasswordPage() {
               placeholder="you@example.com"
               required
               autoComplete="email"
+              className="rounded-xl"
             />
           </div>
 
@@ -41,13 +42,13 @@ export default function ForgotPasswordPage() {
             <p className="text-sm text-destructive">{state.error}</p>
           )}
 
-          <Button type="submit" className="w-full" size="lg" disabled={isPending}>
+          <Button type="submit" className="w-full rounded-xl bg-foreground text-background hover:bg-foreground/90" size="lg" disabled={isPending}>
             {isPending ? 'Sending...' : 'Send reset link'}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-medium text-foreground hover:underline">
             Back to sign in
           </Link>
         </p>

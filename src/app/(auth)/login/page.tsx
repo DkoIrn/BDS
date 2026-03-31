@@ -20,7 +20,7 @@ function MessageBanner() {
   if (!message) return null
 
   return (
-    <div className="mb-4 rounded-lg border border-[#14B8A6]/30 bg-[#14B8A6]/10 px-4 py-3 text-sm text-[#0F172A]">
+    <div className="mb-4 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-foreground">
       {message}
     </div>
   )
@@ -35,7 +35,7 @@ export default function LoginPage() {
         <MessageBanner />
       </Suspense>
 
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
@@ -51,6 +51,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 required
                 autoComplete="email"
+                className="rounded-xl"
               />
             </div>
 
@@ -59,7 +60,7 @@ export default function LoginPage() {
                 <Label htmlFor="password">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-muted-foreground hover:text-primary"
+                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   Forgot your password?
                 </Link>
@@ -70,6 +71,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 autoComplete="current-password"
+                className="rounded-xl"
               />
             </div>
 
@@ -77,14 +79,14 @@ export default function LoginPage() {
               <p className="text-sm text-destructive">{state.error}</p>
             )}
 
-            <Button type="submit" className="w-full" size="lg" disabled={isPending}>
+            <Button type="submit" className="w-full rounded-xl bg-foreground text-background hover:bg-foreground/90" size="lg" disabled={isPending}>
               {isPending ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-medium text-primary hover:underline">
+            <Link href="/signup" className="font-medium text-foreground hover:underline">
               Sign up
             </Link>
           </p>

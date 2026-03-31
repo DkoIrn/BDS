@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { TopBar } from "@/components/top-bar"
+import { TopNavbar } from "@/components/top-navbar"
 import { RealtimeProvider } from "@/components/realtime-provider"
+import { DashboardEntry } from "@/components/dashboard-entry"
 
 export default async function DashboardLayout({
   children,
@@ -32,14 +31,13 @@ export default async function DashboardLayout({
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar user={userData} />
-      <SidebarInset>
-        <TopBar user={userData} />
-        <main className="flex-1 p-6">
-          <RealtimeProvider userId={user.id}>{children}</RealtimeProvider>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="min-h-screen bg-background">
+      <TopNavbar user={userData} />
+      <main className="mx-auto max-w-7xl px-6 py-6">
+        <RealtimeProvider userId={user.id}>
+          <DashboardEntry>{children}</DashboardEntry>
+        </RealtimeProvider>
+      </main>
+    </div>
   )
 }

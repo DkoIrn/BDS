@@ -13,7 +13,7 @@ def split_by_kp(
 ) -> tuple[list[tuple[str, ParseResult]], list[str]]:
     """Split dataset by KP (chainage) ranges.
 
-    Each range is [start, end) -- inclusive start, exclusive end.
+    Each range is [start, end] -- inclusive start, inclusive end.
     Returns list of (label, ParseResult) pairs and warnings.
     """
     warnings: list[str] = []
@@ -34,7 +34,7 @@ def split_by_kp(
                 kp_val = float(row[kp_idx])
             except (ValueError, TypeError, IndexError):
                 continue
-            if start <= kp_val < end:
+            if start <= kp_val <= end:
                 subset.append(row)
 
         part = ParseResult(

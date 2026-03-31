@@ -42,7 +42,7 @@ export function CreateProjectDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button>
+          <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-xl">
             <Plus className="size-4" data-icon="inline-start" />
             New Project
           </Button>

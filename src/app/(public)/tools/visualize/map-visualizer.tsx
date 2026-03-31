@@ -2,14 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
-import { Crosshair, ArrowLeft, Ruler, Table2 } from "lucide-react"
+import { Crosshair, ArrowLeft, Ruler, Table2, Camera, Loader2 } from "lucide-react"
 import Link from "next/link"
 import type { MapLayer, TileLayerKey } from "./lib/types"
 import { getLayerColor } from "./lib/layer-colors"
-import { saveLayers, loadLayers } from "./lib/session-store"
+import { saveLayers, loadLayers, saveViewState, loadViewState } from "./lib/session-store"
 import { UploadPanel } from "./components/upload-panel"
 import { LayerPanel } from "./components/layer-panel"
 import { DataTablePanel } from "./components/data-table-panel"
+import type { ScreenshotHandle } from "./components/screenshot-button"
 
 const LeafletMap = dynamic(() => import("./components/leaflet-map"), {
   ssr: false,
@@ -28,9 +29,13 @@ export function MapVisualizer() {
   const [showDataTable, setShowDataTable] = useState(false)
   const [measurementActive, setMeasurementActive] = useState(false)
   const [zoomToFeatureIndex, setZoomToFeatureIndex] = useState<number | null>(null)
+  const [initialCenter, setInitialCenter] = useState<[number, number] | undefined>(undefined)
+  const [initialZoom, setInitialZoom] = useState<number | undefined>(undefined)
+  const [screenshotLoading, setScreenshotLoading] = useState(false)
+  const screenshotRef = useRef<ScreenshotHandle | null>(null)
   const initialized = useRef(false)
 
-  // Load layers from sessionStorage on mount
+  // Load layers and view state from sessionStorage on mount
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
@@ -38,8 +43,12 @@ export function MapVisualizer() {
     if (stored && stored.length > 0) {
       setLayers(stored)
       setActiveLayerId(stored[0].id)
-      // Trigger fit bounds after loading
-      setFitBoundsKey((k) => k + 1)
+    }
+    const view = loadViewState()
+    if (view) {
+      setBaseMap(view.baseMap)
+      setInitialCenter(view.center)
+      setInitialZoom(view.zoom)
     }
   }, [])
 
@@ -92,8 +101,23 @@ export function MapVisualizer() {
     setActiveLayerId(layerId)
   }, [])
 
+  const lastViewRef = useRef<{ center: [number, number]; zoom: number }>({
+    center: [51.505, -0.09],
+    zoom: 3,
+  })
+
+  const handleViewChange = useCallback(
+    (center: [number, number], zoom: number) => {
+      lastViewRef.current = { center, zoom }
+      saveViewState({ center, zoom, baseMap })
+    },
+    [baseMap]
+  )
+
   const handleBaseMapChange = useCallback((key: TileLayerKey) => {
     setBaseMap(key)
+    const { center, zoom } = lastViewRef.current
+    saveViewState({ center, zoom, baseMap: key })
   }, [])
 
   const handleZoomToFit = useCallback(() => {
@@ -121,6 +145,10 @@ export function MapVisualizer() {
         measurementActive={measurementActive}
         zoomToFeatureIndex={zoomToFeatureIndex}
         onZoomToFeatureHandled={handleZoomToFeatureHandled}
+        screenshotRef={screenshotRef}
+        onViewChange={handleViewChange}
+        initialCenter={initialCenter}
+        initialZoom={initialZoom}
       />
 
       {/* Back navigation */}
@@ -132,13 +160,9 @@ export function MapVisualizer() {
         Home
       </Link>
 
-      {/* Upload panel */}
-      <div className="absolute left-3 top-14 z-[1000]">
+      {/* Combined upload + layers panel */}
+      <div className="absolute left-3 top-14 z-[1000] w-64 overflow-hidden rounded-lg bg-white shadow-lg">
         <UploadPanel onFileParsed={handleFileParsed} />
-      </div>
-
-      {/* Layer panel */}
-      <div className="absolute left-3 top-48 z-[1000]">
         <LayerPanel
           layers={layers}
           activeLayerId={activeLayerId}
@@ -151,8 +175,8 @@ export function MapVisualizer() {
         />
       </div>
 
-      {/* Floating toolbar - top right */}
-      <div className="absolute right-3 top-3 z-[1000] flex flex-col gap-1.5">
+      {/* Floating toolbar - top right, below zoom controls */}
+      <div className="absolute right-3 top-[6.5rem] z-[1000] flex flex-col gap-1.5">
         {/* Zoom to fit */}
         <button
           onClick={handleZoomToFit}
@@ -190,6 +214,26 @@ export function MapVisualizer() {
           <Table2
             className={`size-4 ${showDataTable ? "text-blue-600" : "text-gray-700"}`}
           />
+        </button>
+
+        {/* Screenshot */}
+        <button
+          onClick={async () => {
+            if (screenshotRef.current && !screenshotLoading) {
+              setScreenshotLoading(true)
+              await screenshotRef.current.takeScreenshot()
+              setScreenshotLoading(false)
+            }
+          }}
+          disabled={screenshotLoading}
+          className="flex size-9 items-center justify-center rounded-lg bg-white shadow-md hover:bg-gray-50 disabled:opacity-50"
+          title="Capture map screenshot"
+        >
+          {screenshotLoading ? (
+            <Loader2 className="size-4 animate-spin text-gray-600" />
+          ) : (
+            <Camera className="size-4 text-gray-700" />
+          )}
         </button>
       </div>
 

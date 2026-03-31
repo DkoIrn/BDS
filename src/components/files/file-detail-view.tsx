@@ -282,13 +282,14 @@ export function FileDetailView({
   )
 
   useEffect(() => {
-    // If already parsed with mappings stored, we need to fetch preview data from API
+    // If already parsed/mapped/validated with mappings stored, fetch preview data
     if (
-      (dataset.status === "parsed" || dataset.status === "mapped") &&
+      (dataset.status === "parsed" || dataset.status === "mapped" ||
+       dataset.status === "validated" || dataset.status === "validating" ||
+       dataset.status === "validation_error") &&
       dataset.column_mappings &&
       dataset.column_mappings.length > 0
     ) {
-      // Fetch parse data to get preview rows and detected columns
       fetchParseData()
     } else if (dataset.status === "uploaded" || dataset.status === "parsing") {
       // Still parsing, show loading state

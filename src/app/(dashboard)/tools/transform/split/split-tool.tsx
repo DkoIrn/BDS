@@ -69,6 +69,7 @@ type SplitState =
   | { step: "error"; file: File; message: string }
 
 function getFileExtension(name: string): string {
+  if (!name) return ""
   return name.substring(name.lastIndexOf(".")).toLowerCase()
 }
 
@@ -158,8 +159,8 @@ export function SplitTool() {
     maxSize: MAX_FILE_SIZE,
     multiple: false,
     validator: (file) => {
-      const ext = getFileExtension(file.name)
-      if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+      const ext = getFileExtension(file.name || "")
+      if (ext && !ACCEPTED_EXTENSIONS.includes(ext)) {
         return { code: "file-invalid-type", message: `Unsupported file type: ${ext}` }
       }
       return null

@@ -6,6 +6,7 @@ import {
   MapContainer,
   TileLayer,
   GeoJSON,
+  ZoomControl,
   useMapEvents,
   useMap,
 } from "react-leaflet"
@@ -15,7 +16,7 @@ import { useState } from "react"
 import type { MapLayer, TileLayerKey } from "../lib/types"
 import { TILE_LAYERS } from "../lib/types"
 import { MeasurementTool } from "./measurement-tool"
-import { ScreenshotButton } from "./screenshot-button"
+import { ScreenshotButton, type ScreenshotHandle } from "./screenshot-button"
 
 interface LeafletMapProps {
   layers: MapLayer[]
@@ -25,6 +26,10 @@ interface LeafletMapProps {
   measurementActive: boolean
   zoomToFeatureIndex: number | null
   onZoomToFeatureHandled: () => void
+  screenshotRef?: React.RefObject<ScreenshotHandle | null>
+  onViewChange?: (center: [number, number], zoom: number) => void
+  initialCenter?: [number, number]
+  initialZoom?: number
 }
 
 // Sub-component: Coordinate display on mouse move
@@ -147,6 +152,36 @@ function ZoomToFeature({
   return null
 }
 
+// Sub-component: Track map view changes (pan/zoom)
+function ViewTracker({
+  onViewChange,
+}: {
+  onViewChange: (center: [number, number], zoom: number) => void
+}) {
+  useMapEvents({
+    moveend(e) {
+      const map = e.target
+      const center = map.getCenter()
+      onViewChange([center.lat, center.lng], map.getZoom())
+    },
+  })
+  return null
+}
+
+// Sub-component: Restore saved view on mount
+function RestoreView({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap()
+  const restored = useRef(false)
+
+  useEffect(() => {
+    if (restored.current) return
+    restored.current = true
+    map.setView(center, zoom)
+  }, [map, center, zoom])
+
+  return null
+}
+
 // Feature tooltip/popup helpers
 function getFeatureLabel(feature: GeoJSON.Feature): string {
   const props = feature.properties || {}
@@ -184,6 +219,10 @@ export default function LeafletMap({
   measurementActive,
   zoomToFeatureIndex,
   onZoomToFeatureHandled,
+  screenshotRef,
+  onViewChange,
+  initialCenter,
+  initialZoom,
 }: LeafletMapProps) {
   const tileConfig = TILE_LAYERS[baseMap]
 
@@ -191,9 +230,14 @@ export default function LeafletMap({
     <MapContainer
       center={[51.505, -0.09]}
       zoom={3}
+      zoomControl={false}
       style={{ height: "100%", width: "100%" }}
       className="z-0"
     >
+      <ZoomControl position="topright" />
+      {initialCenter && initialZoom && (
+        <RestoreView center={initialCenter} zoom={initialZoom} />
+      )}
       <TileLayer
         key={baseMap}
         url={tileConfig.url}
@@ -249,7 +293,8 @@ export default function LeafletMap({
         onHandled={onZoomToFeatureHandled}
       />
       <MeasurementTool active={measurementActive} />
-      <ScreenshotButton />
+      <ScreenshotButton ref={screenshotRef} />
+      {onViewChange && <ViewTracker onViewChange={onViewChange} />}
     </MapContainer>
   )
 }

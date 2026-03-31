@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     | 'invite'
     | 'email'
     | 'magiclink'
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = searchParams.get('next') ?? '/splash'
 
   if (token_hash && type) {
     const supabase = await createClient()

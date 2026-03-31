@@ -125,6 +125,8 @@ def run_validation_background(dataset_id: str, config: ProfileConfig | None) -> 
 
     except Exception as e:
         # Always update status on failure -- never leave dataset stuck in 'validating'
+        import traceback
+        traceback.print_exc()
         logger.error("Background validation failed for dataset %s: %s", dataset_id, str(e))
         try:
             supabase.table("datasets").update(

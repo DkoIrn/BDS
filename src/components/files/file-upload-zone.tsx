@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation"
 import { useDropzone, type FileRejection } from "react-dropzone"
 import {
   Upload,
+  CloudUpload,
   FileSpreadsheet,
+  FileText,
   X,
   Check,
+  CheckCircle2,
   AlertCircle,
   Loader2,
   RotateCcw,
@@ -31,6 +34,12 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function getFileIcon(name: string) {
+  const ext = name.split(".").pop()?.toLowerCase()
+  if (ext === "csv") return FileText
+  return FileSpreadsheet
 }
 
 interface DuplicateInfo {
@@ -303,139 +312,145 @@ export function FileUploadZone({
   const hasItems = uploadItems.length > 0
 
   // Drop zone styling
-  let dropZoneClass =
-    "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors"
-  if (isDragReject) {
-    dropZoneClass += " border-destructive bg-destructive/5"
-  } else if (isDragActive && isDragAccept) {
-    dropZoneClass += " border-teal-500 bg-teal-50 dark:bg-teal-950/20"
-  } else {
-    dropZoneClass += " border-muted-foreground/25 bg-muted/50 hover:border-muted-foreground/50"
-  }
+  const dropZoneBase =
+    "group relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-all duration-200 cursor-pointer"
+  const dropZoneState = isDragReject
+    ? "border-destructive/40 bg-destructive/[0.03]"
+    : isDragActive && isDragAccept
+      ? "border-primary/40 bg-primary/[0.03]"
+      : "border-border hover:border-muted-foreground/30 hover:bg-muted/50"
 
   return (
     <div className="space-y-4">
-      <div {...getRootProps()} className={dropZoneClass}>
+      <div {...getRootProps()} className={`${dropZoneBase} ${dropZoneState}`}>
         <input {...getInputProps()} />
-        <Upload className="size-8 text-muted-foreground" />
-        <p className="mt-2 text-sm font-medium">
-          {isDragReject
-            ? "File type not accepted"
-            : isDragActive
-              ? "Drop files here"
-              : "Drag and drop files here, or click to browse"}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          CSV, XLS, XLSX - Max 50MB per file
-        </p>
+        <div className={`rounded-lg p-3 transition-colors duration-200 ${
+          isDragActive
+            ? "bg-primary/10"
+            : "bg-muted group-hover:bg-primary/5"
+        }`}>
+          <CloudUpload className={`size-6 transition-colors duration-200 ${
+            isDragReject
+              ? "text-destructive"
+              : isDragActive
+                ? "text-primary"
+                : "text-muted-foreground group-hover:text-primary"
+          }`} />
+        </div>
+        <div className="mt-3 text-center">
+          <p className="text-sm font-medium text-foreground">
+            {isDragReject
+              ? "File type not supported"
+              : isDragActive
+                ? "Drop to upload"
+                : "Drop files here or click to browse"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            CSV, XLS, XLSX up to 50MB
+          </p>
+        </div>
+        <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground/50">
+          <span className="rounded bg-muted px-1.5 py-0.5">.csv</span>
+          <span className="rounded bg-muted px-1.5 py-0.5">.xls</span>
+          <span className="rounded bg-muted px-1.5 py-0.5">.xlsx</span>
+        </div>
       </div>
 
       {hasItems && (
-        <div className="space-y-3">
+        <div className="space-y-3 animate-fade-up">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {uploadItems.length} file{uploadItems.length !== 1 ? "s" : ""} in
-              queue
-            </span>
+            <p className="text-sm text-muted-foreground">
+              {uploadItems.length} file{uploadItems.length !== 1 ? "s" : ""} queued
+            </p>
             <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={clearNonUploading}
                 disabled={isUploading}
+                className="text-muted-foreground"
               >
-                Clear All
+                Clear
               </Button>
               {hasQueued && (
-                <Button size="sm" onClick={uploadAll} disabled={isUploading}>
-                  {isUploading && (
-                    <Loader2 className="mr-1 size-4 animate-spin" />
+                <Button size="sm" onClick={uploadAll} disabled={isUploading} className="gap-1.5">
+                  {isUploading ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Upload className="size-3.5" />
                   )}
-                  Upload All
+                  Upload{uploadItems.filter(i => i.status === "queued").length > 1 ? " All" : ""}
                 </Button>
               )}
             </div>
           </div>
 
-          <div className="divide-y rounded-lg border">
-            {uploadItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 px-3 py-2"
-              >
-                <FileSpreadsheet className="size-5 shrink-0 text-muted-foreground" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {item.file.name}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {formatFileSize(item.file.size)}
-                    </span>
-                    {item.status === "failed" && item.error && (
-                      <span className="text-xs text-destructive">
-                        {item.error}
-                      </span>
-                    )}
-                    {item.status === "cancelled" && (
-                      <span className="text-xs text-muted-foreground">
-                        Cancelled
-                      </span>
+          <div className="rounded-lg border divide-y">
+            {uploadItems.map((item) => {
+              const FileIcon = getFileIcon(item.file.name)
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 px-3 py-2.5"
+                >
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
+                    {item.status === "uploaded" ? (
+                      <CheckCircle2 className="size-4 text-emerald-600" />
+                    ) : item.status === "uploading" ? (
+                      <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                    ) : item.status === "failed" ? (
+                      <AlertCircle className="size-4 text-destructive" />
+                    ) : (
+                      <FileIcon className="size-4 text-muted-foreground" />
                     )}
                   </div>
-                  {item.status === "uploading" && (
-                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full animate-pulse rounded-full bg-primary" style={{ width: "100%" }} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{item.file.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-muted-foreground">
+                        {formatFileSize(item.file.size)}
+                      </span>
+                      {item.status === "uploading" && (
+                        <span className="text-xs text-muted-foreground">Uploading...</span>
+                      )}
+                      {item.status === "uploaded" && (
+                        <span className="text-xs text-emerald-600">Done</span>
+                      )}
+                      {item.status === "failed" && item.error && (
+                        <span className="text-xs text-destructive">{item.error}</span>
+                      )}
                     </div>
-                  )}
+                    {item.status === "uploading" && (
+                      <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
+                        <div className="h-full animate-pulse rounded-full bg-primary/40" style={{ width: "100%" }} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    {(item.status === "queued" || item.status === "uploading") && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7 text-muted-foreground hover:text-destructive"
+                        onClick={() => item.status === "queued" ? removeFromQueue(item.id) : cancelUpload(item.id)}
+                      >
+                        <X className="size-3.5" />
+                      </Button>
+                    )}
+                    {(item.status === "failed" || item.status === "cancelled") && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        onClick={() => retryUpload(item.id)}
+                      >
+                        <RotateCcw className="size-3.5 text-muted-foreground" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div className="shrink-0">
-                  {item.status === "queued" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7"
-                      onClick={() => removeFromQueue(item.id)}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  )}
-                  {item.status === "uploading" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7"
-                      onClick={() => cancelUpload(item.id)}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  )}
-                  {item.status === "uploaded" && (
-                    <Check className="size-5 text-green-600" />
-                  )}
-                  {item.status === "failed" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7"
-                      onClick={() => retryUpload(item.id)}
-                    >
-                      <RotateCcw className="size-4 text-destructive" />
-                    </Button>
-                  )}
-                  {item.status === "cancelled" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-7"
-                      onClick={() => retryUpload(item.id)}
-                    >
-                      <RotateCcw className="size-4" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

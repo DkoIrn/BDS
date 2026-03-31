@@ -48,11 +48,9 @@ export function LandingNavbar() {
             window.scrollTo({ top: 0, behavior: "smooth" })
           }}
         >
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
-            SQ
-          </div>
+          <img src="/logo.png" alt="DataFlow" className="size-8 rounded-md" />
           <span className="text-lg font-semibold text-foreground">
-            SurveyQC
+            DataFlow
           </span>
         </a>
 

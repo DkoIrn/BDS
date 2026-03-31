@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -7,6 +8,10 @@ import {
   Settings,
   FolderOpen,
   BarChart3,
+  ArrowRightLeft,
+  Map,
+  Wrench,
+  GitCompareArrows,
 } from "lucide-react"
 import {
   Sidebar,
@@ -14,6 +19,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -22,27 +28,17 @@ import {
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
-const navItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Projects",
-    href: "/projects",
-    icon: FolderOpen,
-  },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
+const mainNav = [
+  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Projects", href: "/projects", icon: FolderOpen },
+  { title: "Reports", href: "/reports", icon: BarChart3 },
+]
+
+const toolsNav = [
+  { title: "Convert", href: "/tools/convert", icon: ArrowRightLeft },
+  { title: "Visualize", href: "/tools/visualize", icon: Map },
+  { title: "Transform", href: "/tools/transform", icon: Wrench },
+  { title: "Compare", href: "/tools/compare", icon: GitCompareArrows },
 ]
 
 interface AppSidebarProps {
@@ -75,16 +71,20 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarHeader className="border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip="SurveyQC AI">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <span className="text-sm font-bold">SQ</span>
-              </div>
+            <SidebarMenuButton size="lg" tooltip="DataFlow">
+              <Image
+                src="/logo.png"
+                alt="DataFlow"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold text-primary">
-                  SurveyQC AI
+                  DataFlow
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  Data Quality Control
+                  Validate. Transform. Visualise.
                 </span>
               </div>
             </SidebarMenuButton>
@@ -97,7 +97,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
+              {mainNav.map((item) => {
                 const isActive =
                   pathname === item.href ||
                   (item.href !== "/dashboard" &&
@@ -115,6 +115,46 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   </SidebarMenuItem>
                 )
               })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Tools</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {toolsNav.map((item) => {
+                const isActive = pathname.startsWith(item.href)
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      tooltip={item.title}
+                      render={<Link href={item.href} />}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/settings"}
+                  tooltip="Settings"
+                  render={<Link href="/settings" />}
+                >
+                  <Settings />
+                  <span>Settings</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

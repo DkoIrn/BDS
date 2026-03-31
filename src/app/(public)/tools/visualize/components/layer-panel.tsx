@@ -38,7 +38,7 @@ export function LayerPanel({
   const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div className="w-64 rounded-lg bg-white shadow-lg">
+    <div>
       {/* Header */}
       <button
         onClick={() => setCollapsed(!collapsed)}

@@ -1,0 +1,11 @@
+point_id,latitude,longitude,depth_m,description,survey_date
+P001,56.3456,-6.2341,12.5,Pipeline crossing point A,2025-08-15
+P002,56.3461,-6.2335,14.2,Seabed anomaly - boulder,2025-08-15
+P003,56.3470,-6.2328,11.8,Pipeline KP 0.500,2025-08-15
+P004,56.3482,-6.2319,13.1,Free span start,2025-08-16
+P005,56.3491,-6.2310,15.7,Free span end,2025-08-16
+P006,56.3503,-6.2298,12.9,Pipeline crossing point B,2025-08-16
+P007,56.3515,-6.2285,10.4,Mattress location,2025-08-17
+P008,56.3528,-6.2271,11.2,Anode position 12,2025-08-17
+P009,56.3540,-6.2258,14.8,Seabed anomaly - debris,2025-08-17
+P010,56.3555,-6.2243,13.3,Pipeline KP 1.000,2025-08-17
