@@ -60,7 +60,7 @@ export function StageImport({ state, dispatch, fileRef }: StageImportProps) {
   // If revisiting completed import, show summary
   if (state.stages.import.completed) {
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Check className="size-5 text-green-600" />
@@ -90,7 +90,7 @@ export function StageImport({ state, dispatch, fileRef }: StageImportProps) {
   }
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="size-5" />
@@ -100,22 +100,28 @@ export function StageImport({ state, dispatch, fileRef }: StageImportProps) {
       <CardContent className="space-y-6">
         {/* Mode toggle */}
         <div className="flex gap-2">
-          <Button
-            variant={mode === "upload" ? "default" : "outline"}
-            size="sm"
+          <button
             onClick={() => setMode("upload")}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.98] ${
+              mode === "upload"
+                ? "bg-foreground text-background"
+                : "border border-border bg-background text-foreground hover:bg-muted/60"
+            }`}
           >
-            <Upload className="mr-2 size-3.5" />
+            <Upload className="size-3.5" />
             Upload New File
-          </Button>
-          <Button
-            variant={mode === "existing" ? "default" : "outline"}
-            size="sm"
+          </button>
+          <button
             onClick={() => setMode("existing")}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.98] ${
+              mode === "existing"
+                ? "bg-foreground text-background"
+                : "border border-border bg-background text-foreground hover:bg-muted/60"
+            }`}
           >
-            <Database className="mr-2 size-3.5" />
+            <Database className="size-3.5" />
             Select Existing Dataset
-          </Button>
+          </button>
         </div>
 
         {mode === "upload" ? (
@@ -135,12 +141,19 @@ function UploadTab({
   dispatch: React.Dispatch<PipelineAction>
   fileRef: React.MutableRefObject<File | null>
 }) {
+  const [uploading, setUploading] = useState<{ name: string; size: number } | null>(null)
+
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0]
         fileRef.current = file
-        dispatch({ type: "IMPORT_FILE", fileName: file.name })
+        setUploading({ name: file.name, size: file.size })
+
+        // Minimum animation duration so users see the transition
+        setTimeout(() => {
+          dispatch({ type: "IMPORT_FILE", fileName: file.name })
+        }, 1400)
       }
     },
     [dispatch, fileRef]
@@ -150,6 +163,7 @@ function UploadTab({
     onDrop,
     maxSize: MAX_FILE_SIZE,
     multiple: false,
+    disabled: !!uploading,
     accept: ACCEPTED_EXTENSIONS.reduce(
       (acc, ext) => {
         acc["application/octet-stream"] = [
@@ -161,6 +175,7 @@ function UploadTab({
       {} as Record<string, string[]>
     ),
     validator: (file) => {
+      if (!file?.name) return null
       const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase()
       if (!ACCEPTED_EXTENSIONS.includes(ext)) {
         return {
@@ -172,17 +187,38 @@ function UploadTab({
     },
   })
 
+  // Upload animation state
+  if (uploading) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border bg-card py-14 animate-fade-up">
+        <div className="relative flex size-14 items-center justify-center">
+          <div className="absolute inset-0 animate-spin rounded-full border-2 border-muted border-t-foreground" />
+          <FileText className="size-5 text-foreground" />
+        </div>
+        <p className="mt-5 text-sm font-semibold text-foreground">
+          Importing file...
+        </p>
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          {uploading.name}
+        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground/60">
+          {formatFileSize(uploading.size)}
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div
       {...getRootProps()}
-      className={`cursor-pointer rounded-lg border-2 border-dashed p-10 text-center transition-colors ${
+      className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition-colors ${
         isDragActive
-          ? "border-primary bg-primary/5"
-          : "border-border hover:border-primary/50 hover:bg-muted/50"
+          ? "border-foreground bg-foreground/5"
+          : "border-border hover:border-foreground/40 hover:bg-muted/50"
       }`}
     >
       <input {...getInputProps()} />
-      <div className="mx-auto flex size-12 items-center justify-center rounded-lg bg-muted">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-muted">
         <Upload className="size-5 text-muted-foreground" />
       </div>
       <p className="mt-4 text-sm font-medium">

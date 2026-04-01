@@ -52,7 +52,7 @@ interface PipelineStepperProps {
 
 export function PipelineStepper({ state, onStageClick }: PipelineStepperProps) {
   return (
-    <div className="border-b bg-card px-6 py-4">
+    <div className="rounded-2xl border bg-card px-6 py-4">
       <div className="flex items-center justify-between">
         {STAGE_CONFIG.map((stage, index) => {
           const visual = getStepVisual(stage.id, state.stages, state.currentStage)

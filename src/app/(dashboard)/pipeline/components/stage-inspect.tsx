@@ -7,6 +7,7 @@ import {
   Eye,
   Loader2,
   AlertCircle,
+  ArrowLeft,
   ArrowRight,
   SkipForward,
   FileText,
@@ -57,6 +58,8 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
     setParsing(true)
     setParseError(null)
 
+    const minDelay = new Promise((r) => setTimeout(r, 1200))
+
     try {
       const ext = file.name
         .substring(file.name.lastIndexOf("."))
@@ -65,12 +68,12 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
       let data: string[][]
 
       if (ext === ".csv") {
-        data = await parseCsv(file)
+        ;[data] = await Promise.all([parseCsv(file), minDelay]) as [string[][], unknown]
       } else if (ext === ".xlsx" || ext === ".xls") {
-        data = await parseExcel(file)
+        ;[data] = await Promise.all([parseExcel(file), minDelay]) as [string[][], unknown]
       } else {
         // For geospatial formats (geojson, kml, etc.), send to parse endpoint
-        data = await parseViaApi(file)
+        ;[data] = await Promise.all([parseViaApi(file), minDelay]) as [string[][], unknown]
       }
 
       if (data.length < 2) {
@@ -89,6 +92,7 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
         rowCount,
       })
     } catch (err) {
+      await minDelay
       const message =
         err instanceof Error ? err.message : "Failed to parse file"
       setParseError(message)
@@ -131,12 +135,17 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
   // Loading state
   if (parsing) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <Loader2 className="size-8 animate-spin text-primary" />
-          <p className="mt-4 text-sm font-medium">Parsing file...</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Analyzing columns and rows
+      <Card className="rounded-2xl">
+        <CardContent className="flex flex-col items-center justify-center py-16 animate-fade-up">
+          <div className="relative flex size-14 items-center justify-center">
+            <div className="absolute inset-0 animate-spin rounded-full border-2 border-muted border-t-foreground" />
+            <Eye className="size-5 text-foreground" />
+          </div>
+          <p className="mt-5 text-sm font-semibold text-foreground">
+            Analyzing data...
+          </p>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Detecting columns, rows, and data types
           </p>
         </CardContent>
       </Card>
@@ -146,7 +155,7 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
   // Error state
   if (parseError) {
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardContent className="space-y-4 py-8">
           <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
             <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-500 dark:text-red-400" />
@@ -176,7 +185,7 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
     const rows = state.parsedData.slice(1, MAX_PREVIEW_ROWS + 1)
 
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="size-5" />
@@ -252,13 +261,21 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
           {/* Actions */}
           <div className="flex flex-wrap gap-3">
             <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "RESET" })}
+            >
+              <ArrowLeft className="mr-2 size-4" />
+              Back
+            </Button>
+            <button
               onClick={() =>
                 dispatch({ type: "GO_TO_STAGE", stage: "validate" })
               }
+              className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
             >
-              <ArrowRight className="mr-2 size-4" />
               Continue to Validate
-            </Button>
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
             <Button
               variant="outline"
               onClick={() =>
@@ -276,7 +293,7 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
 
   // Fallback: waiting state (shouldn't normally render)
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardContent className="flex flex-col items-center justify-center py-16">
         <Loader2 className="size-8 animate-spin text-primary" />
         <p className="mt-4 text-sm font-medium">Preparing inspection...</p>

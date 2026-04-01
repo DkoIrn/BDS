@@ -4,6 +4,7 @@ import {
   Sparkles,
   CheckCircle,
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
   SkipForward,
   Wrench,
@@ -11,23 +12,24 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { setPipelineHandoff } from "@/lib/pipeline-handoff"
 import type { StagePanelProps } from "./stage-import"
 
 const TRANSFORM_TOOLS = [
   {
     title: "CRS Conversion",
     description: "Convert coordinate reference systems",
-    href: "/tools/transform?tool=crs",
+    href: "/tools/transform/crs",
   },
   {
     title: "Merge Files",
     description: "Combine multiple datasets into one",
-    href: "/tools/transform?tool=merge",
+    href: "/tools/transform/merge",
   },
   {
     title: "Split Dataset",
     description: "Split dataset by column values or ranges",
-    href: "/tools/transform?tool=split",
+    href: "/tools/transform/split",
   },
 ]
 
@@ -48,7 +50,7 @@ export function StageClean({ state, dispatch }: StagePanelProps) {
   // Completed state (revisiting)
   if (cleanCompleted) {
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="size-5 text-green-600" />
@@ -59,15 +61,16 @@ export function StageClean({ state, dispatch }: StagePanelProps) {
           <p className="text-sm text-muted-foreground">
             {state.stages.clean.summary}
           </p>
-          <TransformToolLinks />
-          <Button
+          <TransformToolLinks fileName={state.fileName} parsedData={state.parsedData} />
+          <button
             onClick={() =>
               dispatch({ type: "GO_TO_STAGE", stage: "export" })
             }
+            className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
           >
-            <ArrowRight className="mr-2 size-4" />
             Continue to Export
-          </Button>
+            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </button>
         </CardContent>
       </Card>
     )
@@ -76,7 +79,7 @@ export function StageClean({ state, dispatch }: StagePanelProps) {
   // Skipped state (revisiting)
   if (state.stages.clean.skipped) {
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="size-5 text-amber-500" />
@@ -87,22 +90,23 @@ export function StageClean({ state, dispatch }: StagePanelProps) {
           <p className="text-sm text-muted-foreground">
             No transforms were applied to this dataset.
           </p>
-          <TransformToolLinks />
-          <Button
+          <TransformToolLinks fileName={state.fileName} parsedData={state.parsedData} />
+          <button
             onClick={() =>
               dispatch({ type: "GO_TO_STAGE", stage: "export" })
             }
+            className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
           >
-            <ArrowRight className="mr-2 size-4" />
             Continue to Export
-          </Button>
+            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </button>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="size-5" />
@@ -157,18 +161,28 @@ export function StageClean({ state, dispatch }: StagePanelProps) {
         )}
 
         {/* Transform tool links */}
-        <TransformToolLinks />
+        <TransformToolLinks fileName={state.fileName} parsedData={state.parsedData} />
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
           <Button
+            variant="outline"
+            onClick={() =>
+              dispatch({ type: "GO_TO_STAGE", stage: "validate" })
+            }
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Back
+          </Button>
+          <button
             onClick={() =>
               dispatch({ type: "GO_TO_STAGE", stage: "export" })
             }
+            className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
           >
-            <ArrowRight className="mr-2 size-4" />
             Continue to Export
-          </Button>
+            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </button>
           <Button
             variant="outline"
             onClick={() => dispatch({ type: "SKIP_CLEAN" })}
@@ -182,7 +196,21 @@ export function StageClean({ state, dispatch }: StagePanelProps) {
   )
 }
 
-function TransformToolLinks() {
+function TransformToolLinks({
+  fileName,
+  parsedData,
+}: {
+  fileName: string | null
+  parsedData: string[][] | null
+}) {
+  function handleToolClick(href: string) {
+    // Store current pipeline data so the tool can pre-load it
+    if (parsedData && parsedData.length > 1 && fileName) {
+      setPipelineHandoff(fileName, parsedData)
+    }
+    window.open(href, "_blank")
+  }
+
   return (
     <div className="space-y-2">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -190,16 +218,14 @@ function TransformToolLinks() {
       </p>
       <div className="grid gap-2 sm:grid-cols-3">
         {TRANSFORM_TOOLS.map((tool) => (
-          <a
+          <button
             key={tool.href}
-            href={tool.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+            onClick={() => handleToolClick(tool.href)}
+            className="group flex items-start gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50"
           >
-            <Wrench className="mt-0.5 size-4 shrink-0 text-muted-foreground group-hover:text-primary" />
+            <Wrench className="mt-0.5 size-4 shrink-0 text-muted-foreground group-hover:text-foreground" />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium group-hover:text-primary">
+              <p className="text-sm font-medium group-hover:text-foreground">
                 {tool.title}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -207,7 +233,7 @@ function TransformToolLinks() {
               </p>
             </div>
             <ExternalLink className="size-3 shrink-0 text-muted-foreground/50" />
-          </a>
+          </button>
         ))}
       </div>
     </div>

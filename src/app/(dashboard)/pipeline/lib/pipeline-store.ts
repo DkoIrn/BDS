@@ -5,8 +5,8 @@ import type { PipelineState } from "./pipeline-state"
 
 const PIPELINE_KEY = "pipeline-workflow-state"
 
-/** Serializable subset of PipelineState -- omits large/non-serializable fields */
-type SerializablePipelineState = Omit<PipelineState, "parsedData" | "cleanedData">
+/** Serializable subset of PipelineState -- omits non-serializable Blob */
+type SerializablePipelineState = Omit<PipelineState, "cleanedData">
 
 export function savePipelineState(state: PipelineState): void {
   try {
@@ -16,6 +16,7 @@ export function savePipelineState(state: PipelineState): void {
       fileName: state.fileName,
       fileSource: state.fileSource,
       datasetId: state.datasetId,
+      parsedData: state.parsedData,
       columnCount: state.columnCount,
       rowCount: state.rowCount,
       validationRunId: state.validationRunId,

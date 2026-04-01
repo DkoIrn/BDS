@@ -34,8 +34,7 @@ function initializeState(): PipelineState {
   return {
     ...initialState,
     ...saved,
-    // Non-serializable fields are always reset
-    parsedData: null,
+    // Blob is non-serializable, always reset
     cleanedData: null,
   }
 }
@@ -63,25 +62,31 @@ export function PipelineWorkflow({ user: _user }: PipelineWorkflowProps) {
   }, [])
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between px-6 pt-2">
-        <div /> {/* Spacer */}
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between animate-fade-up">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Pipeline
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Import, inspect, validate, clean, and export your survey data
+          </p>
+        </div>
         {state.currentStage !== "import" && (
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={handleReset}
-            className="text-muted-foreground"
+            className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
           >
-            <RefreshCw className="mr-2 size-3.5" />
+            <RefreshCw className="size-3.5" />
             Reset Pipeline
-          </Button>
+          </button>
         )}
       </div>
 
       <PipelineStepper state={state} onStageClick={handleStageClick} />
 
-      <div className="p-6">
+      <div className="animate-fade-up [animation-delay:80ms] [animation-fill-mode:backwards]">
         {state.currentStage === "import" && (
           <StageImport state={state} dispatch={dispatch} fileRef={fileRef} />
         )}

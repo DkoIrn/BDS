@@ -8,6 +8,7 @@ import {
   FileText,
   RefreshCw,
   AlertCircle,
+  ArrowLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -99,6 +100,21 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
         const blob = await response.blob()
         const file = new File([blob], result.fileName)
         formData.append("file", file)
+      } else if (state.parsedData && state.parsedData.length > 0) {
+        // Reconstruct CSV from parsed data (e.g. after session restore when fileRef is lost)
+        const csvContent = state.parsedData
+          .map((row) =>
+            row.map((cell) => {
+              if (cell.includes(",") || cell.includes('"') || cell.includes("\n")) {
+                return `"${cell.replace(/"/g, '""')}"`
+              }
+              return cell
+            }).join(",")
+          )
+          .join("\n")
+        const blob = new Blob([csvContent], { type: "text/csv" })
+        const file = new File([blob], state.fileName || "export.csv")
+        formData.append("file", file)
       } else {
         throw new Error("No file available for export")
       }
@@ -150,7 +166,7 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
   // Pipeline complete state
   if (downloaded) {
     return (
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Check className="size-5 text-green-600" />
@@ -226,10 +242,13 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
             </div>
           </div>
 
-          <Button onClick={handleReset} className="w-full">
-            <RefreshCw className="mr-2 size-4" />
+          <button
+            onClick={handleReset}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
+          >
+            <RefreshCw className="size-3.5" />
             Start New Pipeline
-          </Button>
+          </button>
         </CardContent>
       </Card>
     )
@@ -237,7 +256,7 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
 
   // Export form
   return (
-    <Card>
+    <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Download className="size-5" />
@@ -255,10 +274,10 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
                 onClick={() =>
                   dispatch({ type: "SET_EXPORT_FORMAT", format: fmt.id })
                 }
-                className={`rounded-lg border p-4 text-left transition-colors ${
+                className={`rounded-xl border p-4 text-left transition-all ${
                   state.exportFormat === fmt.id
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                    : "border-border bg-card hover:border-primary/50"
+                    ? "border-foreground bg-foreground/5 ring-1 ring-foreground"
+                    : "border-border bg-card hover:border-foreground/40"
                 }`}
               >
                 <p className="text-sm font-medium">{fmt.label}</p>
@@ -278,25 +297,35 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
           </div>
         )}
 
-        {/* Download */}
-        <Button
-          onClick={handleDownload}
-          disabled={!state.exportFormat || downloading}
-          className="w-full"
-          size="lg"
-        >
-          {downloading ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Exporting...
-            </>
-          ) : (
-            <>
-              <Download className="mr-2 size-4" />
-              Download Dataset
-            </>
-          )}
-        </Button>
+        {/* Actions */}
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() =>
+              dispatch({ type: "GO_TO_STAGE", stage: "clean" })
+            }
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Back
+          </Button>
+          <button
+            onClick={handleDownload}
+            disabled={!state.exportFormat || downloading}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+          >
+            {downloading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download className="size-4" />
+                Download Dataset
+              </>
+            )}
+          </button>
+        </div>
       </CardContent>
     </Card>
   )

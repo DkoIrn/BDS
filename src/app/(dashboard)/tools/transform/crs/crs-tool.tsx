@@ -79,6 +79,22 @@ export function CrsTool() {
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("geojson")
   const [formatChanged, setFormatChanged] = useState(false)
   const blobUrlRef = useRef<string | null>(null)
+  const handoffChecked = useRef(false)
+
+  // Check for pipeline handoff data on mount
+  useEffect(() => {
+    if (handoffChecked.current) return
+    handoffChecked.current = true
+    import("@/lib/pipeline-handoff").then(({ consumePipelineHandoff }) => {
+      const file = consumePipelineHandoff()
+      if (file) {
+        const defaultFmt = detectDefaultFormat(file.name)
+        setOutputFormat(defaultFmt)
+        setFormatChanged(false)
+        setState({ step: "configure", file })
+      }
+    })
+  }, [])
 
   const revokeBlobUrl = useCallback(() => {
     if (blobUrlRef.current) {

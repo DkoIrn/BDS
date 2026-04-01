@@ -11,6 +11,7 @@ import {
   Map,
   Wrench,
   GitCompareArrows,
+  Workflow,
   Settings,
   LogOut,
   Bell,
@@ -33,6 +34,7 @@ import {
 const mainNav = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Projects", href: "/projects", icon: FolderOpen },
+  { title: "Pipeline", href: "/pipeline", icon: Workflow },
   { title: "Reports", href: "/reports", icon: BarChart3 },
 ]
 

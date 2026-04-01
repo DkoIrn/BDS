@@ -119,6 +119,23 @@ export function SplitTool() {
   const [formatChanged, setFormatChanged] = useState(false)
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null)
   const zipBlobUrlRef = useRef<string | null>(null)
+  const handoffChecked = useRef(false)
+
+  // Check for pipeline handoff data on mount
+  useEffect(() => {
+    if (handoffChecked.current) return
+    handoffChecked.current = true
+    import("@/lib/pipeline-handoff").then(({ consumePipelineHandoff }) => {
+      const file = consumePipelineHandoff()
+      if (file) {
+        const defaultFmt = detectDefaultFormat(file.name)
+        setOutputFormat(defaultFmt)
+        setFormatChanged(false)
+        setState({ step: "configure", file })
+        extractCsvHeaders(file).then((headers) => setCsvHeaders(headers))
+      }
+    })
+  }, [])
 
   const revokeZipBlobUrl = useCallback(() => {
     if (zipBlobUrlRef.current) {

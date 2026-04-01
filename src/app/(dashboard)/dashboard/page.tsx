@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   Clock,
   Percent,
+  Workflow,
 } from "lucide-react"
 
 export default async function DashboardPage() {
@@ -191,7 +192,7 @@ export default async function DashboardPage() {
               <QuickAction icon={Upload} label="Upload" href="/projects" color="blue" />
               <QuickAction icon={ClipboardCheck} label="Validate" href="/projects" color="emerald" />
               <QuickAction icon={BarChart3} label="Reports" href="/reports" color="amber" />
-              <QuickAction icon={Map} label="Visualize" href="/tools/visualize" color="violet" />
+              <QuickAction icon={Workflow} label="Pipeline" href="/pipeline" color="violet" />
             </div>
           </div>
 
