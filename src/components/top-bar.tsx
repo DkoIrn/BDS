@@ -51,6 +51,7 @@ function getPageName(pathname: string): string {
   const routeNames: Record<string, string> = {
     dashboard: "Dashboard",
     projects: "Projects",
+    pipeline: "Pipeline",
     reports: "Reports",
     settings: "Settings",
     tools: "Tools",

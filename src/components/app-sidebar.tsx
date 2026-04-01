@@ -12,6 +12,7 @@ import {
   Map,
   Wrench,
   GitCompareArrows,
+  Workflow,
 } from "lucide-react"
 import {
   Sidebar,
@@ -31,6 +32,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 const mainNav = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Projects", href: "/projects", icon: FolderOpen },
+  { title: "Pipeline", href: "/pipeline", icon: Workflow },
   { title: "Reports", href: "/reports", icon: BarChart3 },
 ]
 
