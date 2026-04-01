@@ -23,8 +23,11 @@ export function computeHealthScore(data: {
     return { score: -1, label: "Good", color: "green" }
   }
 
-  // Base score from pass rate (0-100)
-  let score = Math.round((data.passRate ?? 1) * 100)
+  // Base score from pass rate
+  // passRate may be 0-1 (decimal) or 0-100 (percentage) depending on source
+  const rawRate = data.passRate ?? 100
+  const normalizedRate = rawRate > 1 ? rawRate : rawRate * 100
+  let score = Math.round(normalizedRate)
 
   // Penalize critical issues heavily
   if (data.criticalCount > 0) {

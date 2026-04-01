@@ -137,7 +137,7 @@ export function HealthScoreCard({
         />
         <StatCell
           label="Pass Rate"
-          value={passRate !== null ? `${Math.round(passRate * 100)}%` : "--"}
+          value={passRate !== null ? `${Math.round(passRate > 1 ? passRate : passRate * 100)}%` : "--"}
           sub={totalRows ? `${totalRows.toLocaleString()} rows` : undefined}
         />
         <StatCell
