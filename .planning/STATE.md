@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 16 of 16 (16-pipeline-workflow)
-Plan: 1 of 3
+Plan: 2 of 3
 Status: In Progress
-Last activity: 2026-04-01 -- Plan 16-00 complete (pipeline workflow test stubs)
+Last activity: 2026-04-01 -- Plan 16-01 complete (pipeline workflow foundation: state machine, stepper, page)
 
-Progress: [█████████░] 94%
+Progress: [█████████░] 97%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [█████████░] 94%
 | Phase 14 P01 | 5min | 2 tasks | 13 files |
 | Phase 14 P02 | 4min | 2 tasks | 8 files |
 | Phase 16 P00 | 1min | 1 tasks | 4 files |
+| Phase 16 P01 | 10min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,10 @@ Recent decisions affecting current work:
 - [Phase 14]: OutputPreviewTable as lightweight shared component (not reusing data-preview-table.tsx)
 - [Phase 14]: Dual text/blob response reading for preview + download in transform tools
 - [Phase 16]: All test stubs use it.todo() exclusively to avoid import errors from non-existent modules
+- [Phase 16]: useReducer with lazy initializer for sessionStorage hydration (no HYDRATE action needed)
+- [Phase 16]: Pipeline state machine: discriminated union PipelineAction with exhaustive switch in pipelineReducer
+- [Phase 16]: Smart gating via canNavigateTo: import always navigable, validate/clean skippable, export after import
+- [Phase 16]: SerializablePipelineState omits parsedData and cleanedData from sessionStorage
 
 ### Roadmap Evolution
 
@@ -162,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T13:16:03.145Z
-Stopped at: Completed 16-00-PLAN.md
+Last session: 2026-04-01T13:23:00Z
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None
