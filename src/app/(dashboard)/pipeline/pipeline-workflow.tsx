@@ -106,7 +106,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
         )}
 
         {state.currentStage === "export" && (
-          <StageExport state={state} dispatch={dispatch} fileRef={fileRef} userId={user.id} />
+          <StageExport state={state} dispatch={dispatch} fileRef={fileRef} userId={user.id} validationIssues={validationIssues} />
         )}
       </div>
     </div>

@@ -19,11 +19,14 @@ import { clearPipelineState } from "../lib/pipeline-store"
 import { SURVEY_TYPES } from "@/lib/types/projects"
 import type { PipelineState, PipelineAction } from "../lib/pipeline-state"
 
+import type { ValidationIssue } from "../lib/client-validate"
+
 interface StageExportProps {
   state: PipelineState
   dispatch: React.Dispatch<PipelineAction>
   fileRef: React.MutableRefObject<File | null>
   userId: string
+  validationIssues: ValidationIssue[]
 }
 
 const EXPORT_FORMATS = [
@@ -45,7 +48,7 @@ function getDefaultFormat(fileName: string | null): string {
   return match?.id || "csv"
 }
 
-export function StageExport({ state, dispatch, fileRef, userId }: StageExportProps) {
+export function StageExport({ state, dispatch, fileRef, userId, validationIssues }: StageExportProps) {
   const [downloading, setDownloading] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
   const [downloadedFilename, setDownloadedFilename] = useState<string | null>(null)
@@ -252,6 +255,7 @@ export function StageExport({ state, dispatch, fileRef, userId }: StageExportPro
             state={state}
             userId={userId}
             fileRef={fileRef}
+            validationIssues={validationIssues}
           />
 
           <button
@@ -370,10 +374,12 @@ function SaveToProject({
   state,
   userId,
   fileRef,
+  validationIssues,
 }: {
   state: PipelineState
   userId: string
   fileRef: React.MutableRefObject<File | null>
+  validationIssues: ValidationIssue[]
 }) {
   const [step, setStep] = useState<SaveStep>("prompt")
   const [projectName, setProjectName] = useState("")
@@ -491,6 +497,27 @@ function SaveToProject({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ datasetId: fileResult.id }),
       }).catch(() => {})
+
+      // 7. Save pipeline validation results if we ran validation
+      if (validationIssues.length > 0 || state.stages.validate.completed) {
+        fetch("/api/pipeline-validation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            datasetId: fileResult.id,
+            issues: validationIssues.map((i) => ({
+              type: i.type,
+              severity: i.severity,
+              row: i.row,
+              column: i.column,
+              message: i.message,
+              detail: i.detail,
+            })),
+            totalRows: state.rowCount ?? 0,
+            cleanActionCount: state.cleanActionCount ?? 0,
+          }),
+        }).catch(() => {})
+      }
 
       setSavedProjectId(projectId)
       setStep("saved")
