@@ -61,11 +61,23 @@ def run_validation_background(dataset_id: str, config: ProfileConfig | None) -> 
                 rename_map[m["originalName"]] = m["mappedType"]
         df = df.rename(columns=rename_map)
 
-        # Convert numeric columns
-        numeric_types = [
+        # Deduplicate column names (append _2, _3, etc. for duplicates)
+        seen: dict[str, int] = {}
+        new_cols = []
+        for col in df.columns:
+            if col in seen:
+                seen[col] += 1
+                new_cols.append(f"{col}_{seen[col]}")
+            else:
+                seen[col] = 1
+                new_cols.append(col)
+        df.columns = new_cols
+
+        # Convert numeric columns to float (DataFrame loaded as dtype=str)
+        numeric_types = {
             "kp", "easting", "northing", "depth", "dob", "doc",
             "top", "elevation", "latitude", "longitude",
-        ]
+        }
         for col in df.columns:
             if col in numeric_types:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
