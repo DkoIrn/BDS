@@ -25,6 +25,21 @@ export async function signup(formData: FormData) {
   return { success: true, email }
 }
 
+export async function resendOtp(email: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
 export async function verifyOtp(email: string, token: string) {
   const supabase = await createClient()
 

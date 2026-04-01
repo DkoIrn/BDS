@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { signup, verifyOtp } from '@/lib/actions/auth'
+import { signup, verifyOtp, resendOtp } from '@/lib/actions/auth'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,7 +14,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
-  const [otp, setOtp] = useState(['', '', '', '', '', ''])
+  const [otp, setOtp] = useState(['', '', '', '', '', '', '', ''])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,13 +41,13 @@ export default function SignupPage() {
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) {
       // Handle paste of full code
-      const digits = value.replace(/\D/g, '').slice(0, 6).split('')
+      const digits = value.replace(/\D/g, '').slice(0, 8).split('')
       const newOtp = [...otp]
       digits.forEach((d, i) => {
-        if (index + i < 6) newOtp[index + i] = d
+        if (index + i < 8) newOtp[index + i] = d
       })
       setOtp(newOtp)
-      const nextIndex = Math.min(index + digits.length, 5)
+      const nextIndex = Math.min(index + digits.length, 7)
       inputRefs.current[nextIndex]?.focus()
       return
     }
@@ -57,7 +57,7 @@ export default function SignupPage() {
     newOtp[index] = digit
     setOtp(newOtp)
 
-    if (digit && index < 5) {
+    if (digit && index < 7) {
       inputRefs.current[index + 1]?.focus()
     }
   }
@@ -70,7 +70,7 @@ export default function SignupPage() {
 
   const handleVerify = async () => {
     const code = otp.join('')
-    if (code.length !== 6) return
+    if (code.length !== 8) return
 
     setError(null)
     setIsPending(true)
@@ -81,7 +81,7 @@ export default function SignupPage() {
 
     if (result && 'error' in result) {
       setError(result.error)
-      setOtp(['', '', '', '', '', ''])
+      setOtp(['', '', '', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
     }
   }
@@ -90,19 +90,12 @@ export default function SignupPage() {
     setError(null)
     setIsPending(true)
 
-    const formData = new FormData()
-    formData.set('email', email)
-    formData.set('password', '')
-    // Re-trigger signup to resend the OTP
-    const result = await signup(formData)
+    const result = await resendOtp(email)
 
     setIsPending(false)
 
     if (result && 'error' in result) {
-      // "User already registered" is expected - the OTP gets resent anyway
-      if (!result.error.toLowerCase().includes('already registered')) {
-        setError(result.error)
-      }
+      setError(result.error)
     }
   }
 
@@ -116,7 +109,7 @@ export default function SignupPage() {
           </div>
           <CardTitle className="mt-3 text-2xl">Check your email</CardTitle>
           <CardDescription>
-            We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
+            We sent a verification code to <span className="font-medium text-foreground">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -129,11 +122,11 @@ export default function SignupPage() {
                   ref={(el) => { inputRefs.current[i] = el }}
                   type="text"
                   inputMode="numeric"
-                  maxLength={6}
+                  maxLength={8}
                   value={digit}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                  className="size-12 rounded-xl border bg-background text-center text-lg font-semibold transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="size-10 rounded-xl border bg-background text-center text-base font-semibold transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   autoFocus={i === 0}
                 />
               ))}
@@ -145,7 +138,7 @@ export default function SignupPage() {
 
             <Button
               onClick={handleVerify}
-              disabled={otp.join('').length !== 6 || isPending}
+              disabled={otp.join('').length !== 8 || isPending}
               className="w-full rounded-xl bg-foreground text-background hover:bg-foreground/90"
               size="lg"
             >
@@ -154,7 +147,7 @@ export default function SignupPage() {
 
             <div className="flex items-center justify-between">
               <button
-                onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '']); setError(null) }}
+                onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '', '', '']); setError(null) }}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="size-3" />
