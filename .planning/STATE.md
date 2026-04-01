@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 16-00-PLAN.md
-last_updated: "2026-04-01T13:16:03.153Z"
-last_activity: 2026-03-30 -- Plan 14-02 complete (CRS & merge tool UI, preview table, API proxies)
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-04-01T14:50:44.668Z"
+last_activity: "2026-04-01 -- Plan 16-02 complete (5 pipeline stage panels: Import, Inspect, Validate, Clean, Export)"
 progress:
   total_phases: 16
-  completed_phases: 14
+  completed_phases: 15
   total_plans: 38
-  completed_plans: 36
-  percent: 94
+  completed_plans: 38
+  percent: 100
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 16 of 16 (16-pipeline-workflow)
-Plan: 2 of 3
+Plan: 3 of 3
 Status: In Progress
-Last activity: 2026-04-01 -- Plan 16-01 complete (pipeline workflow foundation: state machine, stepper, page)
+Last activity: 2026-04-01 -- Plan 16-02 complete (5 pipeline stage panels: Import, Inspect, Validate, Clean, Export)
 
-Progress: [█████████░] 97%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [█████████░] 97%
 | Phase 14 P02 | 4min | 2 tasks | 8 files |
 | Phase 16 P00 | 1min | 1 tasks | 4 files |
 | Phase 16 P01 | 10min | 2 tasks | 12 files |
+| Phase 16 P02 | 12min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,8 @@ Recent decisions affecting current work:
 - [Phase 16]: Pipeline state machine: discriminated union PipelineAction with exhaustive switch in pipelineReducer
 - [Phase 16]: Smart gating via canNavigateTo: import always navigable, validate/clean skippable, export after import
 - [Phase 16]: SerializablePipelineState omits parsedData and cleanedData from sessionStorage
+- [Phase 16]: fileRef pattern: File object in useRef at workflow level, passed to stages needing file access
+- [Phase 16]: Client-side CSV/Excel parsing in Inspect stage for instant preview without server round-trip
 
 ### Roadmap Evolution
 
@@ -167,6 +170,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T13:23:00Z
-Stopped at: Completed 16-01-PLAN.md
+Last session: 2026-04-01T14:50:44.659Z
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None
