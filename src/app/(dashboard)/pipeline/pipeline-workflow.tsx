@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useEffect, useCallback, useRef } from "react"
+import { useReducer, useEffect, useCallback, useRef, useState } from "react"
 import {
   pipelineReducer,
   initialState,
@@ -16,6 +16,7 @@ import { PipelineStepper } from "./components/pipeline-stepper"
 import { StageImport } from "./components/stage-import"
 import { StageInspect } from "./components/stage-inspect"
 import { StageValidate } from "./components/stage-validate"
+import type { ValidationIssue } from "./lib/client-validate"
 import { StageClean } from "./components/stage-clean"
 import { StageExport } from "./components/stage-export"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,7 @@ function initializeState(): PipelineState {
 export function PipelineWorkflow({ user: _user }: PipelineWorkflowProps) {
   const [state, dispatch] = useReducer(pipelineReducer, initialState, initializeState)
   const fileRef = useRef<File | null>(null)
+  const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
 
   // Persist state on changes
   useEffect(() => {
@@ -96,11 +98,11 @@ export function PipelineWorkflow({ user: _user }: PipelineWorkflowProps) {
         )}
 
         {state.currentStage === "validate" && (
-          <StageValidate state={state} dispatch={dispatch} />
+          <StageValidate state={state} dispatch={dispatch} onIssuesFound={setValidationIssues} />
         )}
 
         {state.currentStage === "clean" && (
-          <StageClean state={state} dispatch={dispatch} />
+          <StageClean state={state} dispatch={dispatch} validationIssues={validationIssues} />
         )}
 
         {state.currentStage === "export" && (

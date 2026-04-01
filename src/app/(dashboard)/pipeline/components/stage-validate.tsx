@@ -43,7 +43,11 @@ const SEVERITY_CONFIG = {
   },
 }
 
-export function StageValidate({ state, dispatch }: StagePanelProps) {
+interface StageValidateProps extends StagePanelProps {
+  onIssuesFound?: (issues: ValidationIssue[]) => void
+}
+
+export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateProps) {
   const [validating, setValidating] = useState(false)
   const [result, setResult] = useState<ValidationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -87,6 +91,7 @@ export function StageValidate({ state, dispatch }: StagePanelProps) {
         ])
 
         setResult(validationResult)
+        onIssuesFound?.(validationResult.issues)
         dispatch({
           type: "VALIDATE_COMPLETE",
           runId: "client",

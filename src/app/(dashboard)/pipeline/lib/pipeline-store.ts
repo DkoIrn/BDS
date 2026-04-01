@@ -5,25 +5,9 @@ import type { PipelineState } from "./pipeline-state"
 
 const PIPELINE_KEY = "pipeline-workflow-state"
 
-/** Serializable subset of PipelineState -- omits non-serializable Blob */
-type SerializablePipelineState = Omit<PipelineState, "cleanedData">
-
 export function savePipelineState(state: PipelineState): void {
   try {
-    const serializable: SerializablePipelineState = {
-      currentStage: state.currentStage,
-      stages: state.stages,
-      fileName: state.fileName,
-      fileSource: state.fileSource,
-      datasetId: state.datasetId,
-      parsedData: state.parsedData,
-      columnCount: state.columnCount,
-      rowCount: state.rowCount,
-      validationRunId: state.validationRunId,
-      issueCount: state.issueCount,
-      exportFormat: state.exportFormat,
-    }
-    sessionStorage.setItem(PIPELINE_KEY, JSON.stringify(serializable))
+    sessionStorage.setItem(PIPELINE_KEY, JSON.stringify(state))
   } catch {
     console.warn("Failed to save pipeline state to sessionStorage")
   }

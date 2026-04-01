@@ -133,14 +133,15 @@ describe("pipelineReducer", () => {
       ),
       { type: "VALIDATE_COMPLETE", runId: "run-1", issueCount: 0 }
     )
-    const blob = new Blob(["test"])
+    const cleanedData = [["KP", "Depth"], ["0.0", "10"]]
     const result = pipelineReducer(afterValidate, {
       type: "CLEAN_COMPLETE",
-      cleanedData: blob,
+      cleanedData,
+      actionCount: 3,
     })
     expect(result.currentStage).toBe("export")
     expect(result.stages.clean.completed).toBe(true)
-    expect(result.cleanedData).toBe(blob)
+    expect(result.cleanedData).toBe(cleanedData)
   })
 
   it("SET_EXPORT_FORMAT updates export format", () => {

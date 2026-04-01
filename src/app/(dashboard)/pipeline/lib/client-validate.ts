@@ -7,6 +7,8 @@ export interface ValidationIssue {
   row?: number
   column?: string
   message: string
+  /** Human-readable explanation with expected vs actual values */
+  detail?: string
 }
 
 export interface ValidationResult {
@@ -73,11 +75,13 @@ function checkMissingData(
       if (val === "") missingCount++
     }
     if (missingCount > 0) {
+      const pct = ((missingCount / rows.length) * 100).toFixed(1)
       issues.push({
         type: "missing",
         severity: "info",
         column: headers[col],
         message: `${missingCount} missing value${missingCount > 1 ? "s" : ""} in "${headers[col]}"`,
+        detail: `${missingCount} of ${rows.length} rows (${pct}%) have empty values in the "${headers[col]}" column. Expected: all cells populated.`,
       })
     }
   }
@@ -94,6 +98,7 @@ function checkDuplicateRows(rows: string[][], issues: ValidationIssue[]) {
         severity: "critical",
         row: i + 2, // +2 for 1-indexed + header
         message: `Row ${i + 2} is a duplicate of row ${prev + 2}`,
+        detail: `Exact duplicate: all ${rows[i].length} column values match between row ${i + 2} and row ${prev + 2}. One copy should be removed.`,
       })
     } else {
       seen.set(key, i)
@@ -155,6 +160,7 @@ function checkOutliers(
         row: row + 2,
         column: colName,
         message: `Outlier in "${colName}" at row ${row + 2}: ${val} (z-score: ${zScore.toFixed(1)})`,
+        detail: `Value ${val} is ${zScore.toFixed(1)} standard deviations from the mean. Expected range: ${(mean - 3 * stdDev).toFixed(2)} to ${(mean + 3 * stdDev).toFixed(2)} (mean: ${mean.toFixed(2)}, σ: ${stdDev.toFixed(2)}).`,
       })
     }
   }
@@ -189,6 +195,7 @@ function checkKpMonotonicity(
           row: i + 2,
           column: "KP",
           message: `KP decreases at row ${i + 2}: ${kp} < ${prevKp}`,
+          detail: `KP should increase monotonically along the pipeline. Found ${kp} after ${prevKp} — a decrease of ${(prevKp - kp).toFixed(3)} km. This row may be out of order or contain a data entry error.`,
         })
       } else if (kp === prevKp) {
         issues.push({
@@ -197,6 +204,7 @@ function checkKpMonotonicity(
           row: i + 2,
           column: "KP",
           message: `Duplicate KP value at row ${i + 2}: ${kp}`,
+          detail: `Two consecutive rows share the same KP value (${kp}). Expected: strictly increasing KP. This may indicate a duplicate measurement or a data entry error.`,
         })
       }
     }
@@ -241,6 +249,7 @@ function checkKpGaps(
         row: row + 2,
         column: "KP",
         message: `KP gap at row ${row + 2}: spacing ${spacing.toFixed(3)} exceeds threshold ${gapThreshold.toFixed(3)}`,
+        detail: `Gap of ${spacing.toFixed(3)} km detected between rows. Normal spacing: ~${median.toFixed(3)} km. Threshold: ${gapThreshold.toFixed(3)} km (3× median). This may indicate missing survey data or a line break.`,
       })
     }
   }

@@ -58,17 +58,17 @@ describe("pipeline-store", () => {
     expect(raw).toBeNull()
   })
 
-  it("omits parsedData and cleanedData from serialized state", () => {
+  it("persists parsedData and cleanedData in serialized state", () => {
     const stateWithData = {
       ...initialState,
       parsedData: [["a", "b"], ["1", "2"]],
-      cleanedData: new Blob(["test"]),
+      cleanedData: [["a", "b"], ["3", "4"]],
     }
     savePipelineState(stateWithData)
     const raw = sessionStorage.getItem("pipeline-workflow-state")
     expect(raw).not.toBeNull()
     const parsed = JSON.parse(raw!)
-    expect(parsed.parsedData).toBeUndefined()
-    expect(parsed.cleanedData).toBeUndefined()
+    expect(parsed.parsedData).toEqual([["a", "b"], ["1", "2"]])
+    expect(parsed.cleanedData).toEqual([["a", "b"], ["3", "4"]])
   })
 })

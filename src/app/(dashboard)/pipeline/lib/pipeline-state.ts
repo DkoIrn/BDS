@@ -32,7 +32,10 @@ export interface PipelineState {
   rowCount: number | null
   validationRunId: string | null
   issueCount: number | null
-  cleanedData: Blob | null
+  /** Data after auto-clean (replaces parsedData for export) */
+  cleanedData: string[][] | null
+  /** Number of auto-clean actions applied */
+  cleanActionCount: number | null
   exportFormat: string | null
 }
 
@@ -49,7 +52,8 @@ export type PipelineAction =
   | { type: "VALIDATE_START" }
   | { type: "VALIDATE_COMPLETE"; runId: string; issueCount: number }
   | { type: "SKIP_CLEAN" }
-  | { type: "CLEAN_COMPLETE"; cleanedData: Blob }
+  | { type: "CLEAN_COMPLETE"; cleanedData: string[][]; actionCount: number }
+  | { type: "AI_FIX_APPLIED"; updatedData: string[][] }
   | { type: "SET_EXPORT_FORMAT"; format: string }
   | { type: "GO_TO_STAGE"; stage: PipelineStage }
   | { type: "RESET" }
@@ -78,6 +82,7 @@ export const initialState: PipelineState = {
   validationRunId: null,
   issueCount: null,
   cleanedData: null,
+  cleanActionCount: null,
   exportFormat: null,
 }
 
@@ -231,10 +236,23 @@ export function pipelineReducer(
           clean: {
             completed: true,
             skipped: false,
-            summary: "Transforms applied",
+            summary: `${action.actionCount} fix${action.actionCount !== 1 ? "es" : ""} applied`,
           },
         },
         cleanedData: action.cleanedData,
+        cleanActionCount: action.actionCount,
+        // Update parsedData so export uses cleaned version
+        parsedData: action.cleanedData,
+        rowCount: action.cleanedData.length - 1,
+      }
+    }
+
+    case "AI_FIX_APPLIED": {
+      return {
+        ...state,
+        cleanedData: action.updatedData,
+        parsedData: action.updatedData,
+        rowCount: action.updatedData.length - 1,
       }
     }
 
