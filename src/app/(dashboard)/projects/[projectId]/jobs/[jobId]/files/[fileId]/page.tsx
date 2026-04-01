@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { FileDetailView } from "@/components/files/file-detail-view"
+import { HealthScoreCard } from "@/components/files/health-badge"
 import type { Dataset, DatasetStatus } from "@/lib/types/files"
 import type { SurveyType } from "@/lib/types/projects"
 
@@ -100,6 +101,16 @@ export default async function FileDetailPage({
 
   const surveyType = job.survey_type as SurveyType
 
+  // Fetch latest validation run for health score
+  const { data: latestRun } = await supabase
+    .from("validation_runs")
+    .select("total_issues, critical_count, warning_count, info_count, pass_rate, completeness_score")
+    .eq("dataset_id", fileId)
+    .eq("status", "completed")
+    .order("run_at", { ascending: false })
+    .limit(1)
+    .single()
+
   return (
     <div className="space-y-6">
       <Breadcrumb>
@@ -153,6 +164,18 @@ export default async function FileDetailPage({
           )}
         </div>
       </div>
+
+      {/* Health score card */}
+      {latestRun && (
+        <HealthScoreCard
+          passRate={latestRun.pass_rate}
+          totalIssues={latestRun.total_issues}
+          criticalCount={latestRun.critical_count}
+          warningCount={latestRun.warning_count}
+          infoCount={latestRun.info_count}
+          totalRows={typedDataset.total_rows ?? undefined}
+        />
+      )}
 
       {/* File detail view with mapping interface */}
       <FileDetailView

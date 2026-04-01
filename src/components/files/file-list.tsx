@@ -16,6 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { FileRowActions } from "@/components/files/file-row-actions"
+import { HealthBadge } from "@/components/files/health-badge"
+import { getJobValidationSummary } from "@/lib/actions/validation"
 import type { Dataset, DatasetStatus } from "@/lib/types/files"
 
 function formatFileSize(bytes: number): string {
@@ -76,11 +78,29 @@ export function FileList({
 }) {
   const router = useRouter()
   const [localFiles, setLocalFiles] = useState(files)
+  const [healthData, setHealthData] = useState<Map<string, { passRate: number | null; issueCount: number; criticalCount: number }>>(new Map())
 
   // Sync with prop changes
   useEffect(() => {
     setLocalFiles(files)
   }, [files])
+
+  // Fetch health scores
+  useEffect(() => {
+    getJobValidationSummary(jobId).then((result) => {
+      if ("data" in result) {
+        const map = new Map<string, { passRate: number | null; issueCount: number; criticalCount: number }>()
+        for (const summary of result.data) {
+          map.set(summary.id, {
+            passRate: summary.passRate,
+            issueCount: summary.issueCount,
+            criticalCount: summary.verdict === "FAIL" ? 1 : 0,
+          })
+        }
+        setHealthData(map)
+      }
+    })
+  }, [jobId])
 
   // Realtime subscription for job-scoped dataset status changes
   useEffect(() => {
@@ -197,6 +217,14 @@ export function FileList({
 
                 <StatusBadge status={file.status} />
 
+                {healthData.has(file.id) && (
+                  <HealthBadge
+                    passRate={healthData.get(file.id)!.passRate}
+                    totalIssues={healthData.get(file.id)!.issueCount}
+                    criticalCount={healthData.get(file.id)!.criticalCount}
+                  />
+                )}
+
                 <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                   <FileRowActions fileId={file.id} fileName={file.file_name} />
                 </div>
@@ -215,6 +243,7 @@ export function FileList({
                 <TableHead className="w-24">Size</TableHead>
                 <TableHead className="w-28">Uploaded</TableHead>
                 <TableHead className="w-28">Status</TableHead>
+                <TableHead className="w-20">Health</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -247,6 +276,16 @@ export function FileList({
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={file.status} />
+                    </TableCell>
+                    <TableCell>
+                      {healthData.has(file.id) && (
+                        <HealthBadge
+                          passRate={healthData.get(file.id)!.passRate}
+                          totalIssues={healthData.get(file.id)!.issueCount}
+                          criticalCount={healthData.get(file.id)!.criticalCount}
+                          compact
+                        />
+                      )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <FileRowActions fileId={file.id} fileName={file.file_name} />
