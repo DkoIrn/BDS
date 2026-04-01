@@ -207,6 +207,81 @@ export async function updateDatasetStatus(
   return { success: true }
 }
 
+export async function getAllUserDatasets(): Promise<
+  { data: { id: string; file_name: string; file_size: number; job_name: string; project_name: string; storage_path: string }[] } | { error: string }
+> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { data: datasets, error } = await supabase
+    .from('datasets')
+    .select('id, file_name, file_size, storage_path, job_id, jobs(name, project_id, projects(name))')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  const result = (datasets || []).map((d: Record<string, unknown>) => {
+    const job = d.jobs as Record<string, unknown> | null
+    const project = job?.projects as Record<string, unknown> | null
+    return {
+      id: d.id as string,
+      file_name: d.file_name as string,
+      file_size: d.file_size as number,
+      storage_path: d.storage_path as string,
+      job_name: (job?.name as string) || 'Unknown Job',
+      project_name: (project?.name as string) || 'Unknown Project',
+    }
+  })
+
+  return { data: result }
+}
+
+export async function getDatasetSignedUrl(
+  datasetId: string
+): Promise<{ url: string; fileName: string } | { error: string }> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { data: file, error: fetchError } = await supabase
+    .from('datasets')
+    .select('storage_path, file_name')
+    .eq('id', datasetId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (fetchError || !file) {
+    return { error: 'File not found or access denied' }
+  }
+
+  const { data, error } = await supabase.storage
+    .from('datasets')
+    .createSignedUrl(file.storage_path, 300)
+
+  if (error || !data?.signedUrl) {
+    return { error: error?.message ?? 'Failed to generate download URL' }
+  }
+
+  return { url: data.signedUrl, fileName: file.file_name }
+}
+
 export async function saveColumnMappings(
   datasetId: string,
   mappings: ColumnMapping[]

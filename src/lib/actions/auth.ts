@@ -14,7 +14,6 @@ export async function signup(formData: FormData) {
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
       ...(fullName ? { data: { full_name: fullName } } : {}),
     },
   })
@@ -23,7 +22,23 @@ export async function signup(formData: FormData) {
     return { error: error.message }
   }
 
-  redirect('/login?message=Check your email to verify your account')
+  return { success: true, email }
+}
+
+export async function verifyOtp(email: string, token: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: 'signup',
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  redirect('/splash')
 }
 
 export async function login(formData: FormData) {

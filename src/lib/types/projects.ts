@@ -1,4 +1,5 @@
 export const SURVEY_TYPES = [
+  'General',
   'DOB',
   'DOC',
   'TOP',

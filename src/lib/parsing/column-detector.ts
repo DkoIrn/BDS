@@ -21,6 +21,7 @@ const NAME_PATTERNS: Record<SurveyColumnType, RegExp[]> = {
 
 /** Expected columns per survey type */
 const EXPECTED_COLUMNS: Record<string, SurveyColumnType[]> = {
+  General: [],
   DOB: ['kp', 'easting', 'northing', 'dob'],
   DOC: ['kp', 'easting', 'northing', 'doc'],
   TOP: ['kp', 'easting', 'northing', 'top'],

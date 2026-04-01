@@ -51,7 +51,7 @@ export default async function DashboardPage() {
   // Recent activity - last 5 datasets
   const { data: recentDatasets } = await supabase
     .from("datasets")
-    .select("id, original_filename, status, created_at, jobs!inner(id, name, projects!inner(id, name, user_id))")
+    .select("id, file_name, status, created_at, jobs!inner(id, name, projects!inner(id, name, user_id))")
     .eq("jobs.projects.user_id", user!.id)
     .order("created_at", { ascending: false })
     .limit(5)
@@ -155,7 +155,7 @@ export default async function DashboardPage() {
                     <ActivityIcon status={dataset.status} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-foreground group-hover:text-foreground/90">
-                        {dataset.original_filename}
+                        {dataset.file_name}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {project?.name} / {job?.name}
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
               <ToolRow icon={ArrowRightLeft} title="Convert" description="File format conversion" href="/tools/convert" color="blue" live />
               <ToolRow icon={Map} title="Visualize" description="Interactive map plots" href="/tools/visualize" color="violet" live />
               <ToolRow icon={Wrench} title="Transform" description="CRS, merge & split" href="/tools/transform" color="teal" live />
-              <ToolRow icon={GitCompareArrows} title="Compare" description="Dataset diff" href="/tools/compare" color="amber" />
+              <ToolRow icon={GitCompareArrows} title="Compare" description="Dataset diff" href="/tools/compare" color="amber" live />
             </div>
           </div>
         </div>

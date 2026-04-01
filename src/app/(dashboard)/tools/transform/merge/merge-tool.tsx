@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OutputPreviewTable } from "@/components/transform/output-preview-table"
+import { DatasetPicker } from "@/components/tools/dataset-picker"
 
 const ACCEPTED_EXTENSIONS = [
   ".csv", ".xlsx", ".xls", ".geojson", ".json", ".zip", ".kml", ".kmz", ".xml", ".dxf",
@@ -225,6 +226,7 @@ export function MergeTool() {
             CSV, Excel, GeoJSON, Shapefile (ZIP), KML, KMZ, LandXML, DXF -- up to 50 MB each
           </p>
         </div>
+        <DatasetPicker onSelect={(file) => addFiles([file])} />
 
         {/* File list */}
         {state.files.length > 0 && (

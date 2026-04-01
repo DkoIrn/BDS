@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { OutputPreviewTable } from "@/components/transform/output-preview-table"
+import { DatasetPicker } from "@/components/tools/dataset-picker"
 
 const ACCEPTED_EXTENSIONS = [
   ".csv", ".xlsx", ".xls", ".geojson", ".json", ".zip", ".kml", ".kmz", ".xml", ".dxf",
@@ -216,6 +217,7 @@ export function CrsTool() {
             CSV, Excel, GeoJSON, Shapefile (ZIP), KML, KMZ, LandXML, DXF -- up to 50 MB
           </p>
         </div>
+        <DatasetPicker onSelect={(file) => onDrop([file])} />
       </div>
     )
   }

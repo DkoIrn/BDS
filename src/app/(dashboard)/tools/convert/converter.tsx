@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { DatasetPicker } from "@/components/tools/dataset-picker"
 
 // Accepted file extensions for conversion
 const ACCEPTED_EXTENSIONS = [
@@ -232,6 +233,7 @@ export function Converter() {
             CSV, Excel, GeoJSON, Shapefile (ZIP), KML, KMZ, LandXML, DXF -- up to 50 MB
           </p>
         </div>
+        <DatasetPicker onSelect={(file) => onDrop([file])} />
       </div>
     )
   }
