@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 14-02-PLAN.md
-last_updated: "2026-03-30T00:13:04.431Z"
+stopped_at: Completed 16-00-PLAN.md
+last_updated: "2026-04-01T13:16:03.153Z"
 last_activity: 2026-03-30 -- Plan 14-02 complete (CRS & merge tool UI, preview table, API proxies)
 progress:
   total_phases: 16
-  completed_phases: 13
-  total_plans: 35
-  completed_plans: 34
+  completed_phases: 14
+  total_plans: 38
+  completed_plans: 36
   percent: 94
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 11 - File Format Parsers
+**Current focus:** Phase 16 - Pipeline Workflow
 
 ## Current Position
 
-Phase: 14 of 16 (14-data-transform-tools)
-Plan: 2 of 3
+Phase: 16 of 16 (16-pipeline-workflow)
+Plan: 1 of 3
 Status: In Progress
-Last activity: 2026-03-30 -- Plan 14-02 complete (CRS & merge tool UI, preview table, API proxies)
+Last activity: 2026-04-01 -- Plan 16-00 complete (pipeline workflow test stubs)
 
 Progress: [█████████░] 94%
 
@@ -66,6 +66,7 @@ Progress: [█████████░] 94%
 | Phase 13 P02 | 8min | 2 tasks | 8 files |
 | Phase 14 P01 | 5min | 2 tasks | 13 files |
 | Phase 14 P02 | 4min | 2 tasks | 8 files |
+| Phase 16 P00 | 1min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,7 @@ Recent decisions affecting current work:
 - [Phase 14]: CRS detection heuristics: WGS84 lon/lat ranges, OSGB36 easting/northing ranges, UTM ambiguous returns None
 - [Phase 14]: OutputPreviewTable as lightweight shared component (not reusing data-preview-table.tsx)
 - [Phase 14]: Dual text/blob response reading for preview + download in transform tools
+- [Phase 16]: All test stubs use it.todo() exclusively to avoid import errors from non-existent modules
 
 ### Roadmap Evolution
 
@@ -160,6 +162,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T00:13:04.424Z
-Stopped at: Completed 14-02-PLAN.md
+Last session: 2026-04-01T13:16:03.145Z
+Stopped at: Completed 16-00-PLAN.md
 Resume file: None

@@ -286,7 +286,7 @@ Plans:
   5. Clean stage offers quick fixes and links to transform tools
   6. User can choose an output format and download the dataset in the Export stage
   7. Pipeline state persists in sessionStorage so users can leave and return
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 16-00-PLAN.md -- Wave 0: Test stubs for pipeline state, store, stepper, and stage dispatches
