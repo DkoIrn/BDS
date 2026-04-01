@@ -9,16 +9,21 @@ import {
   RefreshCw,
   AlertCircle,
   ArrowLeft,
+  FolderPlus,
+  ChevronDown,
+  ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { clearPipelineState } from "../lib/pipeline-store"
+import { SURVEY_TYPES } from "@/lib/types/projects"
 import type { PipelineState, PipelineAction } from "../lib/pipeline-state"
 
 interface StageExportProps {
   state: PipelineState
   dispatch: React.Dispatch<PipelineAction>
   fileRef: React.MutableRefObject<File | null>
+  userId: string
 }
 
 const EXPORT_FORMATS = [
@@ -40,7 +45,7 @@ function getDefaultFormat(fileName: string | null): string {
   return match?.id || "csv"
 }
 
-export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
+export function StageExport({ state, dispatch, fileRef, userId }: StageExportProps) {
   const [downloading, setDownloading] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
   const [downloadedFilename, setDownloadedFilename] = useState<string | null>(null)
@@ -242,6 +247,13 @@ export function StageExport({ state, dispatch, fileRef }: StageExportProps) {
             </div>
           </div>
 
+          {/* Save to Project */}
+          <SaveToProject
+            state={state}
+            userId={userId}
+            fileRef={fileRef}
+          />
+
           <button
             onClick={handleReset}
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
@@ -346,6 +358,283 @@ function SummaryRow({
       <span className={warning ? "text-amber-600 dark:text-amber-400" : ""}>
         {value || "--"}
       </span>
+    </div>
+  )
+}
+
+// --- Save to Project ---
+
+type SaveStep = "prompt" | "form" | "saving" | "saved"
+
+function SaveToProject({
+  state,
+  userId,
+  fileRef,
+}: {
+  state: PipelineState
+  userId: string
+  fileRef: React.MutableRefObject<File | null>
+}) {
+  const [step, setStep] = useState<SaveStep>("prompt")
+  const [projectName, setProjectName] = useState("")
+  const [jobName, setJobName] = useState("")
+  const [surveyType, setSurveyType] = useState("General")
+  const [error, setError] = useState<string | null>(null)
+  const [savedProjectId, setSavedProjectId] = useState<string | null>(null)
+
+  // Pre-fill from filename
+  useEffect(() => {
+    if (state.fileName) {
+      const baseName = state.fileName.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ")
+      setJobName(baseName)
+    }
+  }, [state.fileName])
+
+  async function handleSave() {
+    if (projectName.trim().length < 3) {
+      setError("Project name must be at least 3 characters")
+      return
+    }
+    if (jobName.trim().length < 3) {
+      setError("Job name must be at least 3 characters")
+      return
+    }
+
+    setStep("saving")
+    setError(null)
+
+    try {
+      // 1. Create project
+      const projectForm = new FormData()
+      projectForm.set("name", projectName.trim())
+      const { createProject } = await import("@/lib/actions/projects")
+      const projectResult = await createProject(null, projectForm)
+      if ("error" in projectResult) throw new Error(projectResult.error)
+
+      // Get the project ID from the DB (most recent project by this user)
+      const { createClient } = await import("@/lib/supabase/client")
+      const supabase = createClient()
+      const { data: projects } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+
+      const projectId = projects?.[0]?.id
+      if (!projectId) throw new Error("Failed to retrieve project")
+
+      // 2. Create job
+      const jobForm = new FormData()
+      jobForm.set("name", jobName.trim())
+      jobForm.set("survey_type", surveyType)
+      jobForm.set("project_id", projectId)
+      const { createJob } = await import("@/lib/actions/projects")
+      const jobResult = await createJob(null, jobForm)
+      if ("error" in jobResult) throw new Error(jobResult.error)
+
+      // Get the job ID
+      const { data: jobs } = await supabase
+        .from("jobs")
+        .select("id")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+
+      const jobId = jobs?.[0]?.id
+      if (!jobId) throw new Error("Failed to retrieve job")
+
+      // 3. Build the file to upload
+      let file: File | null = fileRef.current
+
+      if (!file && state.parsedData && state.parsedData.length > 0) {
+        // Reconstruct from parsed data
+        const csvContent = state.parsedData
+          .map((row) =>
+            row.map((cell) => {
+              if (cell.includes(",") || cell.includes('"') || cell.includes("\n")) {
+                return `"${cell.replace(/"/g, '""')}"`
+              }
+              return cell
+            }).join(",")
+          )
+          .join("\n")
+        const blob = new Blob([csvContent], { type: "text/csv" })
+        file = new File([blob], state.fileName || "pipeline-export.csv")
+      }
+
+      if (!file) throw new Error("No file available to save")
+
+      // 4. Upload to Supabase Storage
+      const storagePath = `${userId}/${jobId}/${Date.now()}-${file.name}`
+      const { error: uploadError } = await supabase.storage
+        .from("datasets")
+        .upload(storagePath, file)
+
+      if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
+
+      // 5. Create file record
+      const { createFileRecord } = await import("@/lib/actions/files")
+      const fileResult = await createFileRecord({
+        jobId,
+        fileName: file.name,
+        fileSize: file.size,
+        mimeType: file.type || "text/csv",
+        storagePath,
+      })
+
+      if ("error" in fileResult) throw new Error(fileResult.error)
+
+      // 6. Trigger parse (fire-and-forget)
+      fetch("/api/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ datasetId: fileResult.id }),
+      }).catch(() => {})
+
+      setSavedProjectId(projectId)
+      setStep("saved")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save")
+      setStep("form")
+    }
+  }
+
+  // Prompt — collapsed state
+  if (step === "prompt") {
+    return (
+      <button
+        onClick={() => setStep("form")}
+        className="flex w-full items-center gap-3 rounded-xl border border-dashed border-border/60 p-4 text-left transition-all hover:border-solid hover:border-border hover:bg-muted/40"
+      >
+        <div className="flex size-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50">
+          <FolderPlus className="size-5 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">Save to Project</p>
+          <p className="text-xs text-muted-foreground">
+            Keep this dataset organized for future QC runs and reports
+          </p>
+        </div>
+      </button>
+    )
+  }
+
+  // Saving state
+  if (step === "saving") {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
+        <div className="relative flex size-8 items-center justify-center">
+          <div className="absolute inset-0 animate-spin rounded-full border-2 border-muted border-t-foreground" />
+          <FolderPlus className="size-3.5 text-foreground" />
+        </div>
+        <div>
+          <p className="text-sm font-medium">Saving to project...</p>
+          <p className="text-xs text-muted-foreground">
+            Creating project, uploading file, triggering parse
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Saved state
+  if (step === "saved" && savedProjectId) {
+    return (
+      <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
+        <div className="flex items-center gap-2">
+          <Check className="size-4 text-green-600 dark:text-green-400" />
+          <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+            Saved to project
+          </p>
+        </div>
+        <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+          {projectName} / {jobName}
+        </p>
+        <a
+          href={`/projects/${savedProjectId}`}
+          className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-700 underline hover:text-green-900 dark:text-green-300 dark:hover:text-green-100"
+        >
+          View Project
+          <ExternalLink className="size-3" />
+        </a>
+      </div>
+    )
+  }
+
+  // Form state
+  return (
+    <div className="space-y-4 rounded-xl border bg-card p-4">
+      <div className="flex items-center gap-2">
+        <FolderPlus className="size-4 text-muted-foreground" />
+        <p className="text-sm font-semibold">Save to Project</p>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">
+            Project Name
+          </label>
+          <input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder="e.g., Pipeline Route Survey 2026"
+            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">
+            Job Name
+          </label>
+          <input
+            type="text"
+            value={jobName}
+            onChange={(e) => setJobName(e.target.value)}
+            placeholder="e.g., DOB Survey Line 1"
+            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">
+            Survey Type
+          </label>
+          <select
+            value={surveyType}
+            onChange={(e) => setSurveyType(e.target.value)}
+            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+          >
+            {SURVEY_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {error && (
+        <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950/30">
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-red-500" />
+          <p className="text-xs text-red-700 dark:text-red-300">{error}</p>
+        </div>
+      )}
+
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={() => setStep("prompt")}>
+          Cancel
+        </Button>
+        <button
+          onClick={handleSave}
+          disabled={!projectName.trim() || !jobName.trim()}
+          className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+        >
+          <FolderPlus className="size-3.5" />
+          Save
+        </button>
+      </div>
     </div>
   )
 }

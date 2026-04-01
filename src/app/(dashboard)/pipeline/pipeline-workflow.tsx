@@ -40,7 +40,7 @@ function initializeState(): PipelineState {
   }
 }
 
-export function PipelineWorkflow({ user: _user }: PipelineWorkflowProps) {
+export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
   const [state, dispatch] = useReducer(pipelineReducer, initialState, initializeState)
   const fileRef = useRef<File | null>(null)
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
@@ -106,7 +106,7 @@ export function PipelineWorkflow({ user: _user }: PipelineWorkflowProps) {
         )}
 
         {state.currentStage === "export" && (
-          <StageExport state={state} dispatch={dispatch} fileRef={fileRef} />
+          <StageExport state={state} dispatch={dispatch} fileRef={fileRef} userId={user.id} />
         )}
       </div>
     </div>
