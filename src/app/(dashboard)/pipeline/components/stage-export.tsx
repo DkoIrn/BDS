@@ -534,12 +534,21 @@ function SaveToProject({
         }).catch(() => {})
       }
 
-      setSavedProjectId(projectId)
-      setStep("saved")
+      // 8. Backfill audit logs with the new dataset ID
+      fetch("/api/audit/backfill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          datasetId: fileResult.id,
+          fileName: state.fileName,
+        }),
+      }).catch(() => {})
 
+      // 9. Log the save-to-project action (with entity ID now known)
       logAuditClient({
         action: "dataset.save_to_project",
         entityType: "dataset",
+        entityId: fileResult.id,
         metadata: {
           projectName: projectName.trim(),
           jobName: jobName.trim(),
@@ -550,6 +559,9 @@ function SaveToProject({
           hadCleaning: state.stages.clean.completed,
         },
       })
+
+      setSavedProjectId(projectId)
+      setStep("saved")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save")
       setStep("form")
