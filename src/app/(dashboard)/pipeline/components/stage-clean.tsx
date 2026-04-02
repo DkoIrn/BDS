@@ -24,6 +24,7 @@ import { setPipelineHandoff } from "@/lib/pipeline-handoff"
 import { autoClean, type CleanAction, type CleanResult } from "../lib/auto-clean"
 import type { ValidationIssue } from "../lib/client-validate"
 import type { PipelineState, PipelineAction } from "../lib/pipeline-state"
+import { logAuditClient } from "@/lib/audit-client"
 
 interface StageCleanProps {
   state: PipelineState
@@ -84,6 +85,23 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
 
     setCleanResult(result)
     setCleaning(false)
+
+    if (result.summary.totalActions > 0) {
+      logAuditClient({
+        action: "clean.auto",
+        entityType: "dataset",
+        entityId: state.datasetId ?? undefined,
+        metadata: {
+          fileName: state.fileName,
+          duplicatesRemoved: result.summary.duplicatesRemoved,
+          rowsReordered: result.summary.rowsReordered,
+          valuesInterpolated: result.summary.valuesInterpolated,
+          spikesRemoved: result.summary.spikesRemoved,
+          totalActions: result.summary.totalActions,
+          unresolvedCount: result.unresolved.length,
+        },
+      })
+    }
   }
 
   // --- AI assist ---
@@ -167,12 +185,39 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
 
     // Update pipeline state with new data
     dispatch({ type: "AI_FIX_APPLIED", updatedData: data })
+
+    logAuditClient({
+      action: "clean.ai_fix",
+      entityType: "dataset",
+      entityId: state.datasetId ?? undefined,
+      metadata: {
+        row: suggestion.row,
+        column: suggestion.column,
+        before: suggestion.currentValue,
+        after: suggestion.suggestedValue,
+        confidence: suggestion.confidence,
+        explanation: suggestion.explanation,
+      },
+    })
   }
 
   function handleRejectSuggestion(idx: number) {
+    const suggestion = aiSuggestions[idx]
     setAiSuggestions((prev) =>
       prev.map((s, i) => (i === idx ? { ...s, accepted: false } : s))
     )
+
+    logAuditClient({
+      action: "clean.ai_reject",
+      entityType: "dataset",
+      entityId: state.datasetId ?? undefined,
+      metadata: {
+        row: suggestion.row,
+        column: suggestion.column,
+        suggestedValue: suggestion.suggestedValue,
+        confidence: suggestion.confidence,
+      },
+    })
   }
 
   // --- Finalize and continue ---

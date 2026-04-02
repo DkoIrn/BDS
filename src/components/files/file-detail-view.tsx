@@ -11,6 +11,7 @@ import { ColumnMappingTable } from "@/components/files/column-mapping-table"
 import { DataPreviewTable } from "@/components/files/data-preview-table"
 import { ValidationProgress } from "@/components/files/validation-progress"
 import { ResultsDashboard } from "@/components/files/results-dashboard"
+import { AuditTimeline } from "@/components/files/audit-timeline"
 import { ProfileSelector } from "@/components/files/profile-selector"
 import { createClient } from "@/lib/supabase/client"
 import { saveColumnMappings } from "@/lib/actions/files"
@@ -462,6 +463,7 @@ export function FileDetailView({
         <TabsTrigger value="mapping">Mapping</TabsTrigger>
         <TabsTrigger value="results">Results</TabsTrigger>
         <TabsTrigger value="preview">Data Preview</TabsTrigger>
+        <TabsTrigger value="audit">Audit Trail</TabsTrigger>
       </TabsList>
 
       <TabsContent value="mapping">
@@ -615,6 +617,12 @@ export function FileDetailView({
               </p>
             </div>
           )}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="audit">
+        <div className="rounded-2xl border bg-card p-5">
+          <AuditTimeline datasetId={dataset.id} />
         </div>
       </TabsContent>
     </Tabs>

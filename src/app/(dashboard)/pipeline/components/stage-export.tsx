@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { clearPipelineState } from "../lib/pipeline-store"
 import { SURVEY_TYPES } from "@/lib/types/projects"
+import { logAuditClient } from "@/lib/audit-client"
 import type { PipelineState, PipelineAction } from "../lib/pipeline-state"
 
 import type { ValidationIssue } from "../lib/client-validate"
@@ -157,6 +158,20 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
       setDownloadedFilename(outputFilename)
       setDownloadedSize(blob.size)
       setDownloaded(true)
+
+      logAuditClient({
+        action: "export.download",
+        entityType: "dataset",
+        entityId: state.datasetId ?? undefined,
+        metadata: {
+          fileName: state.fileName,
+          outputFilename,
+          format: state.exportFormat,
+          fileSize: blob.size,
+          rowCount: state.rowCount,
+          wasClean: state.stages.clean.completed,
+        },
+      })
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Export failed"
@@ -521,6 +536,20 @@ function SaveToProject({
 
       setSavedProjectId(projectId)
       setStep("saved")
+
+      logAuditClient({
+        action: "dataset.save_to_project",
+        entityType: "dataset",
+        metadata: {
+          projectName: projectName.trim(),
+          jobName: jobName.trim(),
+          surveyType,
+          fileName: state.fileName,
+          rowCount: state.rowCount,
+          hadValidation: state.stages.validate.completed,
+          hadCleaning: state.stages.clean.completed,
+        },
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save")
       setStep("form")

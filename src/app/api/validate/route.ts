@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logAudit } from '@/lib/actions/audit'
 import type { ProfileConfig } from '@/lib/types/validation'
 
 export async function POST(request: Request) {
@@ -78,6 +79,14 @@ export async function POST(request: Request) {
         { status: 502 }
       )
     }
+
+    // Log the validation run
+    logAudit({
+      action: 'validation.run',
+      entityType: 'dataset',
+      entityId: datasetId,
+      metadata: { source: 'project_backend', hasCustomConfig: !!config },
+    })
 
     // FastAPI accepted (202) -- return 202 to frontend
     // Results will arrive via Supabase Realtime subscription
