@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 
-export async function updateProfile(formData: FormData) {
+export async function updateUserProfile(formData: FormData) {
   const supabase = await createClient()
 
   const {

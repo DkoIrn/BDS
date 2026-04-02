@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { toast } from "sonner"
-import { updateProfile } from "@/lib/actions/profile"
+import { updateUserProfile } from "@/lib/actions/user-profile"
 import { updatePassword } from "@/lib/actions/auth"
 import { Check, Crown } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -55,7 +55,7 @@ export default function SettingsPage() {
     formData.set("full_name", fullName)
 
     startProfileTransition(async () => {
-      const result = await updateProfile(formData)
+      const result = await updateUserProfile(formData)
       if (result.error) {
         toast.error(result.error)
       } else {

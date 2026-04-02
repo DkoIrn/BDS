@@ -96,12 +96,12 @@ Plans:
   3. System detects duplicate rows and near-duplicate KP entries
   4. System identifies statistical outliers using z-score and IQR methods
   5. Every flagged issue includes a plain-English explanation stating what failed, the expected value or range, and the actual value found
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 05-01-PLAN.md -- FastAPI backend scaffold with TDD validators (range, missing data, duplicates, outliers, monotonicity)
-- [ ] 05-02-PLAN.md -- Database migration for validation tables, TypeScript types, and Next.js API proxy route
-- [ ] 05-03-PLAN.md -- Frontend Run QC button, progress/summary UI, Railway deployment, and end-to-end verification
+- [x] 05-01-PLAN.md -- FastAPI backend scaffold with TDD validators (range, missing data, duplicates, outliers, monotonicity)
+- [x] 05-02-PLAN.md -- Database migration for validation tables, TypeScript types, and Next.js API proxy route
+- [x] 05-03-PLAN.md -- Frontend Run QC button, progress/summary UI, Railway deployment, and end-to-end verification
 
 ### Phase 6: Validation Profiles
 **Goal**: Users can select survey-type templates and configure tolerance thresholds for their QC checks
@@ -110,12 +110,12 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can select from default validation templates for DOB, DOC, and TOP survey types
   2. User can configure tolerance thresholds (e.g., DOC/DOB limits) and see those thresholds applied during processing
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 06-01-PLAN.md -- Backend: DB migration, Pydantic config models, template definitions, pipeline config passthrough with enabled_checks
-- [ ] 06-02-PLAN.md -- Frontend foundation: TypeScript types, template constants, profile CRUD actions, API route config forwarding
-- [ ] 06-03-PLAN.md -- Frontend UI: profile selector dropdown, threshold editor panel, FileDetailView integration with human verification
+- [x] 06-01-PLAN.md -- Backend: DB migration, Pydantic config models, template definitions, pipeline config passthrough with enabled_checks
+- [x] 06-02-PLAN.md -- Frontend foundation: TypeScript types, template constants, profile CRUD actions, API route config forwarding
+- [x] 06-03-PLAN.md -- Frontend UI: profile selector dropdown, threshold editor panel, FileDetailView integration with human verification
 
 ### Phase 7: Async Processing
 **Goal**: File processing runs in the background with real-time status updates so users are never stuck waiting
@@ -140,12 +140,12 @@ Plans:
   2. User can view summary statistics including total issues, pass rate, and data completeness
   3. User can click into any flagged row to see the full explanation and surrounding data context
   4. User can view processing history for previous QC runs on a dataset
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] 08-00-PLAN.md -- Wave 0: Create test stub files for dashboard components (issues table, stat cards, issue detail, run switcher)
-- [ ] 08-01-PLAN.md -- Server actions, severity utilities, and results dashboard components (stat cards, issues table, expandable rows, run switcher)
-- [ ] 08-02-PLAN.md -- FileDetailView tab restructure, job-level results table, and page wiring
+- [x] 08-00-PLAN.md -- Wave 0: Create test stub files for dashboard components (issues table, stat cards, issue detail, run switcher)
+- [x] 08-01-PLAN.md -- Server actions, severity utilities, and results dashboard components (stat cards, issues table, expandable rows, run switcher)
+- [x] 08-02-PLAN.md -- FileDetailView tab restructure, job-level results table, and page wiring
 
 ### Phase 9: Reports & Export
 **Goal**: Users can download professional QC reports and cleaned datasets from their results
@@ -187,10 +187,10 @@ Note: Phase 6 and Phase 7 both depend on Phase 5 and can run in parallel.
 | 2. Project Structure | 2/2 | Complete   | 2026-03-10 |
 | 3. File Upload & Storage | 2/2 | Complete   | 2026-03-11 |
 | 4. Ingestion Pipeline | 3/3 | Complete   | 2026-03-11 |
-| 5. Validation Engine | 1/3 | In Progress|  |
-| 6. Validation Profiles | 2/3 | In Progress|  |
+| 5. Validation Engine | 3/3 | Complete   | 2026-03-12 |
+| 6. Validation Profiles | 3/3 | Complete   | 2026-03-12 |
 | 7. Async Processing | 2/2 | Complete   | 2026-03-12 |
-| 8. Results Dashboard | 0/3 | Not started | - |
+| 8. Results Dashboard | 3/3 | Complete   | 2026-03-13 |
 | 9. Reports & Export | 2/2 | Complete | 2026-03-15 |
 | 10. Landing Page & Subscription | 2/2 | Complete    | 2026-03-20 |
 
