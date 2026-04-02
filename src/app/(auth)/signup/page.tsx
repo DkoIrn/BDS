@@ -27,12 +27,12 @@ export default function SignupPage() {
 
     setIsPending(false)
 
-    if (result && 'error' in result) {
+    if (result && 'error' in result && result.error) {
       setError(result.error)
       return
     }
 
-    if (result && 'email' in result) {
+    if (result && 'email' in result && result.email) {
       setEmail(result.email)
       setStep('verify')
     }
@@ -79,7 +79,7 @@ export default function SignupPage() {
 
     setIsPending(false)
 
-    if (result && 'error' in result) {
+    if (result && 'error' in result && result.error) {
       setError(result.error)
       setOtp(['', '', '', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
@@ -94,7 +94,7 @@ export default function SignupPage() {
 
     setIsPending(false)
 
-    if (result && 'error' in result) {
+    if (result && 'error' in result && result.error) {
       setError(result.error)
     }
   }

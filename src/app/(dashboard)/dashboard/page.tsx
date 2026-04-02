@@ -144,7 +144,7 @@ export default async function DashboardPage() {
 
           <div className="mt-4 space-y-1">
             {recentDatasets && recentDatasets.length > 0 ? (
-              recentDatasets.map((dataset: { id: string; file_name: string; status: string; created_at: string; jobs: { id: string; name: string; projects: { id: string; name: string } } }) => {
+              recentDatasets.map((dataset: any) => {
                 const project = dataset.jobs?.projects
                 const job = dataset.jobs
                 return (

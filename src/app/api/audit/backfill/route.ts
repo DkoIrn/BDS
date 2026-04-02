@@ -27,16 +27,16 @@ export async function POST(request: NextRequest) {
     // Scoped to last 30 minutes and this user only
     const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString()
 
-    const { count } = await supabase
+    const { data } = await supabase
       .from("audit_logs")
       .update({ entity_id: datasetId })
       .eq("user_id", user.id)
       .eq("entity_type", "dataset")
       .is("entity_id", null)
       .gte("created_at", cutoff)
-      .select("id", { count: "exact", head: true })
+      .select("id")
 
-    return NextResponse.json({ updated: count ?? 0 })
+    return NextResponse.json({ updated: data?.length ?? 0 })
   } catch {
     return NextResponse.json({ ok: true })
   }
