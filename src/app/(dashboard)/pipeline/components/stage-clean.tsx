@@ -66,6 +66,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([])
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
+  const [aiRanWithNoResults, setAiRanWithNoResults] = useState(false)
   const [showAllActions, setShowAllActions] = useState(false)
 
   const hasIssues = validationIssues.length > 0 || (state.issueCount !== null && state.issueCount > 0)
@@ -152,7 +153,11 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
       }
 
       const result = await response.json()
-      setAiSuggestions(result.suggestions || [])
+      const suggestions = result.suggestions || []
+      setAiSuggestions(suggestions)
+      if (suggestions.length === 0) {
+        setAiRanWithNoResults(true)
+      }
     } catch (err) {
       setAiError(err instanceof Error ? err.message : "AI cleaning failed")
     } finally {
@@ -402,7 +407,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                 </div>
               </div>
 
-              {!aiLoading && aiSuggestions.length === 0 && (
+              {!aiLoading && aiSuggestions.length === 0 && !aiError && !aiRanWithNoResults && (
                 <button
                   onClick={handleAiAssist}
                   className="group inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-5 py-2.5 text-sm font-semibold text-violet-700 transition-all hover:bg-violet-100 active:scale-[0.98] dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300 dark:hover:bg-violet-900/50"
@@ -410,6 +415,20 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   <Brain className="size-4" />
                   AI Assist — Analyze Remaining Issues
                 </button>
+              )}
+
+              {aiRanWithNoResults && aiSuggestions.length === 0 && (
+                <div className="flex items-start gap-3 rounded-xl border border-muted bg-muted/30 p-4">
+                  <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      AI could not suggest automatic fixes
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      The remaining issue requires manual review. You can safely continue — it will be noted in the export.
+                    </p>
+                  </div>
+                </div>
               )}
 
               {aiError && (
