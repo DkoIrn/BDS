@@ -12,7 +12,7 @@ import {
   Map,
   Wrench,
   GitCompareArrows,
-  Workflow,
+  ShieldCheck,
 } from "lucide-react"
 import {
   Sidebar,
@@ -31,16 +31,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const mainNav = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "QC Pipeline", href: "/pipeline", icon: ShieldCheck },
   { title: "Projects", href: "/projects", icon: FolderOpen },
-  { title: "Pipeline", href: "/pipeline", icon: Workflow },
-  { title: "Reports", href: "/reports", icon: BarChart3 },
+  { title: "QC Reports", href: "/reports", icon: BarChart3 },
 ]
 
 const toolsNav = [
   { title: "Convert", href: "/tools/convert", icon: ArrowRightLeft },
-  { title: "Visualize", href: "/tools/visualize", icon: Map },
   { title: "Transform", href: "/tools/transform", icon: Wrench },
   { title: "Compare", href: "/tools/compare", icon: GitCompareArrows },
+  { title: "Visualise", href: "/tools/visualize", icon: Map },
 ]
 
 interface AppSidebarProps {
@@ -86,7 +86,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   DataFlow
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  Validate. Transform. Visualise.
+                  Survey Data QC
                 </span>
               </div>
             </SidebarMenuButton>

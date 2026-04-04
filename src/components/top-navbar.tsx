@@ -11,7 +11,7 @@ import {
   Map,
   Wrench,
   GitCompareArrows,
-  Workflow,
+  ShieldCheck,
   Settings,
   LogOut,
   Bell,
@@ -33,16 +33,16 @@ import {
 
 const mainNav = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "QC Pipeline", href: "/pipeline", icon: ShieldCheck },
   { title: "Projects", href: "/projects", icon: FolderOpen },
-  { title: "Pipeline", href: "/pipeline", icon: Workflow },
-  { title: "Reports", href: "/reports", icon: BarChart3 },
+  { title: "QC Reports", href: "/reports", icon: BarChart3 },
 ]
 
 const toolsNav = [
   { title: "Convert", href: "/tools/convert", icon: ArrowRightLeft },
-  { title: "Visualize", href: "/tools/visualize", icon: Map },
   { title: "Transform", href: "/tools/transform", icon: Wrench },
   { title: "Compare", href: "/tools/compare", icon: GitCompareArrows },
+  { title: "Visualise", href: "/tools/visualize", icon: Map },
 ]
 
 interface TopNavbarProps {
