@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
     return NextResponse.json(
-      { error: "AI cleaning is not configured. Contact support." },
+      { error: "AI resolution is not configured. Contact support." },
       { status: 503 }
     )
   }
@@ -157,7 +157,7 @@ Rules:
 
     return NextResponse.json({ suggestions })
   } catch (err) {
-    const message = err instanceof Error ? err.message : "AI cleaning failed"
+    const message = err instanceof Error ? err.message : "AI resolution failed"
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

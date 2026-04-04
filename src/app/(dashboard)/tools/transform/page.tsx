@@ -5,7 +5,7 @@ const capabilities = [
   { icon: Globe, title: "CRS Conversion", description: "Transform between coordinate reference systems", href: "/tools/transform/crs", color: "bg-blue-50 text-blue-600" },
   { icon: Merge, title: "Merge Datasets", description: "Combine multiple survey files into one", href: "/tools/transform/merge", color: "bg-teal-50 text-teal-600" },
   { icon: Scissors, title: "Split by Region", description: "Split by KP range or column value", href: "/tools/transform/split", color: "bg-violet-50 text-violet-600" },
-  { icon: Sparkles, title: "Auto-Clean", description: "Fix flagged issues from QC automatically", href: null, color: "bg-amber-50 text-amber-600" },
+  { icon: Sparkles, title: "Auto-Fix", description: "Resolve flagged QC issues automatically", href: null, color: "bg-amber-50 text-amber-600" },
 ] as const
 
 export default function TransformPage() {

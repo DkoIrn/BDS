@@ -257,7 +257,7 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
                 warning={state.stages.validate.skipped}
               />
               <SummaryRow
-                label="Clean"
+                label="Resolve"
                 value={state.stages.clean.summary}
                 warning={state.stages.clean.skipped}
               />

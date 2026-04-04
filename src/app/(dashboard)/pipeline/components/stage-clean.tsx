@@ -159,7 +159,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
         setAiRanWithNoResults(true)
       }
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : "AI cleaning failed")
+      setAiError(err instanceof Error ? err.message : "AI resolution failed")
     } finally {
       setAiLoading(false)
     }
@@ -245,7 +245,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="size-5 text-green-600" />
-            Clean Complete
+            Issues Resolved
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -274,12 +274,12 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="size-5 text-amber-500" />
-            Clean Skipped
+            Issue Resolution Skipped
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-muted-foreground">
-            No cleaning was applied to this dataset.
+            No fixes were applied to this dataset.
           </p>
           <TransformToolLinks fileName={state.fileName} parsedData={state.parsedData} />
           <button
@@ -306,7 +306,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
             <Zap className="size-5 text-foreground" />
           </div>
           <p className="mt-5 text-sm font-semibold text-foreground">
-            Auto-cleaning data...
+            Resolving QC issues...
           </p>
           <p className="mt-1.5 text-xs text-muted-foreground">
             Removing duplicates, reordering, interpolating gaps, fixing spikes
@@ -326,7 +326,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="size-5" />
-            Clean Data
+            Resolve Issues
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -336,7 +336,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
               <div className="flex items-center gap-2">
                 <Zap className="size-4 text-green-600 dark:text-green-400" />
                 <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-                  Auto-Clean: {summary.totalActions} fix{summary.totalActions !== 1 ? "es" : ""} applied
+                  Auto-Fix: {summary.totalActions} issue{summary.totalActions !== 1 ? "s" : ""} resolved
                 </p>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -413,7 +413,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   className="group inline-flex items-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-5 py-2.5 text-sm font-semibold text-violet-700 transition-all hover:bg-violet-100 active:scale-[0.98] dark:border-violet-800 dark:bg-violet-950/30 dark:text-violet-300 dark:hover:bg-violet-900/50"
                 >
                   <Brain className="size-4" />
-                  AI Assist — Analyze Remaining Issues
+                  AI Resolution — Analyze Remaining Issues
                 </button>
               )}
 
@@ -447,10 +447,10 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   </div>
                   <div>
                     <p className="text-sm font-medium text-violet-700 dark:text-violet-300">
-                      AI analyzing issues...
+                      AI resolving issues...
                     </p>
                     <p className="text-xs text-violet-600 dark:text-violet-400">
-                      Reviewing data context and suggesting fixes
+                      Reviewing data context and suggesting resolutions
                     </p>
                   </div>
                 </div>
@@ -462,7 +462,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   <div className="flex items-center gap-2">
                     <Brain className="size-3.5 text-violet-600" />
                     <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      AI Suggestions
+                      AI Resolutions
                     </p>
                   </div>
                   <div className="max-h-64 space-y-2 overflow-auto">
@@ -533,7 +533,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   {state.issueCount ?? validationIssues.length} issue{(state.issueCount ?? validationIssues.length) !== 1 ? "s" : ""} detected
                 </p>
                 <p className="text-xs text-amber-600 dark:text-amber-400">
-                  Run auto-clean to fix common issues automatically, then use AI for complex cases.
+                  Auto-fix common issues, then use AI for complex cases.
                 </p>
               </div>
             </div>
@@ -545,7 +545,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   <div className="flex size-8 items-center justify-center rounded-lg bg-foreground/5">
                     <Zap className="size-4 text-foreground" />
                   </div>
-                  <p className="text-sm font-semibold">Auto-Clean</p>
+                  <p className="text-sm font-semibold">Auto-Fix</p>
                 </div>
                 <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
                   <li>Remove duplicate rows</li>
@@ -560,7 +560,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                   <div className="flex size-8 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950/50">
                     <Brain className="size-4 text-violet-600 dark:text-violet-400" />
                   </div>
-                  <p className="text-sm font-semibold">AI Assist</p>
+                  <p className="text-sm font-semibold">AI Resolution</p>
                 </div>
                 <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
                   <li>Wide gap interpolation</li>
@@ -578,7 +578,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
             <div>
               <p className="text-sm font-medium">Validation was skipped</p>
               <p className="text-xs text-muted-foreground">
-                Run auto-clean anyway to check for duplicates, ordering, and formatting issues.
+                Run auto-fix anyway to check for duplicates, ordering, and formatting issues.
               </p>
             </div>
           </div>
@@ -590,7 +590,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                 No issues detected
               </p>
               <p className="text-xs text-green-600 dark:text-green-400">
-                You can still run auto-clean for formatting and standardization.
+                You can still run auto-fix for formatting and standardisation.
               </p>
             </div>
           </div>
@@ -615,7 +615,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
             className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
           >
             <Zap className="size-3.5" />
-            Run Auto-Clean
+            Auto-Fix Issues
           </button>
           <Button
             variant="outline"

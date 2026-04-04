@@ -39,7 +39,7 @@ const ACTION_CONFIG: Record<
   },
   "clean.auto": {
     icon: Zap,
-    label: "Auto-Clean Applied",
+    label: "Auto-Fix Applied",
     color: "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30",
     iconColor: "text-green-600 dark:text-green-400",
   },
