@@ -25,7 +25,7 @@ export function PricingSection() {
             Simple, transparent pricing
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Choose the plan that fits your survey operation
+            Choose the plan that fits your QC workload
           </p>
         </div>
 
