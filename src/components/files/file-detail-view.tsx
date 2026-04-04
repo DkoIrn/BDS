@@ -535,7 +535,7 @@ export function FileDetailView({
           )}
 
           {/* Validation section */}
-          {confirmed && !validating && datasetStatus === "mapped" && (
+          {confirmed && !validating && ["mapped", "validated", "validation_error"].includes(datasetStatus) && (
             <div className="flex items-center gap-3">
               <Button
                 onClick={handleRunValidation}
