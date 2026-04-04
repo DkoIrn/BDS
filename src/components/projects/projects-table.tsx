@@ -139,7 +139,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
             <TableCell className="text-right text-muted-foreground">
               {formatDate(project.updated_at)}
             </TableCell>
-            <TableCell>
+            <TableCell onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={

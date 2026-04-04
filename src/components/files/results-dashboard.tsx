@@ -61,13 +61,14 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
   if (loadingRuns) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-12 w-full" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
+        <Skeleton className="h-10 w-full rounded-xl" />
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
         </div>
-        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
     )
   }
@@ -75,9 +76,12 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
   // No runs empty state
   if (runs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-muted-foreground">
-          No validation runs yet. Run QC from the Mapping tab.
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-16 text-center">
+        <p className="text-sm font-medium text-muted-foreground">
+          No validation runs yet
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground/70">
+          Run QC from the Mapping tab to see results here
         </p>
       </div>
     )
@@ -87,7 +91,7 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Results</h3>
+        <h3 className="text-lg font-semibold tracking-tight">Results</h3>
         <div className="flex items-center gap-3">
           <RunSwitcher
             runs={runs}
@@ -108,11 +112,12 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
         />
       )}
 
-      {/* Issues table */}
+      {/* Issues */}
       {loadingIssues ? (
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-48 w-full" />
+        <div className="space-y-3">
+          <Skeleton className="h-10 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-2xl" />
+          <Skeleton className="h-20 w-full rounded-2xl" />
         </div>
       ) : (
         <IssuesTable

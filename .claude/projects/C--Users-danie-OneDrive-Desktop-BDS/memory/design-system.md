@@ -7,9 +7,8 @@ type: reference
 # DataFlow Design System
 
 ## Typography
-- **Headings:** Space Grotesk (400–700) via `var(--font-heading)` — techy, distinctive
-- **Body:** DM Sans (400, 500, 700) via `var(--font-body)` — clean, readable
-- CSS: `h1-h6` auto-use heading font via globals.css `@layer base`
+- **Font:** Nunito (400–700) via `var(--font-heading)` — single font for everything (headings + body)
+- Applied globally via `@layer base` on `html, body, button, input, select, textarea`
 - Heading style: `font-bold tracking-tight` for h1, `font-semibold` for h2/section titles
 - Body: default weight, `text-sm` for most UI text, `text-xs` for labels/meta
 
@@ -40,8 +39,8 @@ type: reference
 
 ## Navigation (TopNavbar)
 - Logo + brand name left
-- Main nav links as pills: active = `bg-foreground text-background`, inactive = `text-muted-foreground hover:bg-muted/60`
-- Tools in a dropdown
+- Main nav: Dashboard, Projects, Pipeline, Reports as pills: active = `bg-foreground text-background`, inactive = `text-muted-foreground hover:bg-muted/60`
+- Tools in a dropdown (Convert, Visualize, Transform, Compare)
 - Right side: notification bell (disabled), settings gear, user avatar (User icon, not initials)
 - Avatar: `bg-foreground text-background` with lucide `User` icon
 
