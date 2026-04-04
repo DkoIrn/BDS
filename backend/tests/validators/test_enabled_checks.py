@@ -167,6 +167,9 @@ class TestEnabledChecksFiltering:
             "outliers_iqr": False,
             "kp_gaps": False,
             "monotonicity": False,
+            "cross_column": False,
+            "spike_detection": False,
+            "coordinate_sanity": False,
         }
         issues = run_validation_pipeline(
             df_with_issues, mappings_with_issues, config_with_ranges,

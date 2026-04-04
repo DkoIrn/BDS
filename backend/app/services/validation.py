@@ -6,6 +6,9 @@ from app.validators.missing_data import check_missing_data, check_kp_gaps
 from app.validators.duplicates import check_duplicate_rows, check_near_duplicate_kp
 from app.validators.outliers import check_outliers_zscore, check_outliers_iqr
 from app.validators.monotonicity import check_monotonicity
+from app.validators.consistency import check_cross_column_consistency
+from app.validators.spikes import check_spikes
+from app.validators.spatial import check_coordinate_sanity
 
 
 # Column types that are numeric and should be validated
@@ -124,5 +127,32 @@ def run_validation_pipeline(
     # Duplicate row check
     if checks.get("duplicate_rows", True):
         all_issues.extend(check_duplicate_rows(df, kp_column=kp_column))
+
+    # --- Engineering-grade checks ---
+
+    # Cross-column consistency (DOB vs depth, DOC vs DOB, etc.)
+    if checks.get("cross_column", True):
+        mapped = _get_mapped_columns(column_mappings)
+        all_issues.extend(
+            check_cross_column_consistency(df, mapped, kp_column=kp_column)
+        )
+
+    # Spike / gradient detection (per numeric column)
+    if checks.get("spike_detection", True):
+        for mapping in _get_mapped_columns(column_mappings):
+            col_type = mapping.get("mappedType")
+            col_name = mapping.get("originalName", col_type)
+            if col_type not in NUMERIC_COLUMN_TYPES or col_name not in df.columns:
+                continue
+            all_issues.extend(
+                check_spikes(df, col_name, kp_column=kp_column)
+            )
+
+    # Coordinate sanity (bounds + jumps)
+    if checks.get("coordinate_sanity", True):
+        mapped = _get_mapped_columns(column_mappings)
+        all_issues.extend(
+            check_coordinate_sanity(df, mapped, kp_column=kp_column)
+        )
 
     return all_issues

@@ -28,6 +28,9 @@ class EnabledChecks(BaseModel):
     outliers_iqr: bool = True
     kp_gaps: bool = True
     monotonicity: bool = True
+    cross_column: bool = True
+    spike_detection: bool = True
+    coordinate_sanity: bool = True
 
 
 class ProfileConfig(BaseModel):
