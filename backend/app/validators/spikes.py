@@ -13,11 +13,11 @@ from app.validators.base import ValidationIssue, Severity
 # Default maximum gradient per KP unit for each column type.
 # These represent physically plausible rates of change.
 DEFAULT_GRADIENTS: dict[str, float] = {
-    "dob": 2.0,        # 2m change per 1 KP (generous for burial depth)
-    "doc": 2.0,        # 2m per KP
-    "depth": 10.0,     # 10m per KP (seabed can vary)
-    "top": 5.0,        # 5m per KP
-    "elevation": 10.0, # 10m per KP
+    "dob": 10.0,       # 10m change per 1 KP (burial depth can vary over distance)
+    "doc": 10.0,       # 10m per KP
+    "depth": 50.0,     # 50m per KP (seabed can vary significantly)
+    "top": 20.0,       # 20m per KP
+    "elevation": 50.0, # 50m per KP
 }
 
 # For non-KP spike detection: maximum allowed change as multiple of

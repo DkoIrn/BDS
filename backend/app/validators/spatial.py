@@ -13,9 +13,9 @@ COORD_BOUNDS = {
     # WGS84 geographic
     "latitude": {"min": -90.0, "max": 90.0},
     "longitude": {"min": -180.0, "max": 180.0},
-    # UK National Grid (OSGB36) — generous bounds
-    "easting": {"min": 0.0, "max": 700_000.0},
-    "northing": {"min": 0.0, "max": 1_300_000.0},
+    # Projected coordinates — supports OSGB36 and UTM zones
+    "easting": {"min": 0.0, "max": 1_000_000.0},
+    "northing": {"min": 0.0, "max": 10_000_000.0},
 }
 
 # Maximum plausible distance between consecutive survey points (meters)
