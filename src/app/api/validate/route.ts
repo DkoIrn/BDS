@@ -60,15 +60,16 @@ export async function POST(request: Request) {
       throw new Error('FASTAPI_URL is not configured')
     }
 
-    const response = await fetch(`${fastApiUrl}/api/v1/validate`, {
+    const fastApiResponse = await fetch(`${fastApiUrl}/api/v1/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dataset_id: datasetId, config: config ?? null }),
     })
 
-    if (!response.ok) {
+    if (!fastApiResponse.ok) {
       // FastAPI rejected the request -- set error status and inform user
-      const errorBody = await response.text()
+      const errorBody = await fastApiResponse.text()
+      console.error('[validate] FastAPI error:', fastApiResponse.status, errorBody)
       await supabase
         .from('datasets')
         .update({ status: 'validation_error' })
@@ -79,6 +80,8 @@ export async function POST(request: Request) {
         { status: 502 }
       )
     }
+
+    console.log('[validate] FastAPI accepted, status:', fastApiResponse.status)
 
     // Log the validation run
     logAudit({
@@ -98,6 +101,7 @@ export async function POST(request: Request) {
     // Connection error (FastAPI unreachable) -- immediate feedback
     const errorMessage =
       err instanceof Error ? err.message : 'Processing service unavailable'
+    console.error('[validate] catch error:', errorMessage)
 
     await supabase
       .from('datasets')
