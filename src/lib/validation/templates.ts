@@ -11,6 +11,11 @@ export const DEFAULT_ENABLED_CHECKS: EnabledChecks = {
   outliers_iqr: true,
   kp_gaps: true,
   monotonicity: true,
+  cross_column: true,
+  spike_detection: true,
+  coordinate_sanity: true,
+  event_listing: true,
+  position_consistency: true,
 }
 
 /** Common statistical thresholds shared by all default templates */

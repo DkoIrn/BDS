@@ -11,6 +11,11 @@ export interface EnabledChecks {
   outliers_iqr: boolean
   kp_gaps: boolean
   monotonicity: boolean
+  cross_column: boolean
+  spike_detection: boolean
+  coordinate_sanity: boolean
+  event_listing: boolean
+  position_consistency: boolean
 }
 
 /** Full configuration for a validation profile -- mirrors Python ProfileConfig */

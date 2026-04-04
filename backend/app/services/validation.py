@@ -9,6 +9,8 @@ from app.validators.monotonicity import check_monotonicity
 from app.validators.consistency import check_cross_column_consistency
 from app.validators.spikes import check_spikes
 from app.validators.spatial import check_coordinate_sanity
+from app.validators.event_listing import check_event_listing
+from app.validators.position import check_position_consistency
 
 
 # Column types that are numeric and should be validated
@@ -153,6 +155,22 @@ def run_validation_pipeline(
         mapped = _get_mapped_columns(column_mappings)
         all_issues.extend(
             check_coordinate_sanity(df, mapped, kp_column=kp_column)
+        )
+
+    # --- Survey-specific checks ---
+
+    # Event listing checks (duplicate events, missing codes/descriptions)
+    if checks.get("event_listing", True):
+        mapped = _get_mapped_columns(column_mappings)
+        all_issues.extend(
+            check_event_listing(df, mapped, kp_column=kp_column)
+        )
+
+    # Position consistency (KP-distance agreement, bearing, lateral deviation)
+    if checks.get("position_consistency", True):
+        mapped = _get_mapped_columns(column_mappings)
+        all_issues.extend(
+            check_position_consistency(df, mapped, kp_column=kp_column)
         )
 
     return all_issues

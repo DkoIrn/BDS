@@ -31,6 +31,8 @@ class EnabledChecks(BaseModel):
     cross_column: bool = True
     spike_detection: bool = True
     coordinate_sanity: bool = True
+    event_listing: bool = True
+    position_consistency: bool = True
 
 
 class ProfileConfig(BaseModel):

@@ -10,8 +10,8 @@ export default function DashboardLoading() {
           <Image
             src="/logo.png"
             alt="DataFlow"
-            width={48}
-            height={48}
+            width={120}
+            height={120}
             className="relative rounded-2xl animate-logo-breathe"
           />
         </div>
