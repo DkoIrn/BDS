@@ -34,7 +34,7 @@ export default function SplashPage() {
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-500 ease-in-out ${
-        phase === "bg-in" ? "bg-[#0F172A]/0" : "bg-[#0F172A]"
+        phase === "bg-in" ? "bg-black/0" : "bg-black"
       } ${phase === "exit" ? "opacity-0 scale-[1.02]" : "opacity-100 scale-100"}`}
     >
       {/* Subtle flow lines in background */}
@@ -82,7 +82,7 @@ export default function SplashPage() {
               : "opacity-0 translate-y-3"
           }`}
         >
-          Validate. Transform. Visualise.
+          Catch it before the client does.
         </p>
 
         {/* Subtle teal accent line under tagline */}
