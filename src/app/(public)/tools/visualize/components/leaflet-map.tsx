@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import L from "leaflet"
 import {
   MapContainer,
@@ -9,9 +9,10 @@ import {
   ZoomControl,
   useMapEvents,
   useMap,
+  CircleMarker,
+  Popup,
 } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import { useState } from "react"
 
 import type { MapLayer, TileLayerKey } from "../lib/types"
 import { TILE_LAYERS } from "../lib/types"
@@ -30,13 +31,12 @@ interface LeafletMapProps {
   onViewChange?: (center: [number, number], zoom: number) => void
   initialCenter?: [number, number]
   initialZoom?: number
+  goToCoord?: [number, number] | null
+  onGoToHandled?: () => void
 }
 
-// Sub-component: Coordinate display on mouse move
 function CoordinateDisplay() {
-  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
-    null
-  )
+  const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null)
 
   useMapEvents({
     mousemove(e) {
@@ -70,14 +70,7 @@ function CoordinateDisplay() {
   )
 }
 
-// Sub-component: Fit bounds when fitKey changes
-function FitBounds({
-  layers,
-  fitKey,
-}: {
-  layers: MapLayer[]
-  fitKey: number
-}) {
+function FitBounds({ layers, fitKey }: { layers: MapLayer[]; fitKey: number }) {
   const map = useMap()
   const prevKey = useRef(fitKey)
 
@@ -109,7 +102,6 @@ function FitBounds({
   return null
 }
 
-// Sub-component: Zoom to a specific feature by index in the active layer
 function ZoomToFeature({
   layers,
   activeLayerId,
@@ -152,7 +144,26 @@ function ZoomToFeature({
   return null
 }
 
-// Sub-component: Track map view changes (pan/zoom)
+function GoToLocation({
+  coord,
+  onHandled,
+}: {
+  coord: [number, number] | null
+  onHandled: () => void
+}) {
+  const map = useMap()
+  const prevCoord = useRef<[number, number] | null>(null)
+
+  useEffect(() => {
+    if (!coord || (prevCoord.current && coord[0] === prevCoord.current[0] && coord[1] === prevCoord.current[1])) return
+    prevCoord.current = coord
+    map.setView(coord, 15)
+    onHandled()
+  }, [coord, map, onHandled])
+
+  return null
+}
+
 function ViewTracker({
   onViewChange,
 }: {
@@ -168,7 +179,6 @@ function ViewTracker({
   return null
 }
 
-// Sub-component: Restore saved view on mount
 function RestoreView({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap()
   const restored = useRef(false)
@@ -182,7 +192,6 @@ function RestoreView({ center, zoom }: { center: [number, number]; zoom: number 
   return null
 }
 
-// Feature tooltip/popup helpers
 function getFeatureLabel(feature: GeoJSON.Feature): string {
   const props = feature.properties || {}
   return (
@@ -223,6 +232,8 @@ export default function LeafletMap({
   onViewChange,
   initialCenter,
   initialZoom,
+  goToCoord,
+  onGoToHandled,
 }: LeafletMapProps) {
   const tileConfig = TILE_LAYERS[baseMap]
 
@@ -248,32 +259,32 @@ export default function LeafletMap({
         .filter((l) => l.visible)
         .map((layer) => (
           <GeoJSON
-            key={layer.id + layer.color}
+            key={layer.id + layer.color + layer.opacity}
             data={layer.geojson}
             style={() => ({
               color: layer.color,
               weight: 2,
               fillColor: layer.color,
-              fillOpacity: 0.3,
+              fillOpacity: 0.3 * layer.opacity,
+              opacity: layer.opacity,
             })}
             pointToLayer={(_feature, latlng) =>
               L.circleMarker(latlng, {
                 radius: 6,
                 color: layer.color,
                 fillColor: layer.color,
-                fillOpacity: 0.7,
+                fillOpacity: 0.7 * layer.opacity,
                 weight: 2,
+                opacity: layer.opacity,
               })
             }
             onEachFeature={(feature, featureLayer) => {
-              // Hover tooltip
               featureLayer.bindTooltip(getFeatureLabel(feature), {
                 sticky: true,
                 direction: "top",
                 offset: [0, -10],
               })
 
-              // Click popup with all attributes
               if (feature.properties) {
                 featureLayer.bindPopup(
                   formatProperties(feature.properties as Record<string, unknown>),
@@ -292,6 +303,9 @@ export default function LeafletMap({
         featureIndex={zoomToFeatureIndex}
         onHandled={onZoomToFeatureHandled}
       />
+      {goToCoord && onGoToHandled && (
+        <GoToLocation coord={goToCoord} onHandled={onGoToHandled} />
+      )}
       <MeasurementTool active={measurementActive} />
       <ScreenshotButton ref={screenshotRef} />
       {onViewChange && <ViewTracker onViewChange={onViewChange} />}

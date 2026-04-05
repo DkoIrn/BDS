@@ -1,0 +1,97 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Pipeline Route - Section A", "kp_start": 0.0, "kp_end": 5.0, "status": "surveyed" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.8945, 52.4851],
+          [-1.8940, 52.4856],
+          [-1.8935, 52.4861],
+          [-1.8930, 52.4866],
+          [-1.8925, 52.4871],
+          [-1.8920, 52.4876],
+          [-1.8915, 52.4881],
+          [-1.8910, 52.4886],
+          [-1.8905, 52.4891],
+          [-1.8900, 52.4896]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Pipeline Route - Section B", "kp_start": 5.0, "kp_end": 10.0, "status": "surveyed" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.8900, 52.4896],
+          [-1.8893, 52.4901],
+          [-1.8886, 52.4906],
+          [-1.8879, 52.4911],
+          [-1.8872, 52.4916],
+          [-1.8865, 52.4921],
+          [-1.8858, 52.4926],
+          [-1.8851, 52.4931],
+          [-1.8844, 52.4936],
+          [-1.8837, 52.4941]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Crossing Point Alpha", "kp": 2.5, "type": "crossing", "description": "Cable crossing - 132kV power" },
+      "geometry": { "type": "Point", "coordinates": [-1.8920, 52.4876] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Crossing Point Beta", "kp": 7.5, "type": "crossing", "description": "Telecom cable crossing" },
+      "geometry": { "type": "Point", "coordinates": [-1.8858, 52.4926] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Anomaly - Freespan", "kp": 1.8, "type": "anomaly", "severity": "warning", "description": "2.1m freespan detected" },
+      "geometry": { "type": "Point", "coordinates": [-1.8930, 52.4866] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Anomaly - Burial Depth Low", "kp": 4.2, "type": "anomaly", "severity": "critical", "description": "DOB 0.3m below minimum 0.6m requirement" },
+      "geometry": { "type": "Point", "coordinates": [-1.8910, 52.4886] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Anomaly - Exposed Pipe", "kp": 8.1, "type": "anomaly", "severity": "critical", "description": "Pipe fully exposed for 12m section" },
+      "geometry": { "type": "Point", "coordinates": [-1.8851, 52.4931] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "KP 0.0 Marker", "kp": 0.0, "type": "kp_marker" },
+      "geometry": { "type": "Point", "coordinates": [-1.8945, 52.4851] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "KP 5.0 Marker", "kp": 5.0, "type": "kp_marker" },
+      "geometry": { "type": "Point", "coordinates": [-1.8900, 52.4896] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "KP 10.0 Marker", "kp": 10.0, "type": "kp_marker" },
+      "geometry": { "type": "Point", "coordinates": [-1.8837, 52.4941] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Survey Corridor", "description": "200m survey corridor boundary" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-1.8955, 52.4849],
+          [-1.8827, 52.4939],
+          [-1.8827, 52.4943],
+          [-1.8955, 52.4853],
+          [-1.8955, 52.4849]
+        ]]
+      }
+    }
+  ]
+}

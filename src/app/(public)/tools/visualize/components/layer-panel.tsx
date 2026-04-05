@@ -18,6 +18,7 @@ interface LayerPanelProps {
   baseMap: TileLayerKey
   onToggleVisibility: (layerId: string) => void
   onColorChange: (layerId: string, color: string) => void
+  onOpacityChange: (layerId: string, opacity: number) => void
   onRemoveLayer: (layerId: string) => void
   onSelectLayer: (layerId: string) => void
   onBaseMapChange: (key: TileLayerKey) => void
@@ -31,15 +32,16 @@ export function LayerPanel({
   baseMap,
   onToggleVisibility,
   onColorChange,
+  onOpacityChange,
   onRemoveLayer,
   onSelectLayer,
   onBaseMapChange,
 }: LayerPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const [expandedLayer, setExpandedLayer] = useState<string | null>(null)
 
   return (
     <div>
-      {/* Header */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="flex w-full items-center justify-between px-3 py-2 text-xs font-semibold text-gray-700"
@@ -60,10 +62,8 @@ export function LayerPanel({
         )}
       </button>
 
-      {/* Body */}
       {!collapsed && (
         <div className="border-t">
-          {/* Layer list */}
           {layers.length === 0 ? (
             <p className="px-3 py-4 text-center text-[10px] text-gray-400">
               Upload files to add layers
@@ -71,70 +71,99 @@ export function LayerPanel({
           ) : (
             <div className="max-h-60 overflow-y-auto">
               {layers.map((layer) => (
-                <div
-                  key={layer.id}
-                  onClick={() => onSelectLayer(layer.id)}
-                  className={`flex cursor-pointer items-center gap-2 border-b px-3 py-2 transition-colors last:border-b-0 ${
-                    activeLayerId === layer.id
-                      ? "bg-blue-50"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  {/* Color swatch */}
-                  <label className="relative shrink-0 cursor-pointer">
-                    <span
-                      className="block size-4 rounded"
-                      style={{ backgroundColor: layer.color }}
-                    />
-                    <input
-                      type="color"
-                      value={layer.color}
-                      onChange={(e) =>
-                        onColorChange(layer.id, e.target.value)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute inset-0 size-4 cursor-pointer opacity-0"
-                    />
-                  </label>
+                <div key={layer.id} className="border-b last:border-b-0">
+                  <div
+                    onClick={() => onSelectLayer(layer.id)}
+                    className={`flex cursor-pointer items-center gap-2 px-3 py-2 transition-colors ${
+                      activeLayerId === layer.id
+                        ? "bg-blue-50"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    {/* Color swatch */}
+                    <label className="relative shrink-0 cursor-pointer">
+                      <span
+                        className="block size-4 rounded"
+                        style={{ backgroundColor: layer.color, opacity: layer.opacity }}
+                      />
+                      <input
+                        type="color"
+                        value={layer.color}
+                        onChange={(e) =>
+                          onColorChange(layer.id, e.target.value)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute inset-0 size-4 cursor-pointer opacity-0"
+                      />
+                    </label>
 
-                  {/* Filename & feature count */}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[11px] font-medium text-gray-700">
-                      {layer.filename}
-                    </p>
-                    <p className="text-[10px] text-gray-400">
-                      {layer.featureCount} feature
-                      {layer.featureCount !== 1 ? "s" : ""}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[11px] font-medium text-gray-700">
+                        {layer.filename}
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        {layer.featureCount} feature
+                        {layer.featureCount !== 1 ? "s" : ""}
+                      </p>
+                    </div>
+
+                    {/* Expand/collapse opacity */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setExpandedLayer(expandedLayer === layer.id ? null : layer.id)
+                      }}
+                      className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      title="Layer settings"
+                    >
+                      <ChevronDown className={`size-3 transition-transform ${expandedLayer === layer.id ? "rotate-180" : ""}`} />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onToggleVisibility(layer.id)
+                      }}
+                      className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      title={layer.visible ? "Hide layer" : "Show layer"}
+                    >
+                      {layer.visible ? (
+                        <Eye className="size-3.5" />
+                      ) : (
+                        <EyeOff className="size-3.5" />
+                      )}
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onRemoveLayer(layer.id)
+                      }}
+                      className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                      title="Remove layer"
+                    >
+                      <X className="size-3.5" />
+                    </button>
                   </div>
 
-                  {/* Visibility toggle */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onToggleVisibility(layer.id)
-                    }}
-                    className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                    title={layer.visible ? "Hide layer" : "Show layer"}
-                  >
-                    {layer.visible ? (
-                      <Eye className="size-3.5" />
-                    ) : (
-                      <EyeOff className="size-3.5" />
-                    )}
-                  </button>
-
-                  {/* Remove */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onRemoveLayer(layer.id)
-                    }}
-                    className="shrink-0 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
-                    title="Remove layer"
-                  >
-                    <X className="size-3.5" />
-                  </button>
+                  {/* Expanded: opacity slider */}
+                  {expandedLayer === layer.id && (
+                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5">
+                      <span className="text-[10px] text-gray-500 w-10">Opacity</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={layer.opacity}
+                        onChange={(e) => onOpacityChange(layer.id, parseFloat(e.target.value))}
+                        className="flex-1 h-1 accent-blue-500"
+                      />
+                      <span className="text-[10px] text-gray-500 w-7 text-right">
+                        {Math.round(layer.opacity * 100)}%
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

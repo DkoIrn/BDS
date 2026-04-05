@@ -5,6 +5,7 @@ export interface MapLayer {
   color: string
   visible: boolean
   featureCount: number
+  opacity: number
 }
 
 export const TILE_LAYERS = {

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
-import { Crosshair, ArrowLeft, Ruler, Table2, Camera, Loader2 } from "lucide-react"
+import { Crosshair, ArrowLeft, Ruler, Table2, Camera, Loader2, Navigation } from "lucide-react"
 import Link from "next/link"
 import type { MapLayer, TileLayerKey } from "./lib/types"
 import { getLayerColor } from "./lib/layer-colors"
@@ -32,6 +32,10 @@ export function MapVisualizer() {
   const [initialCenter, setInitialCenter] = useState<[number, number] | undefined>(undefined)
   const [initialZoom, setInitialZoom] = useState<number | undefined>(undefined)
   const [screenshotLoading, setScreenshotLoading] = useState(false)
+  const [showGoTo, setShowGoTo] = useState(false)
+  const [goToLat, setGoToLat] = useState("")
+  const [goToLng, setGoToLng] = useState("")
+  const [goToCoord, setGoToCoord] = useState<[number, number] | null>(null)
   const screenshotRef = useRef<ScreenshotHandle | null>(null)
   const initialized = useRef(false)
 
@@ -41,8 +45,10 @@ export function MapVisualizer() {
     initialized.current = true
     const stored = loadLayers()
     if (stored && stored.length > 0) {
-      setLayers(stored)
-      setActiveLayerId(stored[0].id)
+      // Ensure opacity exists on restored layers
+      const withOpacity = stored.map((l) => ({ ...l, opacity: l.opacity ?? 1 }))
+      setLayers(withOpacity)
+      setActiveLayerId(withOpacity[0].id)
     }
     const view = loadViewState()
     if (view) {
@@ -67,6 +73,7 @@ export function MapVisualizer() {
         color: getLayerColor(layers.length),
         visible: true,
         featureCount: geojson.features.length,
+        opacity: 1,
       }
       setLayers((prev) => [...prev, newLayer])
       setActiveLayerId(newLayer.id)
@@ -84,6 +91,12 @@ export function MapVisualizer() {
   const handleColorChange = useCallback((layerId: string, color: string) => {
     setLayers((prev) =>
       prev.map((l) => (l.id === layerId ? { ...l, color } : l))
+    )
+  }, [])
+
+  const handleOpacityChange = useCallback((layerId: string, opacity: number) => {
+    setLayers((prev) =>
+      prev.map((l) => (l.id === layerId ? { ...l, opacity } : l))
     )
   }, [])
 
@@ -132,11 +145,25 @@ export function MapVisualizer() {
     setZoomToFeatureIndex(null)
   }, [])
 
+  const handleGoTo = useCallback(() => {
+    const lat = parseFloat(goToLat)
+    const lng = parseFloat(goToLng)
+    if (!isNaN(lat) && !isNaN(lng)) {
+      setGoToCoord([lat, lng])
+      setShowGoTo(false)
+      setGoToLat("")
+      setGoToLng("")
+    }
+  }, [goToLat, goToLng])
+
+  const handleGoToHandled = useCallback(() => {
+    setGoToCoord(null)
+  }, [])
+
   const activeLayer = layers.find((l) => l.id === activeLayerId) ?? null
 
   return (
     <div className="relative h-screen w-full">
-      {/* Map fills entire viewport */}
       <LeafletMap
         layers={layers}
         baseMap={baseMap}
@@ -149,6 +176,8 @@ export function MapVisualizer() {
         onViewChange={handleViewChange}
         initialCenter={initialCenter}
         initialZoom={initialZoom}
+        goToCoord={goToCoord}
+        onGoToHandled={handleGoToHandled}
       />
 
       {/* Back navigation */}
@@ -169,15 +198,15 @@ export function MapVisualizer() {
           baseMap={baseMap}
           onToggleVisibility={handleToggleVisibility}
           onColorChange={handleColorChange}
+          onOpacityChange={handleOpacityChange}
           onRemoveLayer={handleRemoveLayer}
           onSelectLayer={handleSelectLayer}
           onBaseMapChange={handleBaseMapChange}
         />
       </div>
 
-      {/* Floating toolbar - top right, below zoom controls */}
+      {/* Floating toolbar */}
       <div className="absolute right-3 top-[6.5rem] z-[1000] flex flex-col gap-1.5">
-        {/* Zoom to fit */}
         <button
           onClick={handleZoomToFit}
           className="flex size-9 items-center justify-center rounded-lg bg-white shadow-md hover:bg-gray-50"
@@ -186,7 +215,6 @@ export function MapVisualizer() {
           <Crosshair className="size-4 text-gray-700" />
         </button>
 
-        {/* Measurement toggle */}
         <button
           onClick={() => setMeasurementActive((v) => !v)}
           className={`flex size-9 items-center justify-center rounded-lg shadow-md ${
@@ -201,7 +229,6 @@ export function MapVisualizer() {
           />
         </button>
 
-        {/* Data table toggle */}
         <button
           onClick={() => setShowDataTable((v) => !v)}
           className={`flex size-9 items-center justify-center rounded-lg shadow-md ${
@@ -216,7 +243,21 @@ export function MapVisualizer() {
           />
         </button>
 
-        {/* Screenshot */}
+        {/* Go-to coordinates */}
+        <button
+          onClick={() => setShowGoTo((v) => !v)}
+          className={`flex size-9 items-center justify-center rounded-lg shadow-md ${
+            showGoTo
+              ? "bg-green-50 ring-2 ring-green-400"
+              : "bg-white hover:bg-gray-50"
+          }`}
+          title="Go to coordinates"
+        >
+          <Navigation
+            className={`size-4 ${showGoTo ? "text-green-600" : "text-gray-700"}`}
+          />
+        </button>
+
         <button
           onClick={async () => {
             if (screenshotRef.current && !screenshotLoading) {
@@ -236,6 +277,38 @@ export function MapVisualizer() {
           )}
         </button>
       </div>
+
+      {/* Go-to coordinates panel */}
+      {showGoTo && (
+        <div className="absolute right-14 top-[10rem] z-[1000] w-52 rounded-lg bg-white p-3 shadow-lg">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Go to Coordinates</p>
+          <div className="space-y-1.5">
+            <input
+              type="number"
+              step="any"
+              placeholder="Latitude"
+              value={goToLat}
+              onChange={(e) => setGoToLat(e.target.value)}
+              className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs outline-none focus:border-blue-300"
+            />
+            <input
+              type="number"
+              step="any"
+              placeholder="Longitude"
+              value={goToLng}
+              onChange={(e) => setGoToLng(e.target.value)}
+              className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs outline-none focus:border-blue-300"
+            />
+            <button
+              onClick={handleGoTo}
+              disabled={!goToLat || !goToLng}
+              className="w-full rounded bg-blue-500 px-2 py-1.5 text-xs font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+            >
+              Go
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Data table panel */}
       {showDataTable && (
