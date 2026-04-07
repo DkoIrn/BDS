@@ -44,7 +44,7 @@ export function HeroSection() {
           </div>
 
           {/* Trust stats */}
-          <div className="mx-auto mt-16 grid max-w-xl grid-cols-3 gap-6">
+          <div className="mx-auto mt-16 grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-center gap-2">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">

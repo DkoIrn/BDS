@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-type Phase = "bg-in" | "logo" | "tagline" | "hold" | "exit"
+type Phase = "bg-in" | "swoosh" | "text" | "tagline" | "hold" | "exit"
 
 export default function SplashPage() {
   const router = useRouter()
@@ -11,84 +11,85 @@ export default function SplashPage() {
 
   useEffect(() => {
     router.prefetch("/dashboard")
-
-    // Flag so dashboard layout knows to run entry animations
     sessionStorage.setItem("df-splash", "1")
 
     const timers = [
-      setTimeout(() => setPhase("logo"), 200),
-      setTimeout(() => setPhase("tagline"), 900),
-      setTimeout(() => setPhase("hold"), 1400),
-      setTimeout(() => setPhase("exit"), 2200),
-      setTimeout(() => router.replace("/dashboard"), 2700),
+      setTimeout(() => setPhase("swoosh"), 200),
+      setTimeout(() => setPhase("text"), 1200),
+      setTimeout(() => setPhase("tagline"), 2000),
+      setTimeout(() => setPhase("hold"), 2500),
+      setTimeout(() => setPhase("exit"), 3200),
+      setTimeout(() => router.replace("/dashboard"), 3700),
     ]
 
     return () => timers.forEach(clearTimeout)
   }, [router])
 
   const past = (target: Phase) => {
-    const order: Phase[] = ["bg-in", "logo", "tagline", "hold", "exit"]
+    const order: Phase[] = ["bg-in", "swoosh", "text", "tagline", "hold", "exit"]
     return order.indexOf(phase) >= order.indexOf(target)
   }
 
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-500 ease-in-out ${
-        phase === "bg-in" ? "bg-black/0" : "bg-black"
+        phase === "bg-in" ? "bg-white/0" : "bg-white"
       } ${phase === "exit" ? "opacity-0 scale-[1.02]" : "opacity-100 scale-100"}`}
     >
-      {/* Subtle flow lines in background */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className={`absolute top-[38%] -left-full h-px w-[200%] bg-gradient-to-r from-transparent via-teal-500/20 to-transparent transition-transform duration-[1200ms] ease-in-out ${
-            past("logo") ? "translate-x-[25%]" : "translate-x-0"
-          }`}
-        />
-        <div
-          className={`absolute top-[62%] -left-full h-px w-[200%] bg-gradient-to-r from-transparent via-teal-500/10 to-transparent transition-transform duration-[1400ms] ease-in-out delay-200 ${
-            past("logo") ? "translate-x-[30%]" : "translate-x-0"
-          }`}
-        />
-        <div
-          className={`absolute top-[50%] -left-full h-px w-[200%] bg-gradient-to-r from-transparent via-teal-500/[0.07] to-transparent transition-transform duration-[1600ms] ease-in-out delay-300 ${
-            past("logo") ? "translate-x-[20%]" : "translate-x-0"
-          }`}
-        />
-      </div>
 
       <div className="relative flex flex-col items-center">
-        {/* Logo container with white card */}
-        <div
-          className={`rounded-2xl bg-white/95 px-8 py-5 shadow-2xl shadow-black/20 transition-all duration-700 ease-in-out ${
-            past("logo")
-              ? "opacity-100 scale-100"
-              : "opacity-0 scale-[0.95]"
-          } ${phase === "exit" ? "scale-[0.97]" : ""}`}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt="DataFlow"
-            className="h-14 w-auto sm:h-18"
-            draggable={false}
-          />
+        {/* Logo container — swoosh and text layered */}
+        <div className="relative h-32 w-80 sm:h-40 sm:w-96">
+          {/* Swoosh — flows in from left with rotation */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              past("swoosh")
+                ? "opacity-100 translate-x-0 rotate-0 scale-100"
+                : "opacity-0 -translate-x-16 -rotate-12 scale-75"
+            } ${phase === "exit" ? "scale-[0.97]" : ""}`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-swoosh.png"
+              alt=""
+              className="h-full w-auto"
+              draggable={false}
+            />
+          </div>
+
+          {/* Text — fades in and settles after swoosh */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              past("text")
+                ? "opacity-100 translate-y-0 blur-0 scale-100"
+                : "opacity-0 translate-y-2 blur-sm scale-95"
+            } ${phase === "exit" ? "scale-[0.97]" : ""}`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-text.png"
+              alt="TruQC"
+              className="h-24 w-auto sm:h-28"
+              draggable={false}
+            />
+          </div>
         </div>
 
-        {/* Tagline */}
+        {/* Tagline — flows in from left */}
         <p
-          className={`mt-6 text-sm tracking-[0.2em] text-slate-400 transition-all duration-600 ease-in-out sm:text-base ${
+          className={`mt-4 text-sm tracking-[0.2em] text-slate-500 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${
             past("tagline")
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-3"
+              ? "opacity-100 translate-x-0 blur-0"
+              : "opacity-0 -translate-x-6 blur-[2px]"
           }`}
         >
           Catch it before the client does.
         </p>
 
-        {/* Subtle teal accent line under tagline */}
+        {/* Accent line */}
         <div
-          className={`mt-4 h-0.5 rounded-full bg-gradient-to-r from-transparent via-teal-500/40 to-transparent transition-all duration-700 ease-in-out ${
-            past("tagline") ? "w-32 opacity-100" : "w-0 opacity-0"
+          className={`mt-4 h-0.5 rounded-full bg-gradient-to-r from-transparent via-purple-500/40 to-transparent transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] origin-left ${
+            past("tagline") ? "w-32 opacity-100 scale-x-100" : "w-32 opacity-0 scale-x-0"
           }`}
         />
       </div>

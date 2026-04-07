@@ -81,6 +81,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
 
   return (
     <>
+    <div className="overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
@@ -99,14 +100,14 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
             <SortIcon column="status" />
           </TableHead>
           <TableHead
-            className="cursor-pointer select-none text-right"
+            className="hidden sm:table-cell cursor-pointer select-none text-right"
             onClick={() => handleSort("jobs")}
           >
             Jobs
             <SortIcon column="jobs" />
           </TableHead>
           <TableHead
-            className="cursor-pointer select-none text-right"
+            className="hidden md:table-cell cursor-pointer select-none text-right"
             onClick={() => handleSort("updated_at")}
           >
             Last Updated
@@ -133,10 +134,10 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
             <TableCell>
               <ProjectStatusBadge status={project.status} />
             </TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="hidden sm:table-cell text-right tabular-nums">
               {getJobCount(project)}
             </TableCell>
-            <TableCell className="text-right text-muted-foreground">
+            <TableCell className="hidden md:table-cell text-right text-muted-foreground">
               {formatDate(project.updated_at)}
             </TableCell>
             <TableCell onClick={(e) => e.stopPropagation()}>
@@ -164,6 +165,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
         ))}
       </TableBody>
     </Table>
+    </div>
 
     {deleteTarget && (
       <DeleteProjectDialog

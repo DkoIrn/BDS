@@ -5,8 +5,8 @@ export function LandingFooter() {
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <img src="/logo.png" alt="DataFlow" className="h-7 w-7 rounded" />
-          <span className="font-medium text-foreground">DataFlow</span>
+          <img src="/logo.png" alt="TruQC" className="h-7 w-7" />
+          <span className="font-medium text-foreground">TruQC</span>
           <span>&copy; {new Date().getFullYear()}</span>
         </div>
         <nav className="flex gap-6 text-sm text-muted-foreground">

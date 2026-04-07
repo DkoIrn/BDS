@@ -73,17 +73,16 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarHeader className="border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip="DataFlow">
+            <SidebarMenuButton size="lg" tooltip="TruQC">
               <Image
                 src="/logo.png"
-                alt="DataFlow"
+                alt="TruQC"
                 width={32}
                 height={32}
-                className="rounded-lg"
               />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold text-primary">
-                  DataFlow
+                  TruQC
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   Survey Data QC

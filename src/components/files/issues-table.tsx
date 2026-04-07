@@ -115,8 +115,8 @@ export function IssuesTable({
   return (
     <div className="space-y-4">
       {/* Controls bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-2 sm:justify-between">
+        <div className="flex flex-wrap items-center gap-1.5">
           {severityTabs.map((tab) => (
             <button
               key={tab.value}
@@ -174,7 +174,7 @@ export function IssuesTable({
                   <span className="text-xs text-muted-foreground">
                     {groupIssues.length} issue{groupIssues.length !== 1 ? "s" : ""}
                   </span>
-                  <div className="ml-auto flex items-center gap-1.5">
+                  <div className="ml-auto hidden sm:flex items-center gap-1.5">
                     {critCount > 0 && (
                       <span className="rounded-md bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
                         {critCount} critical

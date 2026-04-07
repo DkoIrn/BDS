@@ -36,7 +36,15 @@
       "Bash(taskkill:*)",
       "Bash(git clone:*)",
       "Bash(find \"C:\\\\Users\\\\danie\\\\OneDrive\\\\Desktop\\\\BDS\\\\src\\\\app\\\\\\(dashboard\\)\" -type f -name \"*.tsx\")",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(git push:*)",
+      "Bash(ls /c/Users/danie/OneDrive/Desktop/BDS/src/app/\\\\\\(dashboard\\\\\\)/pipeline/)",
+      "Bash(ls /c/Users/danie/OneDrive/Desktop/BDS/src/app/\\\\\\(dashboard\\\\\\)/pipeline/lib/)",
+      "Bash(ls /c/Users/danie/OneDrive/Desktop/BDS/src/app/\\\\\\(dashboard\\\\\\)/pipeline/components/)",
+      "Bash(find C:UsersdanieOneDriveDesktopBDS/src/app/api -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(find C:UsersdanieOneDriveDesktopBDS/src/components -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(find C:UsersdanieOneDriveDesktopBDS/src/lib -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(wc:*)"
     ],
     "defaultMode": "acceptEdits"
   }

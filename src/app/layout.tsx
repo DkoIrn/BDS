@@ -10,7 +10,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "DataFlow",
+  title: "TruQC",
   description: "Validate. Transform. Visualise.",
 };
 

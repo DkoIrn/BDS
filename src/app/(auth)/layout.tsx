@@ -14,9 +14,7 @@ export default function AuthLayout({
       <div className="hidden flex-1 items-center justify-center bg-foreground lg:flex">
         <div className="text-center">
           <div className="mx-auto mb-8 flex items-center justify-center">
-            <div className="rounded-2xl bg-white/95 px-6 py-4 shadow-lg">
-              <img src="/logo.png" alt="DataFlow" className="h-14 w-auto" />
-            </div>
+            <img src="/logo.png" alt="TruQC" className="h-16 w-auto" />
           </div>
 
           <p className="mt-3 max-w-xs text-base text-white/60">

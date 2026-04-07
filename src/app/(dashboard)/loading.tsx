@@ -9,10 +9,10 @@ export default function DashboardLoading() {
           <div className="absolute inset-0 animate-ping rounded-2xl bg-foreground/5" style={{ animationDuration: "1.5s" }} />
           <Image
             src="/logo.png"
-            alt="DataFlow"
-            width={120}
-            height={120}
-            className="relative rounded-2xl animate-logo-breathe"
+            alt="TruQC"
+            width={200}
+            height={60}
+            className="relative h-12 w-auto animate-logo-breathe"
           />
         </div>
 

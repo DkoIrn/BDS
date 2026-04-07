@@ -190,7 +190,7 @@ export function MapVisualizer() {
       </Link>
 
       {/* Combined upload + layers panel */}
-      <div className="absolute left-3 top-14 z-[1000] w-64 overflow-hidden rounded-lg bg-white shadow-lg">
+      <div className="absolute left-3 top-14 z-[1000] w-52 sm:w-64 max-h-[70vh] overflow-y-auto overflow-hidden rounded-lg bg-white shadow-lg">
         <UploadPanel onFileParsed={handleFileParsed} />
         <LayerPanel
           layers={layers}

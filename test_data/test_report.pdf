@@ -1,0 +1,404 @@
+%PDF-1.3
+%יכס¿
+1 0 obj
+<<
+/Count 3
+/Kids [3 0 R
+5 0 R
+7 0 R]
+/MediaBox [0 0 595.28 841.89]
+/Type /Pages
+>>
+endobj
+2 0 obj
+<<
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+/Pages 1 0 R
+/Type /Catalog
+>>
+endobj
+3 0 obj
+<<
+/Contents 4 0 R
+/Parent 1 0 R
+/Resources 11 0 R
+/Type /Page
+>>
+endobj
+4 0 obj
+<<
+/Length 8034
+>>
+stream
+2 J
+0.57 w
+0.0588 0.0902 0.1647 rg
+0.00 841.89 595.28 -34.02 re f
+BT /F1 8.00 Tf ET
+q BT 234.06 822.48 Td 1 1 1 rg (DataFlow  |  QC Validation Report) Tj ET Q
+0 g
+BT /F1 13.00 Tf ET
+q BT 31.18 769.96 Td 0.0588 0.0902 0.1647 rg (Executive Summary) Tj ET Q
+0.8863 0.9098 0.9412 RG
+28.35 762.52 m 566.93 762.52 l S
+0.9961 0.8863 0.8863 rg
+28.35 751.18 538.58 -34.02 re f
+BT /F1 14.00 Tf ET
+q BT 228.40 729.97 Td 0.8627 0.149 0.149 rg (Overall Verdict: FAIL) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 697.46 Td 0.2 0.2549 0.3333 rg (Dataset) Tj ET Q
+q BT 172.91 697.46 Td 0.0588 0.0902 0.1647 rg (qc_test_issues.csv) Tj ET Q
+q BT 31.18 680.45 Td 0.2 0.2549 0.3333 rg (Pass Rate) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 680.45 Td 0.9608 0.6196 0.0431 rg (81.0%) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 663.44 Td 0.2 0.2549 0.3333 rg (Total Issues) Tj ET Q
+q BT 172.91 663.44 Td 0.0588 0.0902 0.1647 rg (30) Tj ET Q
+q BT 31.18 646.43 Td 0.2 0.2549 0.3333 rg (Run Date) Tj ET Q
+q BT 172.91 646.43 Td 0.0588 0.0902 0.1647 rg (2026-04-04T12:00:00) Tj ET Q
+q BT 31.18 629.43 Td 0.2 0.2549 0.3333 rg (Active Checks) Tj ET Q
+q BT 172.91 629.43 Td 0.0588 0.0902 0.1647 rg (11 of 11) Tj ET Q
+BT /F1 13.00 Tf ET
+q BT 31.18 591.38 Td 0.0588 0.0902 0.1647 rg (Severity Breakdown) Tj ET Q
+28.35 583.94 m 566.93 583.94 l S
+BT /F1 9.00 Tf ET
+q BT 31.18 558.56 Td 0.0588 0.0902 0.1647 rg (Critical) Tj ET Q
+0.9373 0.2667 0.2667 rg
+113.39 568.35 54.43 -14.17 re f
+BT /F2 8.00 Tf ET
+q BT 470.55 558.86 Td 0.2 0.2549 0.3333 rg (4) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 31.18 535.88 Td 0.0588 0.0902 0.1647 rg (Warning) Tj ET Q
+0.9608 0.6196 0.0431 rg
+113.39 545.67 340.16 -14.17 re f
+BT /F2 8.00 Tf ET
+q BT 470.55 536.18 Td 0.2 0.2549 0.3333 rg (25) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 31.18 513.21 Td 0.0588 0.0902 0.1647 rg (Info) Tj ET Q
+0.2314 0.5098 0.9647 rg
+113.39 522.99 13.61 -14.17 re f
+BT /F2 8.00 Tf ET
+q BT 470.55 513.51 Td 0.2 0.2549 0.3333 rg (1) Tj ET Q
+BT /F1 13.00 Tf ET
+q BT 31.18 472.32 Td 0.0588 0.0902 0.1647 rg (Issues by Check Category) Tj ET Q
+28.35 464.88 m 566.93 464.88 l S
+0.0588 0.0902 0.1647 rg
+BT /F1 8.00 Tf ET
+q 28.35 453.54 198.43 -19.84 re B BT 31.18 441.22 Td 1 1 1 rg (Check) Tj ET Q
+q 226.77 453.54 70.87 -19.84 re B BT 248.64 441.22 Td 1 1 1 rg (Critical) Tj ET Q
+q 297.64 453.54 70.87 -19.84 re B BT 317.07 441.22 Td 1 1 1 rg (Warning) Tj ET Q
+q 368.50 453.54 70.87 -19.84 re B BT 396.61 441.22 Td 1 1 1 rg (Info) Tj ET Q
+q 439.37 453.54 70.87 -19.84 re B BT 465.25 441.22 Td 1 1 1 rg (Total) Tj ET Q
+1 1 1 rg
+BT /F2 8.00 Tf ET
+q 28.35 433.70 198.43 -17.01 re B BT 31.18 422.80 Td 0.0588 0.0902 0.1647 rg (Cross-Column Consistency) Tj ET Q
+BT /F1 8.00 Tf ET
+q 226.77 433.70 70.87 -17.01 re B BT 259.98 422.80 Td 0.9373 0.2667 0.2667 rg (2) Tj ET Q
+BT /F2 8.00 Tf ET
+q 297.64 433.70 70.87 -17.01 re B BT 330.85 422.80 Td 0.0588 0.0902 0.1647 rg (2) Tj ET Q
+q 368.50 433.70 70.87 -17.01 re B BT 402.61 422.80 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 433.70 70.87 -17.01 re B BT 472.58 422.80 Td 0.0588 0.0902 0.1647 rg (4) Tj ET Q
+0.9725 0.9804 0.9882 rg
+q 28.35 416.69 198.43 -17.01 re B BT 31.18 405.79 Td 0.0588 0.0902 0.1647 rg (Spike Detection \(Gradient\)) Tj ET Q
+BT /F2 8.00 Tf ET
+q 226.77 416.69 70.87 -17.01 re B BT 260.87 405.79 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 297.64 416.69 70.87 -17.01 re B BT 330.85 405.79 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+q 368.50 416.69 70.87 -17.01 re B BT 402.61 405.79 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 416.69 70.87 -17.01 re B BT 472.58 405.79 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+1 1 1 rg
+q 28.35 399.69 198.43 -17.01 re B BT 31.18 388.78 Td 0.0588 0.0902 0.1647 rg (Coordinate Jumps) Tj ET Q
+BT /F2 8.00 Tf ET
+q 226.77 399.69 70.87 -17.01 re B BT 260.87 388.78 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 297.64 399.69 70.87 -17.01 re B BT 330.85 388.78 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+q 368.50 399.69 70.87 -17.01 re B BT 402.61 388.78 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 399.69 70.87 -17.01 re B BT 472.58 388.78 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+0.9725 0.9804 0.9882 rg
+q 28.35 382.68 198.43 -17.01 re B BT 31.18 371.77 Td 0.0588 0.0902 0.1647 rg (Range Violations) Tj ET Q
+q 226.77 382.68 70.87 -17.01 re B BT 259.98 371.77 Td 0.9373 0.2667 0.2667 rg (1) Tj ET Q
+BT /F2 8.00 Tf ET
+q 297.64 382.68 70.87 -17.01 re B BT 331.74 371.77 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 368.50 382.68 70.87 -17.01 re B BT 402.61 371.77 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 382.68 70.87 -17.01 re B BT 472.58 371.77 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+1 1 1 rg
+q 28.35 365.67 198.43 -17.01 re B BT 31.18 354.77 Td 0.0588 0.0902 0.1647 rg (Missing Data) Tj ET Q
+BT /F2 8.00 Tf ET
+q 226.77 365.67 70.87 -17.01 re B BT 260.87 354.77 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 297.64 365.67 70.87 -17.01 re B BT 331.74 354.77 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 368.50 365.67 70.87 -17.01 re B BT 401.71 354.77 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 365.67 70.87 -17.01 re B BT 472.58 354.77 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+0.9725 0.9804 0.9882 rg
+q 28.35 348.66 198.43 -17.01 re B BT 31.18 337.76 Td 0.0588 0.0902 0.1647 rg (Statistical Outliers \(Z-Score\)) Tj ET Q
+BT /F2 8.00 Tf ET
+q 226.77 348.66 70.87 -17.01 re B BT 260.87 337.76 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 297.64 348.66 70.87 -17.01 re B BT 330.85 337.76 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+q 368.50 348.66 70.87 -17.01 re B BT 402.61 337.76 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 348.66 70.87 -17.01 re B BT 472.58 337.76 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+1 1 1 rg
+q 28.35 331.65 198.43 -17.01 re B BT 31.18 320.75 Td 0.0588 0.0902 0.1647 rg (Spike Detection \(MAD\)) Tj ET Q
+BT /F2 8.00 Tf ET
+q 226.77 331.65 70.87 -17.01 re B BT 260.87 320.75 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+q 297.64 331.65 70.87 -17.01 re B BT 330.85 320.75 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+q 368.50 331.65 70.87 -17.01 re B BT 402.61 320.75 Td 0.5804 0.6392 0.7216 rg (-) Tj ET Q
+BT /F1 8.00 Tf ET
+q 439.37 331.65 70.87 -17.01 re B BT 472.58 320.75 Td 0.0588 0.0902 0.1647 rg (1) Tj ET Q
+BT /F1 13.00 Tf ET
+q BT 31.18 282.40 Td 0.0588 0.0902 0.1647 rg (Issues by Column) Tj ET Q
+28.35 274.96 m 566.93 274.96 l S
+BT /F2 9.00 Tf ET
+q BT 31.18 252.42 Td 0.2 0.2549 0.3333 rg (dob/depth) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 252.42 Td 0.0588 0.0902 0.1647 rg (2 issues) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 235.41 Td 0.2 0.2549 0.3333 rg (dob) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 235.41 Td 0.0588 0.0902 0.1647 rg (2 issues) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 218.40 Td 0.2 0.2549 0.3333 rg (easting/northing) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 218.40 Td 0.0588 0.0902 0.1647 rg (1 issue) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 201.39 Td 0.2 0.2549 0.3333 rg (doc/dob) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 201.39 Td 0.0588 0.0902 0.1647 rg (1 issue) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 184.39 Td 0.2 0.2549 0.3333 rg (top/depth) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 184.39 Td 0.0588 0.0902 0.1647 rg (1 issue) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 167.38 Td 0.2 0.2549 0.3333 rg (depth) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 167.38 Td 0.0588 0.0902 0.1647 rg (1 issue) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 150.37 Td 0.2 0.2549 0.3333 rg (doc) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 150.37 Td 0.0588 0.0902 0.1647 rg (1 issue) Tj ET Q
+BT /F2 9.00 Tf ET
+q BT 31.18 133.36 Td 0.2 0.2549 0.3333 rg (easting) Tj ET Q
+BT /F1 9.00 Tf ET
+q BT 172.91 133.36 Td 0.0588 0.0902 0.1647 rg (1 issue) Tj ET Q
+BT /F1 13.00 Tf ET
+q BT 31.18 95.31 Td 0.0588 0.0902 0.1647 rg (Methodology) Tj ET Q
+28.35 87.87 m 566.93 87.87 l S
+BT /F2 9.00 Tf ET
+q BT 31.18 66.75 Td 0.2 0.2549 0.3333 rg 1.448 Tw (This report was generated by the DataFlow automated QC engine. The dataset was validated against engineering-grade checks) Tj ET Q
+BT /F2 7.00 Tf ET
+q BT 219.49 26.25 Td 0.5804 0.6392 0.7216 rg (Page 1/) Tj (3) Tj (  |  Generated by DataFlow QC Engine) Tj ET Q
+
+endstream
+endobj
+5 0 obj
+<<
+/Contents 6 0 R
+/Parent 1 0 R
+/Resources 12 0 R
+/Type /Page
+>>
+endobj
+6 0 obj
+<<
+/Length 1524
+>>
+stream
+2 J
+0.57 w
+0.8863 0.9098 0.9412 RG
+1 1 1 rg
+0.0588 0.0902 0.1647 rg
+0.00 841.89 595.28 -34.02 re f
+BT /F1 8.00 Tf ET
+q BT 234.06 822.48 Td 1 1 1 rg (DataFlow  |  QC Validation Report) Tj ET Q
+1 1 1 rg
+BT /F2 9.00 Tf ET
+q BT 31.18 786.75 Td 0.2 0.2549 0.3333 rg (including:) Tj ET Q
+q BT 31.18 758.40 Td 0.2 0.2549 0.3333 rg 0.579 Tw (Basic QC: Range validation, missing data detection, duplicate row/KP identification, KP gap analysis, KP monotonicity enforcement,) Tj ET Q
+q BT 31.18 744.23 Td 0.2 0.2549 0.3333 rg (and statistical outlier detection \(z-score and IQR methods\).) Tj ET Q
+q BT 31.18 715.88 Td 0.2 0.2549 0.3333 rg 1.359 Tw (Engineering-Grade QC: Cross-column physical consistency checks \(e.g. DOB vs water depth, DOC vs DOB\), spike and gradient) Tj ET Q
+q BT 31.18 701.71 Td 0.2 0.2549 0.3333 rg 0.154 Tw (detection with KP-aware rate-of-change thresholds, and coordinate sanity validation including bounds checking and consecutive point) Tj ET Q
+q BT 31.18 687.54 Td 0.2 0.2549 0.3333 rg (jump detection.) Tj ET Q
+q BT 31.18 659.19 Td 0.2 0.2549 0.3333 rg 0.203 Tw (Each flagged issue includes severity level, affected row and column, and a human-readable explanation of the problem found. Issues) Tj ET Q
+q BT 31.18 645.02 Td 0.2 0.2549 0.3333 rg (are classified as Critical \(data integrity broken\), Warning \(suspicious but usable\), or Info \(informational\).) Tj ET Q
+BT /F2 7.00 Tf ET
+q BT 219.49 26.25 Td 0.5804 0.6392 0.7216 rg (Page 2/) Tj (3) Tj (  |  Generated by DataFlow QC Engine) Tj ET Q
+
+endstream
+endobj
+7 0 obj
+<<
+/Contents 8 0 R
+/Parent 1 0 R
+/Resources 13 0 R
+/Type /Page
+>>
+endobj
+8 0 obj
+<<
+/Length 5726
+>>
+stream
+2 J
+0.57 w
+0.8863 0.9098 0.9412 RG
+1 1 1 rg
+0.0588 0.0902 0.1647 rg
+0.00 841.89 595.28 -34.02 re f
+BT /F1 8.00 Tf ET
+q BT 234.06 822.48 Td 1 1 1 rg (DataFlow  |  QC Validation Report) Tj ET Q
+1 1 1 rg
+BT /F1 13.00 Tf ET
+q BT 31.18 769.96 Td 0.0588 0.0902 0.1647 rg (Detailed Issues \(10 of 10\)) Tj ET Q
+28.35 762.52 m 566.93 762.52 l S
+0.0588 0.0902 0.1647 rg
+BT /F1 7.00 Tf ET
+q 28.35 751.18 34.02 -19.84 re B BT 31.18 739.16 Td 1 1 1 rg (Row) Tj ET Q
+q 62.36 751.18 62.36 -19.84 re B BT 65.20 739.16 Td 1 1 1 rg (Column) Tj ET Q
+q 124.72 751.18 51.02 -19.84 re B BT 127.56 739.16 Td 1 1 1 rg (Severity) Tj ET Q
+q 175.75 751.18 362.83 -19.84 re B BT 178.58 739.16 Td 1 1 1 rg (Description) Tj ET Q
+0.9961 0.8863 0.8863 rg
+BT /F2 7.00 Tf ET
+q 28.35 731.34 34.02 -15.59 re B BT 31.18 721.44 Td 0.0588 0.0902 0.1647 rg (6) Tj ET Q
+q 62.36 731.34 62.36 -15.59 re B BT 65.20 721.44 Td 0.0588 0.0902 0.1647 rg (dob/depth) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 731.34 51.02 -15.59 re B BT 127.56 721.44 Td 0.9373 0.2667 0.2667 rg (critical) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 731.34 362.83 -15.59 re B BT 178.58 721.44 Td 0.0588 0.0902 0.1647 rg (DOB \(48.5m\) exceeds water depth \(45.1m\) -- physically inconsistent) Tj ET Q
+0.9961 0.9529 0.7804 rg
+q 28.35 715.75 34.02 -15.59 re B BT 31.18 705.85 Td 0.0588 0.0902 0.1647 rg (6) Tj ET Q
+q 62.36 715.75 62.36 -15.59 re B BT 65.20 705.85 Td 0.0588 0.0902 0.1647 rg (dob) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 715.75 51.02 -15.59 re B BT 127.56 705.85 Td 0.9608 0.6196 0.0431 rg (warning) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 715.75 362.83 -15.59 re B BT 178.58 705.85 Td 0.0588 0.0902 0.1647 rg (dob changes by 47.500 over 0.0500 KP \(gradient 950.0/KP\) -- exceeds expected rate of 10.0/...) Tj ET Q
+0.9961 0.8863 0.8863 rg
+q 28.35 700.16 34.02 -15.59 re B BT 31.18 690.26 Td 0.0588 0.0902 0.1647 rg (14) Tj ET Q
+q 62.36 700.16 62.36 -15.59 re B BT 65.20 690.26 Td 0.0588 0.0902 0.1647 rg (dob/depth) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 700.16 51.02 -15.59 re B BT 127.56 690.26 Td 0.9373 0.2667 0.2667 rg (critical) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 700.16 362.83 -15.59 re B BT 178.58 690.26 Td 0.0588 0.0902 0.1647 rg (DOB \(55.0m\) exceeds water depth \(44.8m\) -- physically inconsistent) Tj ET Q
+0.9961 0.9529 0.7804 rg
+q 28.35 684.57 34.02 -15.59 re B BT 31.18 674.67 Td 0.0588 0.0902 0.1647 rg (17) Tj ET Q
+q 62.36 684.57 62.36 -15.59 re B BT 65.20 674.67 Td 0.0588 0.0902 0.1647 rg (easting/nort) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 684.57 51.02 -15.59 re B BT 127.56 674.67 Td 0.9608 0.6196 0.0431 rg (warning) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 684.57 362.83 -15.59 re B BT 178.58 674.67 Td 0.0588 0.0902 0.1647 rg (Coordinate jump of 100005m between consecutive rows) Tj ET Q
+0.9961 0.8863 0.8863 rg
+q 28.35 668.98 34.02 -15.59 re B BT 31.18 659.08 Td 0.0588 0.0902 0.1647 rg (5) Tj ET Q
+q 62.36 668.98 62.36 -15.59 re B BT 65.20 659.08 Td 0.0588 0.0902 0.1647 rg (dob) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 668.98 51.02 -15.59 re B BT 127.56 659.08 Td 0.9373 0.2667 0.2667 rg (critical) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 668.98 362.83 -15.59 re B BT 178.58 659.08 Td 0.0588 0.0902 0.1647 rg (At KP 0.200: DOB value 48.5m exceeds maximum threshold of 5.0m) Tj ET Q
+0.9961 0.9529 0.7804 rg
+q 28.35 653.39 34.02 -15.59 re B BT 31.18 643.49 Td 0.0588 0.0902 0.1647 rg (8) Tj ET Q
+q 62.36 653.39 62.36 -15.59 re B BT 65.20 643.49 Td 0.0588 0.0902 0.1647 rg (doc/dob) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 653.39 51.02 -15.59 re B BT 127.56 643.49 Td 0.9608 0.6196 0.0431 rg (warning) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 653.39 362.83 -15.59 re B BT 178.58 643.49 Td 0.0588 0.0902 0.1647 rg (DOC \(1.6m\) exceeds DOB \(1.4m\) -- cover cannot exceed burial depth) Tj ET Q
+q 28.35 637.80 34.02 -15.59 re B BT 31.18 627.90 Td 0.0588 0.0902 0.1647 rg (15) Tj ET Q
+q 62.36 637.80 62.36 -15.59 re B BT 65.20 627.90 Td 0.0588 0.0902 0.1647 rg (top/depth) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 637.80 51.02 -15.59 re B BT 127.56 627.90 Td 0.9608 0.6196 0.0431 rg (warning) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 637.80 362.83 -15.59 re B BT 178.58 627.90 Td 0.0588 0.0902 0.1647 rg (TOP \(60.0m\) exceeds water depth \(45.0m\) -- pipe above seabed level) Tj ET Q
+0.8588 0.9176 0.9961 rg
+q 28.35 622.20 34.02 -15.59 re B BT 31.18 612.31 Td 0.0588 0.0902 0.1647 rg (9) Tj ET Q
+q 62.36 622.20 62.36 -15.59 re B BT 65.20 612.31 Td 0.0588 0.0902 0.1647 rg (depth) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 622.20 51.02 -15.59 re B BT 127.56 612.31 Td 0.2314 0.5098 0.9647 rg (info) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 622.20 362.83 -15.59 re B BT 178.58 612.31 Td 0.0588 0.0902 0.1647 rg (At KP 0.400: DEPTH value is missing or empty) Tj ET Q
+0.9961 0.9529 0.7804 rg
+q 28.35 606.61 34.02 -15.59 re B BT 31.18 596.72 Td 0.0588 0.0902 0.1647 rg (7) Tj ET Q
+q 62.36 606.61 62.36 -15.59 re B BT 65.20 596.72 Td 0.0588 0.0902 0.1647 rg (doc) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 606.61 51.02 -15.59 re B BT 127.56 596.72 Td 0.9608 0.6196 0.0431 rg (warning) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 606.61 362.83 -15.59 re B BT 178.58 596.72 Td 0.0588 0.0902 0.1647 rg (At KP 0.300: DOC value 1.6m is a statistical outlier \(z-score: 3.8\)) Tj ET Q
+q 28.35 591.02 34.02 -15.59 re B BT 31.18 581.13 Td 0.0588 0.0902 0.1647 rg (16) Tj ET Q
+q 62.36 591.02 62.36 -15.59 re B BT 65.20 581.13 Td 0.0588 0.0902 0.1647 rg (easting) Tj ET Q
+BT /F1 7.00 Tf ET
+q 124.72 591.02 51.02 -15.59 re B BT 127.56 581.13 Td 0.9608 0.6196 0.0431 rg (warning) Tj ET Q
+BT /F2 7.00 Tf ET
+q 175.75 591.02 362.83 -15.59 re B BT 178.58 581.13 Td 0.0588 0.0902 0.1647 rg (easting changes abruptly by 100004.900 between consecutive rows) Tj ET Q
+q BT 219.49 26.25 Td 0.5804 0.6392 0.7216 rg (Page 3/) Tj (3) Tj (  |  Generated by DataFlow QC Engine) Tj ET Q
+
+endstream
+endobj
+9 0 obj
+<<
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+10 0 obj
+<<
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+11 0 obj
+<<
+/Font <</F1 9 0 R
+/F2 10 0 R>>
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+>>
+endobj
+12 0 obj
+<<
+/Font <</F1 9 0 R
+/F2 10 0 R>>
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+>>
+endobj
+13 0 obj
+<<
+/Font <</F1 9 0 R
+/F2 10 0 R>>
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+>>
+endobj
+14 0 obj
+<<
+/CreationDate (D:20260404122808Z)
+>>
+endobj
+xref
+0 15
+0000000000 65535 f 
+0000000015 00000 n 
+0000000114 00000 n 
+0000000217 00000 n 
+0000000298 00000 n 
+0000008384 00000 n 
+0000008465 00000 n 
+0000010041 00000 n 
+0000010122 00000 n 
+0000015900 00000 n 
+0000016002 00000 n 
+0000016100 00000 n 
+0000016199 00000 n 
+0000016298 00000 n 
+0000016397 00000 n 
+trailer
+<<
+/Size 15
+/Root 2 0 R
+/Info 14 0 R
+/ID [<C1B91CE3560483797CFDF0155F87EB88><C1B91CE3560483797CFDF0155F87EB88>]
+>>
+startxref
+16453
+%%EOF

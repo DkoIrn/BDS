@@ -48,9 +48,9 @@ export function LandingNavbar() {
             window.scrollTo({ top: 0, behavior: "smooth" })
           }}
         >
-          <img src="/logo.png" alt="DataFlow" className="size-8 rounded-md" />
+          <img src="/logo.png" alt="TruQC" className="size-8" />
           <span className="text-lg font-semibold text-foreground">
-            DataFlow
+            TruQC
           </span>
         </a>
 

@@ -245,7 +245,7 @@ export function CompareTool() {
   if (state.step === "upload") {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Base file */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-blue-600">As-Designed (Base)</label>
@@ -337,7 +337,7 @@ export function CompareTool() {
     return (
       <div className="space-y-6">
         {/* File summary */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900 dark:bg-blue-950/20">
             <p className="text-[11px] font-medium text-blue-600">Base</p>
             <p className="truncate text-sm font-medium">{state.baseFile.name}</p>
@@ -469,7 +469,7 @@ export function CompareTool() {
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-lg border bg-card p-3 text-center">
             <p className="text-lg font-semibold">{summary.base_rows}</p>
             <p className="text-[11px] text-muted-foreground">Base Rows</p>

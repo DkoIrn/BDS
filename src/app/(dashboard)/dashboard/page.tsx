@@ -71,7 +71,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Greeting + primary CTA */}
-      <div className="flex items-center justify-between animate-fade-up">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-up">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Welcome back, {displayName}
@@ -136,7 +136,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Main content */}
-      <div className="grid animate-fade-up gap-4 [animation-delay:160ms] [animation-fill-mode:backwards] lg:grid-cols-5">
+      <div className="grid animate-fade-up gap-4 [animation-delay:160ms] [animation-fill-mode:backwards] grid-cols-1 lg:grid-cols-5">
         {/* Recent QC activity */}
         <div className="rounded-2xl border bg-card p-5 lg:col-span-3">
           <div className="flex items-center justify-between">
@@ -171,7 +171,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <QcStatusBadge status={dataset.status} />
-                      <span className="text-[11px] text-muted-foreground/60">
+                      <span className="hidden sm:inline text-[11px] text-muted-foreground/60">
                         {formatRelativeTime(dataset.created_at)}
                       </span>
                     </div>

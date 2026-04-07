@@ -52,7 +52,7 @@ interface PipelineStepperProps {
 
 export function PipelineStepper({ state, onStageClick }: PipelineStepperProps) {
   return (
-    <div className="rounded-2xl border bg-card px-6 py-4">
+    <div className="rounded-2xl border bg-card px-3 py-3 sm:px-6 sm:py-4">
       <div className="flex items-center justify-between">
         {STAGE_CONFIG.map((stage, index) => {
           const visual = getStepVisual(stage.id, state.stages, state.currentStage)
@@ -80,7 +80,7 @@ export function PipelineStepper({ state, onStageClick }: PipelineStepperProps) {
                 />
                 <span
                   className={cn(
-                    "text-xs font-medium",
+                    "hidden sm:block text-xs font-medium",
                     visual === "current" && "text-primary",
                     visual === "completed" && "text-green-600 dark:text-green-400",
                     visual === "skipped" && "text-yellow-600 dark:text-yellow-400",
@@ -90,7 +90,7 @@ export function PipelineStepper({ state, onStageClick }: PipelineStepperProps) {
                   {stage.label}
                 </span>
                 {state.stages[stage.id].summary && visual !== "current" && (
-                  <span className="max-w-[120px] truncate text-[10px] text-muted-foreground">
+                  <span className="hidden sm:block max-w-[120px] truncate text-[10px] text-muted-foreground">
                     {state.stages[stage.id].summary}
                   </span>
                 )}
@@ -120,7 +120,7 @@ function StepCircle({
 }) {
   if (visual === "completed") {
     return (
-      <div className="flex size-10 items-center justify-center rounded-full bg-green-500 text-white">
+      <div className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-green-500 text-white">
         <Check className="size-5" />
       </div>
     )
@@ -128,7 +128,7 @@ function StepCircle({
 
   if (visual === "skipped") {
     return (
-      <div className="flex size-10 items-center justify-center rounded-full bg-yellow-500 text-white">
+      <div className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-yellow-500 text-white">
         <AlertTriangle className="size-5" />
       </div>
     )
@@ -136,7 +136,7 @@ function StepCircle({
 
   if (visual === "current") {
     return (
-      <div className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+      <div className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
         <Icon className="size-5" />
       </div>
     )
@@ -166,7 +166,7 @@ function ConnectingLine({
   return (
     <div
       className={cn(
-        "mx-3 h-0.5 flex-1",
+        "mx-1 sm:mx-3 h-0.5 flex-1",
         bothDone ? "bg-green-500" : "bg-muted"
       )}
     />

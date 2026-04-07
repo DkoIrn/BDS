@@ -37,13 +37,14 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
   if (jobs.length === 0) return null
 
   return (
+    <div className="overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead>Survey Type</TableHead>
+          <TableHead className="hidden sm:table-cell">Survey Type</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead className="text-right">Created</TableHead>
+          <TableHead className="hidden md:table-cell text-right">Created</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -61,7 +62,7 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
                 {job.name}
               </Link>
             </TableCell>
-            <TableCell>
+            <TableCell className="hidden sm:table-cell">
               <Badge variant="outline">{job.survey_type}</Badge>
             </TableCell>
             <TableCell>
@@ -69,12 +70,13 @@ export function JobsList({ jobs }: { jobs: Job[] }) {
                 {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
               </Badge>
             </TableCell>
-            <TableCell className="text-right text-muted-foreground">
+            <TableCell className="hidden md:table-cell text-right text-muted-foreground">
               {formatDate(job.created_at)}
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
+    </div>
   )
 }

@@ -33,7 +33,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <TopNavbar user={userData} />
-      <main className="mx-auto max-w-7xl px-6 py-6">
+      <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
         <RealtimeProvider userId={user.id}>
           <DashboardEntry>{children}</DashboardEntry>
         </RealtimeProvider>

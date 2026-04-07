@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -17,6 +18,7 @@ import {
   Bell,
   ChevronDown,
   User,
+  Menu,
 } from "lucide-react"
 import { logout } from "@/lib/actions/auth"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -30,6 +32,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 
 const mainNav = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -66,6 +75,7 @@ function getInitials(name: string | null, email: string): string {
 
 export function TopNavbar({ user }: TopNavbarProps) {
   const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   function isActive(href: string): boolean {
     if (href === "/dashboard") return pathname === "/dashboard"
@@ -76,23 +86,20 @@ export function TopNavbar({ user }: TopNavbarProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/80">
-      <div className="mx-auto flex h-14 items-center gap-6 px-6">
+      <div className="mx-auto flex h-14 items-center gap-4 px-4 sm:gap-6 sm:px-6">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
           <Image
             src="/logo.png"
-            alt="DataFlow"
-            width={28}
-            height={28}
-            className="rounded-lg"
+            alt="TruQC"
+            width={180}
+            height={64}
+            className="h-16 w-auto"
           />
-          <span className="text-sm font-bold tracking-tight text-foreground" style={{ fontFamily: "var(--font-heading), sans-serif" }}>
-            DataFlow
-          </span>
         </Link>
 
-        {/* Main nav */}
-        <nav className="flex items-center gap-1">
+        {/* Main nav — hidden on mobile */}
+        <nav className="hidden md:flex items-center gap-1">
           {mainNav.map((item) => (
             <Link
               key={item.href}
@@ -132,8 +139,8 @@ export function TopNavbar({ user }: TopNavbarProps) {
           </DropdownMenu>
         </nav>
 
-        {/* Right side */}
-        <div className="ml-auto flex items-center gap-1.5">
+        {/* Right side — hidden on mobile */}
+        <div className="ml-auto hidden md:flex items-center gap-1.5">
           <Button variant="ghost" size="icon-sm" disabled className="opacity-40">
             <Bell className="size-4" />
             <span className="sr-only">Notifications</span>
@@ -178,6 +185,73 @@ export function TopNavbar({ user }: TopNavbarProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+
+        {/* Mobile hamburger menu */}
+        <div className="ml-auto md:hidden">
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground">
+              <Menu className="size-5" />
+              <span className="sr-only">Open menu</span>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-1 px-4">
+                {mainNav.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      isActive(item.href)
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    }`}
+                  >
+                    <item.icon className="size-4" />
+                    {item.title}
+                  </Link>
+                ))}
+
+                <hr className="my-2 border-border" />
+                <p className="px-3 py-1 text-xs font-medium text-muted-foreground">Tools</p>
+                {toolsNav.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      isActive(item.href)
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                    }`}
+                  >
+                    <item.icon className="size-4" />
+                    {item.title}
+                  </Link>
+                ))}
+
+                <hr className="my-2 border-border" />
+                <Link
+                  href="/settings"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                >
+                  <Settings className="size-4" />
+                  Settings
+                </Link>
+                <button
+                  onClick={() => { setMobileOpen(false); logout() }}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-muted/60 text-left"
+                >
+                  <LogOut className="size-4" />
+                  Log out
+                </button>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
