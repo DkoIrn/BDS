@@ -294,7 +294,7 @@ Plans:
 - [ ] 16-02-PLAN.md -- All 5 stage panels (Import, Inspect, Validate, Clean, Export), workflow wiring, and human verification
 
 ### Phase 17: Audit Trail & Data Lineage
-**Goal:** Users can trace the full journey of any dataset through every processing stage, view row-level before/after changes, and reproduce any previous validation — building trust through complete transparency
+**Goal:** Users can trace the full journey of any dataset through every processing stage, view row-level before/after changes, and reproduce any previous validation -- building trust through complete transparency
 **Requirements**: AUDT-01, AUDT-02, AUDT-03, AUDT-04, AUDT-05, AUDT-06
 **Depends on:** Phase 8, Phase 9
 **Success Criteria** (what must be TRUE):
@@ -304,7 +304,8 @@ Plans:
   4. System stores before/after snapshots for auto-clean and AI fix transformations
   5. User can re-run a previous validation using the same configuration (profile + thresholds)
   6. Audit timeline displays rich context per event (issue counts, fix details, config used, export format)
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 17 to break down)
+- [ ] 17-01-PLAN.md -- Wave 0 test stubs, missing audit log calls (parse, map, profile), enhanced auto-clean snapshots with row-level diffs
+- [ ] 17-02-PLAN.md -- Timeline UI enhancements (new action configs, date grouping, rich metadata), issue traceability (after-cleaning cross-reference), validation re-run button
