@@ -159,12 +159,27 @@ export function TutorialOverlay() {
 
   useEffect(() => {
     setMounted(true)
-    const completed = localStorage.getItem(STORAGE_KEY)
-    if (!completed) {
-      // Small delay so the page renders first
-      const timer = setTimeout(() => setActive(true), 800)
-      return () => clearTimeout(timer)
-    }
+
+    // Check both localStorage (fast) and server flag (authoritative)
+    const localCompleted = localStorage.getItem(STORAGE_KEY)
+    if (localCompleted) return // Already seen on this device
+
+    // Check server-side flag
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) return
+        const tutorialDone = user.user_metadata?.tutorial_completed
+        if (tutorialDone) {
+          // Sync to localStorage so we don't check again
+          localStorage.setItem(STORAGE_KEY, "true")
+          return
+        }
+        // First time — show tutorial after a short delay
+        const timer = setTimeout(() => setActive(true), 800)
+        return () => clearTimeout(timer)
+      })
+    })
   }, [])
 
   useEffect(() => {
@@ -215,6 +230,11 @@ export function TutorialOverlay() {
   const handleClose = () => {
     setActive(false)
     localStorage.setItem(STORAGE_KEY, "true")
+    // Persist to user metadata so it survives across devices/browsers
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      const supabase = createClient()
+      supabase.auth.updateUser({ data: { tutorial_completed: true } })
+    })
   }
 
   const handleSkip = () => {
