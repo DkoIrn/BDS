@@ -1,7 +1,9 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import type { Provider } from '@supabase/supabase-js'
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
@@ -54,6 +56,24 @@ export async function verifyOtp(email: string, token: string) {
   }
 
   redirect('/splash')
+}
+
+export async function signInWithProvider(provider: Provider) {
+  const supabase = await createClient()
+  const origin = (await headers()).get('origin')
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  redirect(data.url)
 }
 
 export async function login(formData: FormData) {

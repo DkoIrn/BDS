@@ -104,6 +104,7 @@ export function TopNavbar({ user }: TopNavbarProps) {
             <Link
               key={item.href}
               href={item.href}
+              data-tutorial={item.href.replace("/", "")}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                 isActive(item.href)
                   ? "bg-foreground text-background"
@@ -118,6 +119,7 @@ export function TopNavbar({ user }: TopNavbarProps) {
           {/* Tools dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger
+              data-tutorial="tools"
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors outline-none ${
                 isToolsActive
                   ? "bg-foreground text-background"
@@ -141,12 +143,12 @@ export function TopNavbar({ user }: TopNavbarProps) {
 
         {/* Right side — hidden on mobile */}
         <div className="ml-auto hidden md:flex items-center gap-1.5">
-          <Button variant="ghost" size="icon-sm" disabled className="opacity-40">
+          <Button variant="ghost" size="icon-sm" disabled className="opacity-40" data-tutorial="notifications">
             <Bell className="size-4" />
             <span className="sr-only">Notifications</span>
           </Button>
 
-          <Link href="/settings">
+          <Link href="/settings" data-tutorial="settings">
             <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground">
               <Settings className="size-4" />
               <span className="sr-only">Settings</span>
@@ -154,7 +156,7 @@ export function TopNavbar({ user }: TopNavbarProps) {
           </Link>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring ml-1">
+            <DropdownMenuTrigger data-tutorial="profile" className="cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring ml-1">
               <Avatar size="sm">
                 <AvatarFallback className="bg-foreground text-background">
                   <User className="size-3.5" />
@@ -190,7 +192,7 @@ export function TopNavbar({ user }: TopNavbarProps) {
         {/* Mobile hamburger menu */}
         <div className="ml-auto md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground">
+            <SheetTrigger data-tutorial="menu" className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground">
               <Menu className="size-5" />
               <span className="sr-only">Open menu</span>
             </SheetTrigger>

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { TopNavbar } from "@/components/top-navbar"
 import { RealtimeProvider } from "@/components/realtime-provider"
 import { DashboardEntry } from "@/components/dashboard-entry"
+import { TutorialOverlay } from "@/components/tutorial-overlay"
 
 export default async function DashboardLayout({
   children,
@@ -33,6 +34,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-background">
       <TopNavbar user={userData} />
+      <TutorialOverlay />
       <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
         <RealtimeProvider userId={user.id}>
           <DashboardEntry>{children}</DashboardEntry>
