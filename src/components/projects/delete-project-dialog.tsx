@@ -17,11 +17,13 @@ import { deleteProject } from "@/lib/actions/projects"
 
 export function DeleteProjectDialog({
   projectId,
+  projectIds,
   projectName,
   open,
   onOpenChange,
 }: {
-  projectId: string
+  projectId?: string
+  projectIds?: string[]
   projectName: string
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -29,19 +31,27 @@ export function DeleteProjectDialog({
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
 
+  const ids = projectIds ?? (projectId ? [projectId] : [])
+  const isBulk = ids.length > 1
+
   const handleDelete = async () => {
     setIsDeleting(true)
     try {
-      const result = await deleteProject(projectId)
-      if ("error" in result) {
-        toast.error(result.error)
-        return
+      let failed = 0
+      for (const id of ids) {
+        const result = await deleteProject(id)
+        if ("error" in result) failed++
       }
-      toast.success("Project deleted")
+
+      if (failed > 0) {
+        toast.error(`Failed to delete ${failed} project${failed !== 1 ? "s" : ""}`)
+      } else {
+        toast.success(isBulk ? `${ids.length} projects deleted` : "Project deleted")
+      }
       onOpenChange(false)
       router.refresh()
     } catch {
-      toast.error("Failed to delete project")
+      toast.error("Failed to delete project" + (isBulk ? "s" : ""))
     } finally {
       setIsDeleting(false)
     }
@@ -51,9 +61,9 @@ export function DeleteProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Project</DialogTitle>
+          <DialogTitle>Delete {isBulk ? "Projects" : "Project"}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete &quot;{projectName}&quot;? This will
+            Are you sure you want to delete {isBulk ? `${ids.length} projects` : <>&quot;{projectName}&quot;</>}? This will
             also delete all jobs and uploaded files. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
@@ -71,7 +81,7 @@ export function DeleteProjectDialog({
             disabled={isDeleting}
           >
             {isDeleting && <Loader2 className="mr-1 size-4 animate-spin" />}
-            Delete
+            Delete{isBulk ? ` ${ids.length} projects` : ""}
           </Button>
         </DialogFooter>
       </DialogContent>
