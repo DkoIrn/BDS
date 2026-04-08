@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Loader2, Check, Pencil, Play } from "lucide-react"
+import { Loader2, Check, Pencil, Play, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -399,6 +399,44 @@ export function FileDetailView({
     handleRunValidation()
   }
 
+  async function handleRerunWithSnapshot() {
+    if (!validationRun?.config_snapshot) return
+
+    setValidating(true)
+    setValidationError(null)
+    setDatasetStatus("validating")
+
+    try {
+      const response = await fetch("/api/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          datasetId: dataset.id,
+          config: validationRun.config_snapshot,
+        }),
+      })
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}))
+        const message =
+          (errData as { error?: string }).error ?? "Validation failed"
+        setValidationError(message)
+        setDatasetStatus("validation_error")
+        setValidating(false)
+        toast.error(message)
+        return
+      }
+
+      toast.success("Validation re-run started")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Validation failed"
+      setValidationError(message)
+      setDatasetStatus("validation_error")
+      setValidating(false)
+      toast.error(message)
+    }
+  }
+
   // Load existing validation run if dataset is already validated
   useEffect(() => {
     if (
@@ -603,7 +641,19 @@ export function FileDetailView({
           {datasetStatus === "validated" || validationRun ? (
             <>
               <ResultsDashboard datasetId={dataset.id} />
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                {validationRun?.config_snapshot && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRerunWithSnapshot}
+                    disabled={validating}
+                    className="gap-1.5"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    Re-run with this config
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={handleRerun}>
                   <Play className="mr-1.5 size-3.5" />
                   Re-run QC
