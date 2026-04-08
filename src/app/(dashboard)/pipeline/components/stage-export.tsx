@@ -481,16 +481,17 @@ function SaveToProject({
           )
           .join("\n")
         const blob = new Blob([csvContent], { type: "text/csv" })
-        file = new File([blob], state.fileName || "pipeline-export.csv")
+        file = new File([blob], state.fileName || "pipeline-export.csv", { type: "text/csv" })
       }
 
       if (!file) throw new Error("No file available to save")
 
       // 4. Upload to Supabase Storage
       const storagePath = `${userId}/${jobId}/${Date.now()}-${file.name}`
+      const contentType = file.type || "text/csv"
       const { error: uploadError } = await supabase.storage
         .from("datasets")
-        .upload(storagePath, file)
+        .upload(storagePath, file, { contentType })
 
       if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
 
@@ -506,16 +507,29 @@ function SaveToProject({
 
       if ("error" in fileResult) throw new Error(fileResult.error)
 
-      // 6. Trigger parse (fire-and-forget)
-      fetch("/api/parse", {
+      // 6. Trigger parse and wait — must complete before setting mappings
+      await fetch("/api/parse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ datasetId: fileResult.id }),
       }).catch(() => {})
 
+      // 6b. Confirm column mappings so the dataset skips the mapping step
+      // Parse auto-detects mappings; this promotes status from 'parsed' → 'mapped'
+      const { saveColumnMappings } = await import("@/lib/actions/files")
+      const { data: freshDataset } = await supabase
+        .from("datasets")
+        .select("column_mappings")
+        .eq("id", fileResult.id)
+        .single()
+      if (freshDataset?.column_mappings) {
+        await saveColumnMappings(fileResult.id, freshDataset.column_mappings as import("@/lib/parsing/types").ColumnMapping[])
+      }
+
       // 7. Save pipeline validation results if we ran validation
+      // Runs after mapping so final status ends up as 'validated'
       if (validationIssues.length > 0 || state.stages.validate.completed) {
-        fetch("/api/pipeline-validation", {
+        await fetch("/api/pipeline-validation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -534,18 +548,38 @@ function SaveToProject({
         }).catch(() => {})
       }
 
-      // 8. Backfill audit logs with the new dataset ID
-      fetch("/api/audit/backfill", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          datasetId: fileResult.id,
-          fileName: state.fileName,
-        }),
-      }).catch(() => {})
+      // 8. Log pipeline audit events with the now-known dataset ID
+      const auditEntries: Array<{ action: string; entityType: string; entityId: string; metadata: Record<string, unknown> }> = []
 
-      // 9. Log the save-to-project action (with entity ID now known)
-      logAuditClient({
+      // Log validation if it ran
+      if (state.stages.validate.completed) {
+        auditEntries.push({
+          action: "validation.complete",
+          entityType: "dataset",
+          entityId: fileResult.id,
+          metadata: {
+            source: "pipeline_client",
+            fileName: state.fileName,
+            totalIssues: validationIssues.length,
+          },
+        })
+      }
+
+      // Log auto-clean if it ran (with full summary including before/after diffs)
+      if (state.stages.clean.completed) {
+        auditEntries.push({
+          action: "clean.auto",
+          entityType: "dataset",
+          entityId: fileResult.id,
+          metadata: {
+            ...(state.cleanSummary ?? {}),
+            fileName: state.fileName,
+          },
+        })
+      }
+
+      // Log save-to-project
+      auditEntries.push({
         action: "dataset.save_to_project",
         entityType: "dataset",
         entityId: fileResult.id,
@@ -559,6 +593,13 @@ function SaveToProject({
           hadCleaning: state.stages.clean.completed,
         },
       })
+
+      // Send all audit entries in one batch call
+      await fetch("/api/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(auditEntries),
+      }).catch(() => {})
 
       setSavedProjectId(projectId)
       setStep("saved")

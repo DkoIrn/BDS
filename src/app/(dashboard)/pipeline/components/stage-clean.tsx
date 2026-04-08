@@ -87,26 +87,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
     setCleanResult(result)
     setCleaning(false)
 
-    if (result.summary.totalActions > 0) {
-      logAuditClient({
-        action: "clean.auto",
-        entityType: "dataset",
-        entityId: state.datasetId ?? undefined,
-        metadata: {
-          ...result.summary,
-          changes: result.actions.slice(0, 100).map(a => ({
-            type: a.type,
-            row: a.row,
-            column: a.column,
-            before: a.before,
-            after: a.after,
-            explanation: a.explanation,
-          })),
-          totalChanges: result.actions.length,
-          changesTruncated: result.actions.length > 100,
-        },
-      })
-    }
+    // Audit logging deferred to save-to-project (where dataset ID is known)
   }
 
   // --- AI assist ---
@@ -239,6 +220,20 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
       cleanedData: finalData,
       actionCount: (cleanResult?.summary.totalActions ?? 0) +
         aiSuggestions.filter((s) => s.accepted === true).length,
+      summary: {
+        ...cleanResult?.summary,
+        changes: cleanResult?.actions.slice(0, 100).map(a => ({
+          type: a.type,
+          row: a.row,
+          column: a.column,
+          before: a.before,
+          after: a.after,
+          explanation: a.explanation,
+        })) ?? [],
+        totalChanges: cleanResult?.actions.length ?? 0,
+        changesTruncated: (cleanResult?.actions.length ?? 0) > 100,
+        ...(cleanResult?.actions.length === 0 ? { noIssuesFound: true } : {}),
+      },
     })
   }
 

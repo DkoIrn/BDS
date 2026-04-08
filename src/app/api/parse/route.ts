@@ -78,16 +78,18 @@ export async function POST(request: Request) {
         throw new Error(`Parse service error: ${errorBody}`)
       }
 
-      logAudit({
-        action: 'dataset.parse',
-        entityType: 'dataset',
-        entityId: datasetId,
-        metadata: {
-          fileName,
-          format: fileExt,
-          source: 'fastapi',
-        },
-      })
+      if (currentStatus === 'uploaded') {
+        logAudit({
+          action: 'dataset.parse',
+          entityType: 'dataset',
+          entityId: datasetId,
+          metadata: {
+            fileName,
+            format: fileExt,
+            source: 'fastapi',
+          },
+        })
+      }
 
       return NextResponse.json(await response.json())
     } catch (err) {
@@ -227,18 +229,21 @@ export async function POST(request: Request) {
         .eq('id', datasetId)
     }
 
-    logAudit({
-      action: 'dataset.parse',
-      entityType: 'dataset',
-      entityId: datasetId,
-      metadata: {
-        fileName,
-        totalRows,
-        columnCount: detectedColumns.length,
-        headerRow: headerRowIndex,
-        warningCount: parseWarnings.length,
-      },
-    })
+    // Only log audit on first parse (status 'uploaded' → 'parsed'), not re-parses
+    if (currentStatus === 'uploaded') {
+      logAudit({
+        action: 'dataset.parse',
+        entityType: 'dataset',
+        entityId: datasetId,
+        metadata: {
+          fileName,
+          totalRows,
+          columnCount: detectedColumns.length,
+          headerRow: headerRowIndex,
+          warningCount: parseWarnings.length,
+        },
+      })
+    }
 
     return NextResponse.json({
       columns: detectedColumns,

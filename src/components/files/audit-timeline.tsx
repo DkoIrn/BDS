@@ -285,6 +285,11 @@ function ActionSummary({ action, metadata }: { action: string; metadata: Record<
         </p>
       )
     case "clean.auto":
+      if (m.noIssuesFound) {
+        return (
+          <p className="text-xs text-muted-foreground">No issues found — data is clean</p>
+        )
+      }
       return (
         <p className="text-xs text-muted-foreground">
           {m.totalActions as number} fix{(m.totalActions as number) !== 1 ? "es" : ""}

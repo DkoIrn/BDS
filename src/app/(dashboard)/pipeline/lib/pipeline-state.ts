@@ -36,6 +36,8 @@ export interface PipelineState {
   cleanedData: string[][] | null
   /** Number of auto-clean actions applied */
   cleanActionCount: number | null
+  /** Auto-clean summary for audit trail */
+  cleanSummary: Record<string, unknown> | null
   exportFormat: string | null
 }
 
@@ -52,7 +54,7 @@ export type PipelineAction =
   | { type: "VALIDATE_START" }
   | { type: "VALIDATE_COMPLETE"; runId: string; issueCount: number }
   | { type: "SKIP_CLEAN" }
-  | { type: "CLEAN_COMPLETE"; cleanedData: string[][]; actionCount: number }
+  | { type: "CLEAN_COMPLETE"; cleanedData: string[][]; actionCount: number; summary: Record<string, unknown> }
   | { type: "AI_FIX_APPLIED"; updatedData: string[][] }
   | { type: "SET_EXPORT_FORMAT"; format: string }
   | { type: "GO_TO_STAGE"; stage: PipelineStage }
@@ -83,6 +85,7 @@ export const initialState: PipelineState = {
   issueCount: null,
   cleanedData: null,
   cleanActionCount: null,
+  cleanSummary: null,
   exportFormat: null,
 }
 
@@ -241,6 +244,7 @@ export function pipelineReducer(
         },
         cleanedData: action.cleanedData,
         cleanActionCount: action.actionCount,
+        cleanSummary: action.summary,
         // Update parsedData so export uses cleaned version
         parsedData: action.cleanedData,
         rowCount: action.cleanedData.length - 1,

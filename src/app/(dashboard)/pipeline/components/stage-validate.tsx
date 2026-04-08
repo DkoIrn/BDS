@@ -18,7 +18,7 @@ import {
   type ValidationIssue,
   type ValidationResult,
 } from "../lib/client-validate"
-import { logAuditClient } from "@/lib/audit-client"
+
 
 const SEVERITY_CONFIG = {
   critical: {
@@ -93,19 +93,7 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
 
         setResult(validationResult)
         onIssuesFound?.(validationResult.issues)
-        logAuditClient({
-          action: "validation.complete",
-          entityType: "dataset",
-          entityId: state.datasetId ?? undefined,
-          metadata: {
-            source: "pipeline_client",
-            fileName: state.fileName,
-            totalIssues: validationResult.summary.total,
-            critical: validationResult.summary.critical,
-            warning: validationResult.summary.warning,
-            info: validationResult.summary.info,
-          },
-        })
+        // Audit logging deferred to save-to-project (where dataset ID is known)
         dispatch({
           type: "VALIDATE_COMPLETE",
           runId: "client",
