@@ -304,7 +304,7 @@ Plans:
   4. System stores before/after snapshots for auto-clean and AI fix transformations
   5. User can re-run a previous validation using the same configuration (profile + thresholds)
   6. Audit timeline displays rich context per event (issue counts, fix details, config used, export format)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 17-01-PLAN.md -- Wave 0 test stubs, missing audit log calls (parse, map, profile), enhanced auto-clean snapshots with row-level diffs

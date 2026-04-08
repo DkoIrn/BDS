@@ -101,11 +101,11 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Audit Trail & Data Lineage
 
 - [x] **AUDT-01**: System tracks every action on a dataset (upload, parse, map, validate, clean, export) with timestamps and user attribution
-- [ ] **AUDT-02**: User can view a visual timeline showing the full journey of their dataset through every processing stage
-- [ ] **AUDT-03**: User can click any validation issue and see the original value, detected problem, suggested fix, and final value after cleaning
+- [x] **AUDT-02**: User can view a visual timeline showing the full journey of their dataset through every processing stage
+- [x] **AUDT-03**: User can click any validation issue and see the original value, detected problem, suggested fix, and final value after cleaning
 - [x] **AUDT-04**: System stores before/after snapshots for every data transformation (auto-clean, AI fix, manual override)
-- [ ] **AUDT-05**: User can re-run a previous validation with the same configuration for reproducibility
-- [ ] **AUDT-06**: Audit timeline displays rich metadata per event (issue counts, fix details, export format, config used)
+- [x] **AUDT-05**: User can re-run a previous validation with the same configuration for reproducibility
+- [x] **AUDT-06**: Audit timeline displays rich metadata per event (issue counts, fix details, export format, config used)
 
 ## v2 Requirements
 
