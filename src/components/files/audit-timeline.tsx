@@ -368,7 +368,7 @@ function MetadataDisplay({ metadata, action }: { metadata: Record<string, unknow
       <div className="space-y-2">
         <p className="text-[11px] font-medium text-muted-foreground">
           {metadata.totalChanges as number} change{(metadata.totalChanges as number) !== 1 ? "s" : ""}
-          {metadata.changesTruncated && ` (showing first ${(metadata.changes as unknown[]).length})`}
+          {metadata.changesTruncated ? ` (showing first ${(metadata.changes as unknown[]).length})` : null}
         </p>
         <div className="space-y-1 max-h-48 overflow-y-auto">
           {(metadata.changes as Array<{ type: string; row: number; column: string; before: string; after: string; explanation: string }>).map((change, i) => (
