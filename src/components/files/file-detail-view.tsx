@@ -14,6 +14,7 @@ import { ResultsDashboard } from "@/components/files/results-dashboard"
 import { AuditTimeline } from "@/components/files/audit-timeline"
 import { ProfileSelector } from "@/components/files/profile-selector"
 import { createClient } from "@/lib/supabase/client"
+import { logAuditClient } from "@/lib/audit-client"
 import { saveColumnMappings } from "@/lib/actions/files"
 import { getValidationRuns } from "@/lib/actions/validation"
 import {
@@ -198,8 +199,19 @@ export function FileDetailView({
       setSelectedProfileId(id)
       setCurrentConfig(config)
       setConfigErrors(validateConfig(config))
+
+      logAuditClient({
+        action: 'profile.select',
+        entityType: 'dataset',
+        entityId: dataset.id,
+        metadata: {
+          profileId: id,
+          profileName: getTemplateById(id)?.name ?? 'Custom',
+          isTemplate: !!getTemplateById(id),
+        },
+      })
     },
-    [validateConfig]
+    [validateConfig, dataset.id]
   )
 
   /** Reset to original template/profile config */
@@ -323,6 +335,15 @@ export function FileDetailView({
         toast.error(result.error)
         return
       }
+      logAuditClient({
+        action: 'dataset.map',
+        entityType: 'dataset',
+        entityId: dataset.id,
+        metadata: {
+          mappingCount: mappings.filter(m => !m.ignored && m.mappedType).length,
+          mappedTypes: [...new Set(mappings.filter(m => !m.ignored && m.mappedType).map(m => m.mappedType))],
+        },
+      })
       toast.success("Column mappings confirmed")
       setConfirmed(true)
       setDatasetStatus("mapped")

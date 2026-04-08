@@ -15,6 +15,9 @@ export type AuditAction =
   | 'project.create'
   | 'profile.update'
   | 'report.generate'
+  | 'dataset.parse'
+  | 'dataset.map'
+  | 'profile.select'
 
 export type AuditEntityType =
   | 'dataset'

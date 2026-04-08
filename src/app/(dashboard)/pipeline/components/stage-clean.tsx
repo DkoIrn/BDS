@@ -93,13 +93,17 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
         entityType: "dataset",
         entityId: state.datasetId ?? undefined,
         metadata: {
-          fileName: state.fileName,
-          duplicatesRemoved: result.summary.duplicatesRemoved,
-          rowsReordered: result.summary.rowsReordered,
-          valuesInterpolated: result.summary.valuesInterpolated,
-          spikesRemoved: result.summary.spikesRemoved,
-          totalActions: result.summary.totalActions,
-          unresolvedCount: result.unresolved.length,
+          ...result.summary,
+          changes: result.actions.slice(0, 100).map(a => ({
+            type: a.type,
+            row: a.row,
+            column: a.column,
+            before: a.before,
+            after: a.after,
+            explanation: a.explanation,
+          })),
+          totalChanges: result.actions.length,
+          changesTruncated: result.actions.length > 100,
         },
       })
     }

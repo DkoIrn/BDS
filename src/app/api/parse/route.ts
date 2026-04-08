@@ -7,6 +7,7 @@ import { detectColumns, getMissingExpectedColumns } from '@/lib/parsing/column-d
 import type { SurveyType } from '@/lib/types/projects'
 import type { ParsedMetadata } from '@/lib/types/files'
 import type { ColumnMapping } from '@/lib/parsing/types'
+import { logAudit } from '@/lib/actions/audit'
 
 export const maxDuration = 60
 
@@ -76,6 +77,17 @@ export async function POST(request: Request) {
         const errorBody = await response.text()
         throw new Error(`Parse service error: ${errorBody}`)
       }
+
+      logAudit({
+        action: 'dataset.parse',
+        entityType: 'dataset',
+        entityId: datasetId,
+        metadata: {
+          fileName,
+          format: fileExt,
+          source: 'fastapi',
+        },
+      })
 
       return NextResponse.json(await response.json())
     } catch (err) {
@@ -214,6 +226,19 @@ export async function POST(request: Request) {
         })
         .eq('id', datasetId)
     }
+
+    logAudit({
+      action: 'dataset.parse',
+      entityType: 'dataset',
+      entityId: datasetId,
+      metadata: {
+        fileName,
+        totalRows,
+        columnCount: detectedColumns.length,
+        headerRow: headerRowIndex,
+        warningCount: parseWarnings.length,
+      },
+    })
 
     return NextResponse.json({
       columns: detectedColumns,
