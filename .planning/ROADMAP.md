@@ -292,3 +292,19 @@ Plans:
 - [ ] 16-00-PLAN.md -- Wave 0: Test stubs for pipeline state, store, stepper, and stage dispatches
 - [ ] 16-01-PLAN.md -- State machine, sessionStorage persistence, stepper component, pipeline page shell, and navigation update
 - [ ] 16-02-PLAN.md -- All 5 stage panels (Import, Inspect, Validate, Clean, Export), workflow wiring, and human verification
+
+### Phase 17: Audit Trail & Data Lineage
+**Goal:** Users can trace the full journey of any dataset through every processing stage, view row-level before/after changes, and reproduce any previous validation — building trust through complete transparency
+**Requirements**: AUDT-01, AUDT-02, AUDT-03, AUDT-04, AUDT-05, AUDT-06
+**Depends on:** Phase 8, Phase 9
+**Success Criteria** (what must be TRUE):
+  1. Every dataset action (upload, parse, map, validate, clean, export) is logged with timestamps, user, and metadata
+  2. User can view a visual dataset timeline showing the complete processing journey with expandable event details
+  3. User can click any validation issue and see original value, detected problem, and final value after cleaning
+  4. System stores before/after snapshots for auto-clean and AI fix transformations
+  5. User can re-run a previous validation using the same configuration (profile + thresholds)
+  6. Audit timeline displays rich context per event (issue counts, fix details, config used, export format)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 17 to break down)
