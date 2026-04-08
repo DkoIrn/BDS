@@ -77,17 +77,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
               <Image
                 src="/logo.png"
                 alt="TruQC"
-                width={32}
-                height={32}
+                width={140}
+                height={40}
+                className="h-10 w-auto"
               />
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold text-primary">
-                  TruQC
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  Survey Data QC
-                </span>
-              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

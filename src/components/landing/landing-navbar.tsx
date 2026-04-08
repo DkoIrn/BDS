@@ -48,10 +48,7 @@ export function LandingNavbar() {
             window.scrollTo({ top: 0, behavior: "smooth" })
           }}
         >
-          <img src="/logo.png" alt="TruQC" className="size-8" />
-          <span className="text-lg font-semibold text-foreground">
-            TruQC
-          </span>
+          <img src="/logo.png" alt="TruQC" className="h-8 w-auto" />
         </a>
 
         {/* Center nav links - hidden on mobile */}

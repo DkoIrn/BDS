@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-type Phase = "bg-in" | "swoosh" | "text" | "tagline" | "hold" | "exit"
+type Phase = "bg-in" | "piece1" | "piece2" | "piece3" | "text" | "tagline" | "hold" | "exit"
 
 export default function SplashPage() {
   const router = useRouter()
@@ -14,19 +14,21 @@ export default function SplashPage() {
     sessionStorage.setItem("df-splash", "1")
 
     const timers = [
-      setTimeout(() => setPhase("swoosh"), 200),
-      setTimeout(() => setPhase("text"), 1200),
-      setTimeout(() => setPhase("tagline"), 2000),
-      setTimeout(() => setPhase("hold"), 2500),
-      setTimeout(() => setPhase("exit"), 3200),
-      setTimeout(() => router.replace("/dashboard"), 3700),
+      setTimeout(() => setPhase("piece1"), 200),
+      setTimeout(() => setPhase("piece2"), 700),
+      setTimeout(() => setPhase("piece3"), 1200),
+      setTimeout(() => setPhase("text"), 1900),
+      setTimeout(() => setPhase("tagline"), 2600),
+      setTimeout(() => setPhase("hold"), 3100),
+      setTimeout(() => setPhase("exit"), 3800),
+      setTimeout(() => router.replace("/dashboard"), 4300),
     ]
 
     return () => timers.forEach(clearTimeout)
   }, [router])
 
   const past = (target: Phase) => {
-    const order: Phase[] = ["bg-in", "swoosh", "text", "tagline", "hold", "exit"]
+    const order: Phase[] = ["bg-in", "piece1", "piece2", "piece3", "text", "tagline", "hold", "exit"]
     return order.indexOf(phase) >= order.indexOf(target)
   }
 
@@ -36,48 +38,61 @@ export default function SplashPage() {
         phase === "bg-in" ? "bg-white/0" : "bg-white"
       } ${phase === "exit" ? "opacity-0 scale-[1.02]" : "opacity-100 scale-100"}`}
     >
-
       <div className="relative flex flex-col items-center">
-        {/* Logo container — swoosh and text layered */}
-        <div className="relative h-32 w-80 sm:h-40 sm:w-96">
-          {/* Swoosh — flows in from left with rotation */}
-          <div
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              past("swoosh")
-                ? "opacity-100 translate-x-0 rotate-0 scale-100"
-                : "opacity-0 -translate-x-16 -rotate-12 scale-75"
+        {/* All pieces + text share the same 612x408 canvas, so overlay them */}
+        <div className="relative w-[420px] h-[280px] sm:w-[600px] sm:h-[400px]">
+          {/* Piece 1 — top chevron */}
+          <img
+            src="/logo-piece-1.png"
+            alt=""
+            draggable={false}
+            className={`absolute inset-0 w-full h-full object-contain transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              past("piece1")
+                ? "opacity-100 translate-x-0 translate-y-0 scale-100"
+                : "opacity-0 -translate-x-6 -translate-y-10 scale-90"
             } ${phase === "exit" ? "scale-[0.97]" : ""}`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-swoosh.png"
-              alt=""
-              className="h-full w-auto"
-              draggable={false}
-            />
-          </div>
+          />
 
-          {/* Text — fades in and settles after swoosh */}
-          <div
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              past("text")
-                ? "opacity-100 translate-y-0 blur-0 scale-100"
-                : "opacity-0 translate-y-2 blur-sm scale-95"
+          {/* Piece 2 — bottom-left */}
+          <img
+            src="/logo-piece-2.png"
+            alt=""
+            draggable={false}
+            className={`absolute inset-0 w-full h-full object-contain transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              past("piece2")
+                ? "opacity-100 translate-x-0 translate-y-0 scale-100"
+                : "opacity-0 -translate-x-4 translate-y-10 scale-90"
             } ${phase === "exit" ? "scale-[0.97]" : ""}`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo-text.png"
-              alt="TruQC"
-              className="h-24 w-auto sm:h-28"
-              draggable={false}
-            />
-          </div>
+          />
+
+          {/* Piece 3 — main body */}
+          <img
+            src="/logo-piece-3.png"
+            alt=""
+            draggable={false}
+            className={`absolute inset-0 w-full h-full object-contain transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              past("piece3")
+                ? "opacity-100 translate-x-0 translate-y-0 scale-100"
+                : "opacity-0 translate-x-10 scale-90"
+            } ${phase === "exit" ? "scale-[0.97]" : ""}`}
+          />
+
+          {/* Logo text — same canvas, already positioned correctly */}
+          <img
+            src="/logo-letters.png"
+            alt="TruQC"
+            draggable={false}
+            className={`absolute inset-0 w-full h-full object-contain transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              past("text")
+                ? "opacity-100 translate-x-0 blur-0 scale-100"
+                : "opacity-0 translate-x-6 blur-sm scale-95"
+            } ${phase === "exit" ? "scale-[0.97]" : ""}`}
+          />
         </div>
 
-        {/* Tagline — flows in from left */}
+        {/* Tagline */}
         <p
-          className={`mt-4 text-sm tracking-[0.2em] text-slate-500 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${
+          className={`mt-2 text-sm tracking-[0.2em] text-slate-500 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${
             past("tagline")
               ? "opacity-100 translate-x-0 blur-0"
               : "opacity-0 -translate-x-6 blur-[2px]"
@@ -88,7 +103,7 @@ export default function SplashPage() {
 
         {/* Accent line */}
         <div
-          className={`mt-4 h-0.5 rounded-full bg-gradient-to-r from-transparent via-purple-500/40 to-transparent transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] origin-left ${
+          className={`mt-4 h-0.5 rounded-full bg-gradient-to-r from-transparent via-teal-500/40 to-transparent transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] origin-left ${
             past("tagline") ? "w-32 opacity-100 scale-x-100" : "w-32 opacity-0 scale-x-0"
           }`}
         />
