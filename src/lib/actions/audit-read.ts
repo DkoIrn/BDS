@@ -40,6 +40,68 @@ export async function getAuditLogs(
 }
 
 /**
+ * Find the "after cleaning" value for a specific issue by cross-referencing
+ * clean.auto and clean.ai_fix audit log entries.
+ */
+export async function getCleaningAuditForIssue(
+  datasetId: string,
+  rowNumber: number,
+  columnName: string
+): Promise<{ afterValue: string; changeType: string; source: string } | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return null
+
+  // Query audit logs for clean.auto and clean.ai_fix entries for this dataset
+  const { data: logs } = await supabase
+    .from('audit_logs')
+    .select('action, metadata')
+    .eq('entity_type', 'dataset')
+    .eq('entity_id', datasetId)
+    .eq('user_id', user.id)
+    .in('action', ['clean.auto', 'clean.ai_fix'])
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  if (!logs || logs.length === 0) return null
+
+  // Search for a matching change in the audit logs
+  for (const log of logs) {
+    const meta = log.metadata as Record<string, unknown>
+    if (log.action === 'clean.ai_fix') {
+      if (meta.row === rowNumber && meta.column === columnName) {
+        return {
+          afterValue: String(meta.after ?? ''),
+          changeType: String(meta.type ?? 'ai_fix'),
+          source: 'AI Fix',
+        }
+      }
+    }
+    if (log.action === 'clean.auto' && Array.isArray(meta.changes)) {
+      const match = (
+        meta.changes as Array<{
+          row: number
+          column: string
+          after: string
+          type: string
+        }>
+      ).find((c) => c.row === rowNumber && c.column === columnName)
+      if (match) {
+        return {
+          afterValue: match.after,
+          changeType: match.type,
+          source: 'Auto-Fix',
+        }
+      }
+    }
+  }
+  return null
+}
+
+/**
  * Fetch all audit logs for a project (across all datasets/entities).
  */
 export async function getProjectAuditLogs(

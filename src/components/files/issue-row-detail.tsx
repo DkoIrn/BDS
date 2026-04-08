@@ -10,8 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ArrowRight } from "lucide-react"
 import { getSeverityColor } from "@/lib/utils/severity"
 import { getIssueContext } from "@/lib/actions/validation"
+import { getCleaningAuditForIssue } from "@/lib/actions/audit-read"
 import type { ValidationIssue } from "@/lib/types/validation"
 
 interface IssueRowDetailProps {
@@ -28,6 +30,11 @@ export function IssueRowDetail({ issue, datasetId }: IssueRowDetailProps) {
   const [context, setContext] = useState<IssueContext | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [cleaningResult, setCleaningResult] = useState<{
+    afterValue: string
+    changeType: string
+    source: string
+  } | null>(null)
 
   const colors = getSeverityColor(issue.severity)
 
@@ -54,6 +61,11 @@ export function IssueRowDetail({ issue, datasetId }: IssueRowDetailProps) {
     return () => { cancelled = true }
   }, [datasetId, issue.row_number])
 
+  useEffect(() => {
+    getCleaningAuditForIssue(datasetId, issue.row_number, issue.column_name)
+      .then((result) => setCleaningResult(result))
+  }, [datasetId, issue.row_number, issue.column_name])
+
   return (
     <div className="space-y-3 px-4 py-4">
       {/* Expected vs Actual */}
@@ -71,6 +83,26 @@ export function IssueRowDetail({ issue, datasetId }: IssueRowDetailProps) {
               <p className={`mt-1 text-sm font-mono font-medium ${colors.text}`}>{issue.actual}</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* After Cleaning cross-reference */}
+      {cleaningResult && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-3 dark:border-green-900 dark:bg-green-950/30">
+          <div className="flex items-center gap-1.5">
+            <p className="text-[10px] font-medium text-green-700 uppercase tracking-wider dark:text-green-400">
+              After Cleaning ({cleaningResult.source})
+            </p>
+          </div>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-sm font-mono text-red-600 line-through dark:text-red-400">
+              {issue.actual || "(empty)"}
+            </span>
+            <ArrowRight className="size-3 text-muted-foreground" />
+            <span className="text-sm font-mono font-medium text-green-700 dark:text-green-400">
+              {cleaningResult.afterValue || "(removed)"}
+            </span>
+          </div>
         </div>
       )}
 
