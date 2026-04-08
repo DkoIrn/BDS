@@ -13,6 +13,9 @@ import {
   Clock,
   ArrowRight,
   ChevronDown,
+  ScanLine,
+  TableProperties,
+  SlidersHorizontal,
 } from "lucide-react"
 import { getAuditLogs, type AuditLogEntry } from "@/lib/actions/audit-read"
 
@@ -79,6 +82,24 @@ const ACTION_CONFIG: Record<
     color: "border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950/30",
     iconColor: "text-orange-600 dark:text-orange-400",
   },
+  "dataset.parse": {
+    icon: ScanLine,
+    label: "Dataset Parsed",
+    color: "border-teal-200 bg-teal-50 dark:border-teal-900 dark:bg-teal-950/30",
+    iconColor: "text-teal-600 dark:text-teal-400",
+  },
+  "dataset.map": {
+    icon: TableProperties,
+    label: "Columns Mapped",
+    color: "border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/30",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
+  },
+  "profile.select": {
+    icon: SlidersHorizontal,
+    label: "Profile Selected",
+    color: "border-purple-200 bg-purple-50 dark:border-purple-900 dark:bg-purple-950/30",
+    iconColor: "text-purple-600 dark:text-purple-400",
+  },
 }
 
 const DEFAULT_CONFIG = {
@@ -86,6 +107,23 @@ const DEFAULT_CONFIG = {
   label: "Action",
   color: "border-muted bg-muted/30",
   iconColor: "text-muted-foreground",
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr)
+  const today = new Date()
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  if (date.toDateString() === today.toDateString()) return "Today"
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday"
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
 }
 
 function formatTime(dateStr: string): string {
@@ -163,8 +201,20 @@ export function AuditTimeline({ datasetId }: { datasetId: string }) {
         const isExpanded = expanded.has(log.id)
         const hasMetadata = log.metadata && Object.keys(log.metadata).length > 0
 
+        const currentDate = formatDate(log.created_at)
+        const prevDate = idx > 0 ? formatDate(logs[idx - 1].created_at) : null
+        const showDateHeader = currentDate !== prevDate
+
         return (
-          <div key={log.id} className="flex gap-3">
+          <div key={log.id}>
+            {showDateHeader && (
+              <div className="pb-2 pt-3 first:pt-0">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  {currentDate}
+                </p>
+              </div>
+            )}
+            <div className="flex gap-3">
             {/* Timeline line + dot */}
             <div className="flex flex-col items-center">
               <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg border ${config.color}`}>
@@ -206,6 +256,7 @@ export function AuditTimeline({ datasetId }: { datasetId: string }) {
                 </div>
               )}
             </div>
+          </div>
           </div>
         )
       })}
@@ -277,12 +328,62 @@ function ActionSummary({ action, metadata }: { action: string; metadata: Record<
           {m.surveyType && ` · ${String(m.surveyType)}`}
         </p>
       )
+    case "dataset.parse":
+      return (
+        <p className="text-xs text-muted-foreground">
+          {m.totalRows?.toLocaleString() ?? "?"} rows, {m.columnCount ?? "?"} columns detected
+          {m.warningCount > 0 && ` (${m.warningCount} warning${m.warningCount !== 1 ? "s" : ""})`}
+        </p>
+      )
+    case "dataset.map":
+      return (
+        <p className="text-xs text-muted-foreground">
+          {m.mappingCount ?? "?"} columns mapped
+          {Array.isArray(m.mappedTypes) && m.mappedTypes.length > 0 && ` — ${m.mappedTypes.join(", ")}`}
+        </p>
+      )
+    case "profile.select":
+      return (
+        <p className="text-xs text-muted-foreground">
+          {m.profileName ?? "Unknown profile"}
+          {m.isTemplate && " (template)"}
+        </p>
+      )
+    case "dataset.upload":
+      return (
+        <p className="text-xs text-muted-foreground">
+          {m.fileName ?? ""}
+          {m.fileSize && ` (${formatFileSize(m.fileSize as number)})`}
+        </p>
+      )
     default:
       return null
   }
 }
 
 function MetadataDisplay({ metadata, action }: { metadata: Record<string, unknown>; action: string }) {
+  // For auto-clean with changes array, show before/after diff list
+  if (action === "clean.auto" && Array.isArray(metadata.changes)) {
+    return (
+      <div className="space-y-2">
+        <p className="text-[11px] font-medium text-muted-foreground">
+          {metadata.totalChanges as number} change{(metadata.totalChanges as number) !== 1 ? "s" : ""}
+          {metadata.changesTruncated && ` (showing first ${(metadata.changes as unknown[]).length})`}
+        </p>
+        <div className="space-y-1 max-h-48 overflow-y-auto">
+          {(metadata.changes as Array<{ type: string; row: number; column: string; before: string; after: string; explanation: string }>).map((change, i) => (
+            <div key={i} className="flex items-center gap-2 text-[11px] font-mono">
+              <span className="text-muted-foreground/60 w-16 shrink-0">R{change.row}/{change.column}</span>
+              <span className="text-red-600 line-through dark:text-red-400">{change.before || "(empty)"}</span>
+              <ArrowRight className="size-3 shrink-0 text-muted-foreground" />
+              <span className="text-green-600 dark:text-green-400">{change.after || "(removed)"}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   // For AI fixes, show the explanation prominently
   if ((action === "clean.ai_fix" || action === "clean.ai_reject") && metadata.explanation) {
     return (
