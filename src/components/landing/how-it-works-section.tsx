@@ -6,24 +6,28 @@ const steps = [
     icon: Upload,
     title: "Upload",
     description: "Drop your CSV, Excel, or geospatial files. Up to 50MB, any survey type.",
+    color: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
   },
   {
     number: "2",
     icon: Scan,
     title: "Auto-Detect",
     description: "Columns identified automatically — KP, DOB, DOC, coordinates, depth, and more.",
+    color: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
   },
   {
     number: "3",
     icon: ShieldCheck,
     title: "QC & Fix",
-    description: "Validation runs in seconds. Issues flagged with explanations. Auto-fix resolves common errors.",
+    description: "Validation runs in seconds. Issues flagged with explanations. Auto-fix resolves common errors. Full audit trail of every change.",
+    color: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
   },
   {
     number: "4",
     icon: FileDown,
     title: "Report & Export",
     description: "Download annotated PDF reports and clean datasets. Ready for your client.",
+    color: "bg-teal-500/10 text-teal-600 dark:text-teal-400",
   },
 ]
 
@@ -44,18 +48,16 @@ export function HowItWorksSection() {
           {steps.map((step, index) => (
             <div key={step.number} className="relative flex flex-col items-center text-center">
               {index < steps.length - 1 && (
-                <div className="absolute left-[calc(50%+2rem)] top-8 hidden h-px w-[calc(100%-4rem)] bg-border lg:block" />
+                <div className="absolute left-[calc(50%+2.5rem)] top-7 hidden h-px w-[calc(100%-5rem)] bg-border lg:block" />
               )}
 
-              <div className="relative mb-4">
-                <span className="text-4xl font-bold text-primary/20">
-                  {step.number}
-                </span>
-                <div className="absolute -bottom-1 -right-3 flex size-8 items-center justify-center rounded-full bg-primary/10">
-                  <step.icon className="size-4 text-primary" />
-                </div>
+              <div className={`mb-5 flex size-14 items-center justify-center rounded-2xl ${step.color}`}>
+                <step.icon className="size-6" />
               </div>
 
+              <span className="mb-1 text-xs font-semibold uppercase tracking-wider text-teal-600 dark:text-teal-400">
+                Step {step.number}
+              </span>
               <h3 className="mb-2 text-lg font-semibold text-foreground">
                 {step.title}
               </h3>

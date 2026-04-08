@@ -48,7 +48,7 @@ export function LandingNavbar() {
             window.scrollTo({ top: 0, behavior: "smooth" })
           }}
         >
-          <img src="/logo.png" alt="TruQC" className="h-10 w-auto" />
+          <img src="/logo.png" alt="TruQC" className="h-20 w-auto" />
         </a>
 
         {/* Center nav links - hidden on mobile */}
@@ -74,7 +74,7 @@ export function LandingNavbar() {
           </Link>
           <Link
             href="/signup"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-teal-600 px-4 text-sm font-medium text-white transition-colors hover:bg-teal-700"
           >
             Get Started
           </Link>
@@ -112,7 +112,7 @@ export function LandingNavbar() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90"
+                  className="inline-flex h-9 items-center justify-center rounded-md bg-teal-600 px-4 text-sm font-medium text-white transition-colors hover:bg-teal-700"
                   onClick={() => setOpen(false)}
                 >
                   Get Started
