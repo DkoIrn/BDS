@@ -170,9 +170,48 @@ class TestEnabledChecksFiltering:
             "cross_column": False,
             "spike_detection": False,
             "coordinate_sanity": False,
+            "event_listing": False,
+            "position_consistency": False,
+            "kp_drift": False,
+            "segment_continuity": False,
         }
         issues = run_validation_pipeline(
             df_with_issues, mappings_with_issues, config_with_ranges,
             enabled_checks=enabled,
         )
         assert len(issues) == 0
+
+    def test_disable_kp_drift_skips_kp_drift_check(self):
+        """kp_drift=false skips check_kp_drift."""
+        df = pd.DataFrame({
+            "kp": [0.0, 0.1, 0.2],
+            "easting": [500000.0, 500105.0, 500210.0],
+            "northing": [6000000.0, 6000000.0, 6000000.0],
+        })
+        mappings = [
+            {"index": 0, "originalName": "kp", "mappedType": "kp", "ignored": False},
+            {"index": 1, "originalName": "easting", "mappedType": "easting", "ignored": False},
+            {"index": 2, "originalName": "northing", "mappedType": "northing", "ignored": False},
+        ]
+        config = {"kp_drift_tolerance": 0.01}
+        # With kp_drift disabled, should get no kp_drift issues
+        issues = run_validation_pipeline(df, mappings, config, enabled_checks={"kp_drift": False})
+        kp_drift_issues = [i for i in issues if i.rule_type == "kp_drift"]
+        assert len(kp_drift_issues) == 0
+
+    def test_disable_segment_continuity_skips_check(self):
+        """segment_continuity=false skips check_segment_continuity."""
+        df = pd.DataFrame({
+            "kp": [0.0, 0.1, 0.2],
+            "easting": [500000.0, 500050.0, 500550.0],
+            "northing": [6000000.0, 6000000.0, 6000000.0],
+        })
+        mappings = [
+            {"index": 0, "originalName": "kp", "mappedType": "kp", "ignored": False},
+            {"index": 1, "originalName": "easting", "mappedType": "easting", "ignored": False},
+            {"index": 2, "originalName": "northing", "mappedType": "northing", "ignored": False},
+        ]
+        config = {"max_segment_distance": 100.0}
+        issues = run_validation_pipeline(df, mappings, config, enabled_checks={"segment_continuity": False})
+        seg_issues = [i for i in issues if i.rule_type == "segment_continuity"]
+        assert len(seg_issues) == 0

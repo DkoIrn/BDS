@@ -63,3 +63,15 @@ class TestRangeCheck:
         assert len(issues) == 1
         assert "Row" in issues[0].message
         assert issues[0].kp_value is None
+
+    def test_tolerance_within_band_not_flagged(self):
+        """Value at max+0.05 with tolerance=0.1 should NOT be flagged."""
+        df = pd.DataFrame({"dob": [10.05]})
+        issues = check_range(df, "dob", min_val=0, max_val=10, tolerance=0.1)
+        assert len(issues) == 0
+
+    def test_tolerance_outside_band_flagged(self):
+        """Value at max+0.15 with tolerance=0.1 SHOULD be flagged."""
+        df = pd.DataFrame({"dob": [10.15]})
+        issues = check_range(df, "dob", min_val=0, max_val=10, tolerance=0.1)
+        assert len(issues) == 1

@@ -11,6 +11,7 @@ class ColumnMappingSchema(BaseModel):
 class RangeThreshold(BaseModel):
     min: float
     max: float
+    tolerance: float = 0.0
 
     @model_validator(mode="after")
     def min_must_not_exceed_max(self):
@@ -33,6 +34,8 @@ class EnabledChecks(BaseModel):
     coordinate_sanity: bool = True
     event_listing: bool = True
     position_consistency: bool = True
+    kp_drift: bool = True
+    segment_continuity: bool = True
 
 
 class ProfileConfig(BaseModel):
@@ -42,6 +45,10 @@ class ProfileConfig(BaseModel):
     kp_gap_max: float | None = None
     duplicate_kp_tolerance: float = 0.001
     monotonicity_check: bool = True
+    kp_drift_tolerance: float = 0.01
+    max_segment_distance: float = 100.0
+    kp_drift_severity: str = "warning"
+    segment_continuity_severity: str = "warning"
     enabled_checks: EnabledChecks = EnabledChecks()
 
     @model_validator(mode="after")

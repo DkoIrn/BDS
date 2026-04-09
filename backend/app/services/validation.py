@@ -11,6 +11,8 @@ from app.validators.spikes import check_spikes
 from app.validators.spatial import check_coordinate_sanity
 from app.validators.event_listing import check_event_listing
 from app.validators.position import check_position_consistency
+from app.validators.kp_drift import check_kp_drift
+from app.validators.segment_continuity import check_segment_continuity
 
 
 # Column types that are numeric and should be validated
@@ -172,5 +174,22 @@ def run_validation_pipeline(
         all_issues.extend(
             check_position_consistency(df, mapped, kp_column=kp_column)
         )
+
+    # Chain-aware checks
+    if kp_column and kp_column in df.columns:
+        if checks.get("kp_drift", True):
+            mapped = _get_mapped_columns(column_mappings)
+            all_issues.extend(check_kp_drift(
+                df, mapped, kp_column=kp_column,
+                kp_drift_tolerance=config.get("kp_drift_tolerance", 0.01),
+                severity_override=config.get("kp_drift_severity", "warning"),
+            ))
+        if checks.get("segment_continuity", True):
+            mapped = _get_mapped_columns(column_mappings)
+            all_issues.extend(check_segment_continuity(
+                df, mapped, kp_column=kp_column,
+                max_segment_distance=config.get("max_segment_distance", 100.0),
+                severity_override=config.get("segment_continuity_severity", "warning"),
+            ))
 
     return all_issues
