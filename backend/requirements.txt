@@ -11,6 +11,8 @@ pytest>=8.0
 pytest-cov>=5.0
 httpx>=0.28
 fpdf2>=2.8
+# Phase 19: Server-side chart generation for PDF reports
+matplotlib>=3.8
 openpyxl>=3.1
 # Phase 11: Geospatial file format parsers
 pyshp>=2.3
