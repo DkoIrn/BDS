@@ -37,6 +37,12 @@ function initializeState(): PipelineState {
   return {
     ...initialState,
     ...saved,
+    // Deep-merge stages so new stages (e.g. "review") get defaults
+    // even when loading old sessionStorage data that lacks them
+    stages: {
+      ...initialState.stages,
+      ...(saved.stages ?? {}),
+    },
     // Blob is non-serializable, always reset
     cleanedData: null,
   }
