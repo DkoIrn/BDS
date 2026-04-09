@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 19 of 19 (19-client-grade-reports)
-Plan: 1 of 1
+Plan: 2 of 2
 Status: Complete
-Last activity: 2026-04-09 -- Plan 19-01 complete (chart builder, executive/technical report modes, SoQ, TruQC branding)
+Last activity: 2026-04-09 -- Plan 19-02 complete (frontend report mode dropdown, triage forwarding, human-verified)
 
 Progress: [██████████] 100%
 
@@ -74,6 +74,7 @@ Progress: [██████████] 100%
 | Phase 18 P01 | 3min | 2 tasks | 5 files |
 | Phase 18 P02 | 2min | 2 tasks | 1 files |
 | Phase 19 P01 | 5min | 2 tasks | 6 files |
+| Phase 19 P02 | 4min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -161,6 +162,8 @@ Recent decisions affecting current work:
 - [Phase 19]: Temp file approach for PIL-to-FPDF image embedding (fpdf2 image() needs file path)
 - [Phase 19]: Executive mode returns early after top issues + SoQ (no methodology, no full table)
 - [Phase 19]: KP density uses scatter strip plot (y-axis hidden) for compact visualization
+- [Phase 19]: Click-outside dropdown pattern for PDF report mode selection (useRef + useEffect)
+- [Phase 19]: Fetch-based blob download (not window.open) for consistent cross-browser PDF downloads
 
 ### Roadmap Evolution
 
@@ -186,6 +189,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T11:57:44Z
-Stopped at: Completed 19-01-PLAN.md
-Resume file: .planning/phases/19-client-grade-reports/19-01-SUMMARY.md
+Last session: 2026-04-09T12:35:37Z
+Stopped at: Completed 19-02-PLAN.md
+Resume file: .planning/phases/19-client-grade-reports/19-02-SUMMARY.md
