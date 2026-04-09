@@ -354,7 +354,7 @@ Plans:
   6. Threshold editor has Chain Checks group for KP drift and segment continuity configuration
   7. Pipeline Validate stage auto-suggests matching pack based on column mappings
   8. Frontend and backend pack definitions stay in sync
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 20-01-PLAN.md -- Backend: schema extensions, KP drift + segment continuity validators with TDD, domain pack definitions, pipeline wiring

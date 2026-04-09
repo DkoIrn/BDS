@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Phase 20 context gathered
-last_updated: "2026-04-09T12:51:20.172Z"
-last_activity: 2026-04-09 -- Plan 19-02 complete (frontend report mode dropdown, triage forwarding, human-verified)
+status: executing
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-04-09T20:43:30.918Z"
+last_activity: 2026-04-09 -- Plan 20-01 complete (backend domain QC packs, chain-aware validators)
 progress:
   total_phases: 20
   completed_phases: 18
-  total_plans: 44
-  completed_plans: 44
+  total_plans: 46
+  completed_plans: 45
   percent: 100
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 
 ## Current Position
 
-Phase: 19 of 19 (19-client-grade-reports)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-04-09 -- Plan 19-02 complete (frontend report mode dropdown, triage forwarding, human-verified)
+Phase: 20 of 20 (20-domain-qc-packs)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-04-09 -- Plan 20-01 complete (backend domain QC packs, chain-aware validators)
 
 Progress: [██████████] 100%
 
@@ -75,6 +75,7 @@ Progress: [██████████] 100%
 | Phase 18 P02 | 2min | 2 tasks | 1 files |
 | Phase 19 P01 | 5min | 2 tasks | 6 files |
 | Phase 19 P02 | 4min | 3 tasks | 3 files |
+| Phase 20 P01 | 5min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -164,6 +165,9 @@ Recent decisions affecting current work:
 - [Phase 19]: KP density uses scatter strip plot (y-axis hidden) for compact visualization
 - [Phase 19]: Click-outside dropdown pattern for PDF report mode selection (useRef + useEffect)
 - [Phase 19]: Fetch-based blob download (not window.open) for consistent cross-browser PDF downloads
+- [Phase 20]: KP drift uses coordinate distance in km for consistent KP comparison
+- [Phase 20]: Severity overrides per pack via string fields on ProfileConfig for JSON compat
+- [Phase 20]: RangeThreshold tolerance only flattened when > 0 to keep config clean
 
 ### Roadmap Evolution
 
@@ -190,6 +194,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T12:51:20.151Z
-Stopped at: Phase 20 context gathered
-Resume file: .planning/phases/20-domain-qc-packs/20-CONTEXT.md
+Last session: 2026-04-09T20:43:30.912Z
+Stopped at: Completed 20-01-PLAN.md
+Resume file: None
