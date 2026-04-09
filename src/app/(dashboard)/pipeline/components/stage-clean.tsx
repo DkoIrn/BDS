@@ -487,7 +487,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
             <Button
               variant="outline"
               onClick={() =>
-                dispatch({ type: "GO_TO_STAGE", stage: "validate" })
+                dispatch({ type: "GO_TO_STAGE", stage: "review" })
               }
             >
               <ArrowLeft className="mr-2 size-4" />
@@ -603,7 +603,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
           <Button
             variant="outline"
             onClick={() =>
-              dispatch({ type: "GO_TO_STAGE", stage: "validate" })
+              dispatch({ type: "GO_TO_STAGE", stage: "review" })
             }
           >
             <ArrowLeft className="mr-2 size-4" />

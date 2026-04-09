@@ -4,6 +4,7 @@ import {
   Upload,
   Eye,
   ShieldCheck,
+  ClipboardCheck,
   Sparkles,
   Download,
   Check,
@@ -28,6 +29,7 @@ const STAGE_CONFIG: StageConfig[] = [
   { id: "import", label: "Import", icon: Upload },
   { id: "inspect", label: "Inspect", icon: Eye },
   { id: "validate", label: "Validate", icon: ShieldCheck },
+  { id: "review", label: "Review", icon: ClipboardCheck },
   { id: "clean", label: "Resolve", icon: Sparkles },
   { id: "export", label: "Export", icon: Download },
 ]

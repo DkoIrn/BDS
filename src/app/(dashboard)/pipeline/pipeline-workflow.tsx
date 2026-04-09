@@ -1,6 +1,6 @@
 "use client"
 
-import { useReducer, useEffect, useCallback, useRef, useState } from "react"
+import { useReducer, useEffect, useCallback, useRef, useState, useMemo } from "react"
 import {
   pipelineReducer,
   initialState,
@@ -17,7 +17,9 @@ import { StageImport } from "./components/stage-import"
 import { StageInspect } from "./components/stage-inspect"
 import { StageValidate } from "./components/stage-validate"
 import type { ValidationIssue } from "./lib/client-validate"
+import { StageReview } from "./components/stage-review"
 import { StageClean } from "./components/stage-clean"
+import { toast } from "sonner"
 import { StageExport } from "./components/stage-export"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
@@ -63,6 +65,29 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
     dispatch({ type: "RESET" })
   }, [])
 
+  // Auto-skip review when validation found 0 issues
+  useEffect(() => {
+    if (
+      state.currentStage === "review" &&
+      state.stages.validate.completed &&
+      !state.triageAutoSkipped &&
+      (state.issueCount === 0 || (state.issueCount === null && validationIssues.length === 0))
+    ) {
+      dispatch({ type: "AUTO_SKIP_REVIEW" })
+      toast("No issues found -- skipping review")
+    }
+  }, [state.currentStage, state.stages.validate.completed, state.issueCount, state.triageAutoSkipped, validationIssues.length, dispatch])
+
+  // Filter issues for Clean stage: only accepted or untriaged issues
+  const acceptedIssues = useMemo(() => {
+    if (Object.keys(state.triageDecisions).length === 0) return validationIssues
+    return validationIssues.filter((issue, index) => {
+      const issueId = `${issue.type}-${issue.row ?? "x"}-${issue.column ?? "x"}-${index}`
+      const entry = state.triageDecisions[issueId]
+      return !entry || entry.decision === "accept"
+    })
+  }, [validationIssues, state.triageDecisions])
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -72,7 +97,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
             Pipeline
           </h1>
           <p className="text-sm text-muted-foreground">
-            Import, inspect, validate, clean, and export your survey data
+            Import, inspect, validate, review, clean, and export your survey data
           </p>
         </div>
         {state.currentStage !== "import" && (
@@ -101,8 +126,12 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
           <StageValidate state={state} dispatch={dispatch} onIssuesFound={setValidationIssues} />
         )}
 
+        {state.currentStage === "review" && (
+          <StageReview state={state} dispatch={dispatch} validationIssues={validationIssues} />
+        )}
+
         {state.currentStage === "clean" && (
-          <StageClean state={state} dispatch={dispatch} validationIssues={validationIssues} />
+          <StageClean state={state} dispatch={dispatch} validationIssues={acceptedIssues} />
         )}
 
         {state.currentStage === "export" && (
