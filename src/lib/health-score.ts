@@ -23,21 +23,18 @@ export function computeHealthScore(data: {
     return { score: -1, label: "Good", color: "green" }
   }
 
-  // Base score from pass rate
+  // Base score from pass rate (weighted 70%)
   // passRate may be 0-1 (decimal) or 0-100 (percentage) depending on source
   const rawRate = data.passRate ?? 100
   const normalizedRate = rawRate > 1 ? rawRate : rawRate * 100
-  let score = Math.round(normalizedRate)
 
-  // Penalize critical issues heavily
-  if (data.criticalCount > 0) {
-    score = Math.max(0, score - data.criticalCount * 10)
-  }
+  // Severity score (weighted 30%) — proportion of issues that are NOT critical
+  const totalIssues = data.totalIssues || 1
+  const criticalRatio = data.criticalCount / totalIssues
+  const severityScore = (1 - criticalRatio) * 100
 
-  // Penalize warnings lightly
-  if (data.warningCount && data.warningCount > 0) {
-    score = Math.max(0, score - data.warningCount * 2)
-  }
+  // Weighted combination: pass rate matters most, severity adjusts
+  let score = Math.round(normalizedRate * 0.7 + severityScore * 0.3)
 
   // Clamp
   score = Math.max(0, Math.min(100, score))
