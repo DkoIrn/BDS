@@ -38,7 +38,12 @@ const CHECK_LABELS: Record<string, string> = {
   outliers_iqr: "Outlier Detection (IQR)",
   kp_gaps: "KP Gap Detection",
   monotonicity: "KP Monotonicity Check",
+  kp_drift: "KP Drift Detection",
+  segment_continuity: "Segment Continuity",
 }
+
+/** Chain check keys rendered in their own dedicated section */
+const CHAIN_CHECK_KEYS = new Set(["kp_drift", "segment_continuity"])
 
 export function ThresholdEditor({
   config,
@@ -258,7 +263,9 @@ export function ThresholdEditor({
           Enabled Checks
         </h4>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {Object.entries(CHECK_LABELS).map(([key, label]) => (
+          {Object.entries(CHECK_LABELS)
+            .filter(([key]) => !CHAIN_CHECK_KEYS.has(key))
+            .map(([key, label]) => (
             <label
               key={key}
               className="flex items-center gap-2 text-xs cursor-pointer"
@@ -276,6 +283,79 @@ export function ThresholdEditor({
               {label}
             </label>
           ))}
+        </div>
+      </div>
+
+      {/* Chain Checks */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          Chain Checks
+        </h4>
+        <div className="space-y-3">
+          {/* KP Drift Detection */}
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 text-xs cursor-pointer min-w-[160px]">
+              <input
+                type="checkbox"
+                checked={config.enabled_checks.kp_drift}
+                onChange={() => toggleCheck("kp_drift")}
+                className="size-3.5 rounded border-input accent-primary"
+              />
+              KP Drift Detection
+            </label>
+            <div className={`flex items-center gap-2 ${!config.enabled_checks.kp_drift ? "opacity-50" : ""}`}>
+              <Label className="text-xs whitespace-nowrap">Drift Tolerance (%)</Label>
+              <Input
+                type="number"
+                step={0.5}
+                min={0.1}
+                max={20}
+                value={Math.round(config.kp_drift_tolerance * 100 * 10) / 10}
+                onChange={(e) => {
+                  const pct = e.target.value === "" ? 0 : Number(e.target.value)
+                  if (e.target.value !== "" && isNaN(pct)) return
+                  onChange({
+                    ...config,
+                    kp_drift_tolerance: pct / 100,
+                  })
+                }}
+                disabled={!config.enabled_checks.kp_drift}
+                className="h-8 w-24 text-xs"
+              />
+            </div>
+          </div>
+          {/* Segment Continuity */}
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 text-xs cursor-pointer min-w-[160px]">
+              <input
+                type="checkbox"
+                checked={config.enabled_checks.segment_continuity}
+                onChange={() => toggleCheck("segment_continuity")}
+                className="size-3.5 rounded border-input accent-primary"
+              />
+              Segment Continuity
+            </label>
+            <div className={`flex items-center gap-2 ${!config.enabled_checks.segment_continuity ? "opacity-50" : ""}`}>
+              <Label className="text-xs whitespace-nowrap">Max Distance (m)</Label>
+              <Input
+                type="number"
+                step={10}
+                min={10}
+                max={1000}
+                value={config.max_segment_distance}
+                onChange={(e) => {
+                  const val = e.target.value === "" ? 0 : Number(e.target.value)
+                  if (e.target.value !== "" && isNaN(val)) return
+                  onChange({
+                    ...config,
+                    max_segment_distance: val,
+                  })
+                }}
+                disabled={!config.enabled_checks.segment_continuity}
+                className="h-8 w-24 text-xs"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

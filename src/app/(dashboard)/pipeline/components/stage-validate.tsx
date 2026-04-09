@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   ShieldCheck,
   AlertTriangle,
@@ -9,15 +9,18 @@ import {
   SkipForward,
   CheckCircle,
   Info,
+  X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
 import type { StagePanelProps } from "./stage-import"
 import {
   validateClientSide,
   type ValidationIssue,
   type ValidationResult,
 } from "../lib/client-validate"
+import { suggestProfileFromHeaders, getTemplateById } from "@/lib/validation/templates"
 
 
 const SEVERITY_CONFIG = {
@@ -52,6 +55,21 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
   const [validating, setValidating] = useState(false)
   const [result, setResult] = useState<ValidationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [suggestedPackId, setSuggestedPackId] = useState<string | null>(null)
+  const [dismissed, setDismissed] = useState(false)
+
+  // Auto-suggest pack based on parsed data headers
+  useEffect(() => {
+    if (state.parsedData && state.parsedData.length > 0) {
+      const headers = state.parsedData[0]
+      const suggestion = suggestProfileFromHeaders(headers)
+      if (suggestion !== "general-survey") {
+        setSuggestedPackId(suggestion)
+      } else {
+        setSuggestedPackId(null)
+      }
+    }
+  }, [state.parsedData])
 
   async function handleRunQC() {
     setValidating(true)
@@ -242,8 +260,32 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
     )
   }
 
+  const suggestedPack = suggestedPackId ? getTemplateById(suggestedPackId) : null
+
+  function handleApplyPack() {
+    if (suggestedPack) {
+      toast.success(`Recommended: ${suggestedPack.name}`, {
+        description: suggestedPack.description,
+      })
+    }
+    setDismissed(true)
+  }
+
   // Initial state -- not yet validated
   return (
+    <div className="space-y-3">
+      {suggestedPack && !dismissed && (
+        <div className="flex items-center gap-3 rounded-lg border border-teal-200 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/30">
+          <Info className="size-4 shrink-0 text-teal-600" />
+          <span className="flex-1 text-sm">
+            This looks like a <strong>{suggestedPack.name}</strong> dataset. Use recommended QC settings?
+          </span>
+          <Button size="sm" onClick={handleApplyPack}>Apply</Button>
+          <Button size="sm" variant="ghost" onClick={() => setDismissed(true)}>
+            <X className="size-4" />
+          </Button>
+        </div>
+      )}
     <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -303,6 +345,7 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
         </p>
       </CardContent>
     </Card>
+    </div>
   )
 }
 

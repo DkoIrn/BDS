@@ -17,7 +17,22 @@ import {
 } from "@/components/ui/select"
 import { ThresholdEditor } from "@/components/files/threshold-editor"
 import { DEFAULT_TEMPLATES, getTemplateById } from "@/lib/validation/templates"
-import type { ProfileConfig, ValidationProfile } from "@/lib/types/validation"
+import type { ProfileConfig, ValidationProfile, ValidationTemplate } from "@/lib/types/validation"
+
+/** Short labels for expected column pills */
+const COLUMN_TYPE_LABELS: Record<string, string> = {
+  kp: "KP",
+  dob: "DOB",
+  doc: "DOC",
+  depth: "Depth",
+  easting: "E",
+  northing: "N",
+  event_listing: "Events",
+  top: "TOP",
+  elevation: "Elev",
+  latitude: "Lat",
+  longitude: "Lon",
+}
 
 interface ProfileSelectorProps {
   selectedProfileId: string
@@ -144,7 +159,22 @@ export function ProfileSelector({
                 <SelectLabel>DEFAULTS</SelectLabel>
                 {DEFAULT_TEMPLATES.map((t) => (
                   <SelectItem key={t.id} value={t.id}>
-                    {t.name}
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">{t.name}</span>
+                      <span className="text-xs text-muted-foreground">{t.description}</span>
+                      {t.expectedColumns && t.expectedColumns.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-0.5">
+                          {t.expectedColumns.map((col) => (
+                            <span
+                              key={col}
+                              className="inline-flex rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                            >
+                              {COLUMN_TYPE_LABELS[col] ?? col}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectGroup>
