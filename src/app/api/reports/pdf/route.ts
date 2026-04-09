@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const runId = searchParams.get('runId')
+  const mode = searchParams.get('mode') || 'technical'
+  const triageAccepted = searchParams.get('triage_accepted')
+  const triageRejected = searchParams.get('triage_rejected')
+  const triageDeferred = searchParams.get('triage_deferred')
 
   if (!runId) {
     return NextResponse.json(
@@ -65,8 +69,14 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Build query params for FastAPI
+    const params = new URLSearchParams({ mode })
+    if (triageAccepted) params.set('triage_accepted', triageAccepted)
+    if (triageRejected) params.set('triage_rejected', triageRejected)
+    if (triageDeferred) params.set('triage_deferred', triageDeferred)
+
     const response = await fetch(
-      `${fastApiUrl}/api/v1/report/pdf/${runId}`
+      `${fastApiUrl}/api/v1/report/pdf/${runId}?${params.toString()}`
     )
 
     if (!response.ok) {
@@ -81,8 +91,7 @@ export async function GET(request: Request) {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition':
-          response.headers.get('Content-Disposition') ||
-          `attachment; filename=qc-report-${runId.slice(0, 8)}.pdf`,
+          `attachment; filename=qc-${mode}-report-${runId.slice(0, 8)}.pdf`,
       },
     })
   } catch {
