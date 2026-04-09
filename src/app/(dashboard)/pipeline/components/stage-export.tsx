@@ -226,21 +226,9 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
             </Button>
           )}
 
-          {/* QC Report download */}
-          {state.validationRunId && state.datasetId && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => {
-                window.open(
-                  `/api/reports/pdf?dataset_id=${state.datasetId}`,
-                  "_blank"
-                )
-              }}
-            >
-              <FileText className="mr-2 size-4" />
-              Download QC Report (PDF)
-            </Button>
+          {/* QC Report dropdown */}
+          {state.validationRunId && (
+            <QcReportDropdown state={state} />
           )}
 
           {/* Stage summary */}
@@ -359,6 +347,106 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+// --- QC Report Dropdown ---
+
+function QcReportDropdown({ state }: { state: PipelineState }) {
+  const [open, setOpen] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [open])
+
+  // Compute triage counts
+  const hasTriageData =
+    Object.keys(state.triageDecisions).length > 0 && !state.triageAutoSkipped
+  const triageCounts = hasTriageData
+    ? Object.values(state.triageDecisions).reduce(
+        (acc, entry) => {
+          acc[entry.decision] = (acc[entry.decision] || 0) + 1
+          return acc
+        },
+        { accept: 0, reject: 0, defer: 0 } as Record<string, number>
+      )
+    : null
+
+  async function handleDownloadReport(mode: "executive" | "technical") {
+    setOpen(false)
+    setDownloading(true)
+    try {
+      let url = `/api/reports/pdf?runId=${state.validationRunId}&mode=${mode}`
+      if (triageCounts) {
+        url += `&triage_accepted=${triageCounts.accept}&triage_rejected=${triageCounts.reject}&triage_deferred=${triageCounts.defer}`
+      }
+
+      const res = await fetch(url)
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "Download failed" }))
+        throw new Error(body.error || "Download failed")
+      }
+
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = blobUrl
+      a.download = `qc-${mode}-report-${(state.validationRunId || "").slice(0, 8)}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch (err) {
+      console.error("QC Report download failed:", err)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <Button
+        variant="outline"
+        className="w-full"
+        disabled={downloading}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        {downloading ? (
+          <Loader2 className="mr-2 size-4 animate-spin" />
+        ) : (
+          <FileText className="mr-2 size-4" />
+        )}
+        QC Report
+        <ChevronDown className="ml-2 size-3" />
+      </Button>
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 w-full min-w-[200px] rounded-lg border bg-popover p-1 shadow-md">
+          <button
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
+            onClick={() => handleDownloadReport("executive")}
+          >
+            <FileText className="size-4 text-teal-600" />
+            Executive Report
+          </button>
+          <button
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
+            onClick={() => handleDownloadReport("technical")}
+          >
+            <FileText className="size-4 text-blue-600" />
+            Technical Report
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
