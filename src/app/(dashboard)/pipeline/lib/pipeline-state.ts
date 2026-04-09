@@ -4,6 +4,7 @@ export type PipelineStage =
   | "import"
   | "inspect"
   | "validate"
+  | "review"
   | "clean"
   | "export"
 
@@ -11,6 +12,7 @@ export const STAGE_ORDER: PipelineStage[] = [
   "import",
   "inspect",
   "validate",
+  "review",
   "clean",
   "export",
 ]
@@ -19,6 +21,14 @@ export interface StageStatus {
   completed: boolean
   skipped: boolean
   summary: string | null
+}
+
+export type TriageDecision = "accept" | "reject" | "defer"
+
+export interface TriageEntry {
+  decision: TriageDecision
+  justification: string | null
+  timestamp: number
 }
 
 export interface PipelineState {
@@ -39,6 +49,8 @@ export interface PipelineState {
   /** Auto-clean summary for audit trail */
   cleanSummary: Record<string, unknown> | null
   exportFormat: string | null
+  triageDecisions: Record<string, TriageEntry>
+  triageAutoSkipped: boolean
 }
 
 export type PipelineAction =
@@ -57,6 +69,11 @@ export type PipelineAction =
   | { type: "CLEAN_COMPLETE"; cleanedData: string[][]; actionCount: number; summary: Record<string, unknown> }
   | { type: "AI_FIX_APPLIED"; updatedData: string[][] }
   | { type: "SET_EXPORT_FORMAT"; format: string }
+  | { type: "TRIAGE_ISSUE"; issueId: string; decision: TriageDecision; justification: string | null }
+  | { type: "TRIAGE_BULK"; issueIds: string[]; decision: TriageDecision; justification: string | null }
+  | { type: "SKIP_REVIEW" }
+  | { type: "REVIEW_COMPLETE" }
+  | { type: "AUTO_SKIP_REVIEW" }
   | { type: "GO_TO_STAGE"; stage: PipelineStage }
   | { type: "RESET" }
 
@@ -72,6 +89,7 @@ export const initialState: PipelineState = {
     import: { ...defaultStageStatus },
     inspect: { ...defaultStageStatus },
     validate: { ...defaultStageStatus },
+    review: { ...defaultStageStatus },
     clean: { ...defaultStageStatus },
     export: { ...defaultStageStatus },
   },
@@ -87,6 +105,8 @@ export const initialState: PipelineState = {
   cleanActionCount: null,
   cleanSummary: null,
   exportFormat: null,
+  triageDecisions: {},
+  triageAutoSkipped: false,
 }
 
 /**
@@ -105,8 +125,10 @@ export function canNavigateTo(
       return state.stages.import.completed
     case "validate":
       return state.stages.inspect.completed
+    case "review":
+      return state.stages.validate.completed || state.stages.validate.skipped
     case "clean":
-      // Clean available if inspect completed (validate can be skipped)
+      // Clean available if inspect completed (validate and review can be skipped)
       return state.stages.inspect.completed
     case "export":
       // Export available once data is imported
@@ -177,7 +199,7 @@ export function pipelineReducer(
     case "SKIP_VALIDATE": {
       return {
         ...state,
-        currentStage: "clean",
+        currentStage: "review",
         stages: {
           ...state.stages,
           validate: {
@@ -201,7 +223,7 @@ export function pipelineReducer(
           : `${action.issueCount} issues found`
       return {
         ...state,
-        currentStage: "clean",
+        currentStage: "review",
         stages: {
           ...state.stages,
           validate: {
@@ -212,6 +234,85 @@ export function pipelineReducer(
         },
         validationRunId: action.runId,
         issueCount: action.issueCount,
+      }
+    }
+
+    case "TRIAGE_ISSUE": {
+      return {
+        ...state,
+        triageDecisions: {
+          ...state.triageDecisions,
+          [action.issueId]: {
+            decision: action.decision,
+            justification: action.justification,
+            timestamp: Date.now(),
+          },
+        },
+      }
+    }
+
+    case "TRIAGE_BULK": {
+      const newDecisions = { ...state.triageDecisions }
+      for (const issueId of action.issueIds) {
+        newDecisions[issueId] = {
+          decision: action.decision,
+          justification: action.justification,
+          timestamp: Date.now(),
+        }
+      }
+      return {
+        ...state,
+        triageDecisions: newDecisions,
+      }
+    }
+
+    case "SKIP_REVIEW": {
+      return {
+        ...state,
+        currentStage: "clean",
+        stages: {
+          ...state.stages,
+          review: {
+            completed: false,
+            skipped: true,
+            summary: "Skipped -- issues not reviewed",
+          },
+        },
+      }
+    }
+
+    case "REVIEW_COMPLETE": {
+      const decisions = Object.values(state.triageDecisions)
+      const accepted = decisions.filter((d) => d.decision === "accept").length
+      const rejected = decisions.filter((d) => d.decision === "reject").length
+      const deferred = decisions.filter((d) => d.decision === "defer").length
+      return {
+        ...state,
+        currentStage: "clean",
+        stages: {
+          ...state.stages,
+          review: {
+            completed: true,
+            skipped: false,
+            summary: `${accepted} accepted, ${rejected} rejected, ${deferred} deferred`,
+          },
+        },
+      }
+    }
+
+    case "AUTO_SKIP_REVIEW": {
+      return {
+        ...state,
+        currentStage: "clean",
+        triageAutoSkipped: true,
+        stages: {
+          ...state.stages,
+          review: {
+            completed: true,
+            skipped: false,
+            summary: "No issues to review",
+          },
+        },
       }
     }
 
