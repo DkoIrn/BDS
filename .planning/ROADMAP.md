@@ -342,10 +342,20 @@ Plans:
 
 ### Phase 20: Domain-Specific QC Packs - Pre-built rule packs for Pipeline As-Laid, As-Built Survey, Pre-Commissioning, tolerance-based validation, chain-aware checks
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Users can select from 3 workflow-specific domain QC packs (Pipeline As-Laid, As-Built Survey, Pre-Commissioning) plus a General catch-all -- each with tuned thresholds, 2 new chain-aware validators (KP drift, segment continuity), and auto-suggestion based on mapped columns
+**Requirements**: PACK-01, PACK-02, PACK-03, PACK-04, PACK-05, PACK-06, PACK-07, PACK-08
 **Depends on:** Phase 19
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. System provides 3 domain QC packs plus General, replacing the old column-type templates
+  2. KP drift validator detects cumulative chainage errors above configurable tolerance
+  3. Segment continuity validator flags impossible distances between consecutive coordinates
+  4. Each pack has tuned thresholds and severity levels for chain-aware checks
+  5. Profile selector shows pack descriptions and expected column pills
+  6. Threshold editor has Chain Checks group for KP drift and segment continuity configuration
+  7. Pipeline Validate stage auto-suggests matching pack based on column mappings
+  8. Frontend and backend pack definitions stay in sync
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 20 to break down)
+- [ ] 20-01-PLAN.md -- Backend: schema extensions, KP drift + segment continuity validators with TDD, domain pack definitions, pipeline wiring
+- [ ] 20-02-PLAN.md -- Frontend: TS type extensions, pack definitions, enhanced profile selector, chain checks UI, auto-suggestion banner, human verification
