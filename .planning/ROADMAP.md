@@ -22,6 +22,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 8: Results Dashboard** - Issue viewer with severity grouping, statistics, and processing history
 - [x] **Phase 9: Reports & Export** - PDF QC reports and downloadable cleaned datasets (completed 2026-03-15)
 - [x] **Phase 10: Landing Page & Subscription** - Public landing page and 3-tier subscription structure (completed 2026-03-20)
+- [x] **Phase 18: Issue Triage & Manual Overrides** - Review stage between validate and clean, accept/reject/defer on individual issues, bulk actions (completed 2026-04-09)
+- [ ] **Phase 19: Client-Grade Reports** - Executive vs Technical report modes, visual QC summaries, Statement of Quality auto-generation
 
 ## Phase Details
 
@@ -319,3 +321,13 @@ Plans:
 
 Plans:
 - [x] TBD (run /gsd:plan-phase 18 to break down) (completed 2026-04-09)
+
+### Phase 19: Client-Grade Reports - Executive vs Technical report modes, visual QC summaries, Statement of Quality auto-generation
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 18
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 19 to break down)

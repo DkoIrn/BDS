@@ -165,6 +165,7 @@ Recent decisions affecting current work:
 - Phase 14 added: Data Transform Tools (CRS conversion, merge, split, clean)
 - Phase 15 added: Dataset Comparison (as-built vs as-designed diff)
 - Phase 16 added: Pipeline Workflow (guided step-by-step processing flow)
+- Phase 19 added: Client-Grade Reports (executive vs technical modes, visual QC summaries, Statement of Quality)
 
 ### Pending Todos
 
