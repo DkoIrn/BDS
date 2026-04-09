@@ -16,17 +16,23 @@ export interface EnabledChecks {
   coordinate_sanity: boolean
   event_listing: boolean
   position_consistency: boolean
+  kp_drift: boolean
+  segment_continuity: boolean
 }
 
 /** Full configuration for a validation profile -- mirrors Python ProfileConfig */
 export interface ProfileConfig {
-  ranges: Record<string, { min: number; max: number }>
+  ranges: Record<string, { min: number; max: number; tolerance?: number }>
   zscore_threshold: number
   iqr_multiplier: number
   kp_gap_max: number | null
   duplicate_kp_tolerance: number
   monotonicity_check: boolean
   enabled_checks: EnabledChecks
+  kp_drift_tolerance: number
+  max_segment_distance: number
+  kp_drift_severity?: string
+  segment_continuity_severity?: string
 }
 
 /** A system-provided default validation template (read-only) */
@@ -37,6 +43,7 @@ export interface ValidationTemplate {
   description: string
   config: ProfileConfig
   is_default: true
+  expectedColumns?: string[]
 }
 
 /** A user-saved custom validation profile */
