@@ -3,7 +3,7 @@ phase: 20
 slug: domain-qc-packs
 status: draft
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-04-09
 ---
 
@@ -19,7 +19,7 @@ created: 2026-04-09
 |----------|-------|
 | **Framework** | pytest (backend validators) + manual browser testing (frontend) |
 | **Config file** | backend/pytest.ini or pyproject.toml |
-| **Quick run command** | `cd backend && python -m pytest tests/test_kp_drift.py tests/test_segment_continuity.py -x -v` |
+| **Quick run command** | `cd backend && python -m pytest tests/validators/test_kp_drift.py tests/validators/test_segment_continuity.py -x -v` |
 | **Full suite command** | `cd backend && python -m pytest tests/ -x -v` |
 | **Estimated runtime** | ~15 seconds (backend tests) + ~3 minutes (manual frontend) |
 
@@ -38,7 +38,7 @@ created: 2026-04-09
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 20-01-01 | 01 | 1 | New validators | unit/pytest | `cd backend && python -m pytest tests/test_kp_drift.py tests/test_segment_continuity.py -x -v` | N/A | ⬜ pending |
+| 20-01-01 | 01 | 1 | New validators | unit/pytest | `cd backend && python -m pytest tests/validators/test_kp_drift.py tests/validators/test_segment_continuity.py -x -v` | N/A | ⬜ pending |
 | 20-01-02 | 01 | 1 | Schema extension | unit/pytest | `cd backend && python -m pytest tests/ -x -v` | N/A | ⬜ pending |
 | 20-02-01 | 02 | 2 | Pack definitions (backend+frontend) | manual | Verify 4 packs in profile dropdown | N/A | ⬜ pending |
 | 20-02-02 | 02 | 2 | Profile selector UI | manual | Verify pack descriptions + column pills in dropdown | N/A | ⬜ pending |
