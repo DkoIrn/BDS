@@ -10,7 +10,7 @@ progress:
   total_phases: 20
   completed_phases: 18
   total_plans: 46
-  completed_plans: 45
+  completed_plans: 46
   percent: 100
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 20 of 20 (20-domain-qc-packs)
-Plan: 1 of 2
+Plan: 2 of 2
 Status: In Progress
-Last activity: 2026-04-09 -- Plan 20-01 complete (backend domain QC packs, chain-aware validators)
+Last activity: 2026-04-09 -- Plan 20-02 complete (frontend domain QC packs, chain checks UI, suggestion banner)
 
 Progress: [██████████] 100%
 
@@ -76,6 +76,7 @@ Progress: [██████████] 100%
 | Phase 19 P01 | 5min | 2 tasks | 6 files |
 | Phase 19 P02 | 4min | 3 tasks | 3 files |
 | Phase 20 P01 | 5min | 2 tasks | 9 files |
+| Phase 20 P02 | 6min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -168,6 +169,9 @@ Recent decisions affecting current work:
 - [Phase 20]: KP drift uses coordinate distance in km for consistent KP comparison
 - [Phase 20]: Severity overrides per pack via string fields on ProfileConfig for JSON compat
 - [Phase 20]: RangeThreshold tolerance only flattened when > 0 to keep config clean
+- [Phase 20]: suggestProfileFromHeaders for pipeline context where ColumnMapping objects unavailable
+- [Phase 20]: Chain check numeric inputs disabled with opacity-50 when toggle off
+- [Phase 20]: KP drift tolerance displayed as percentage for user-friendly editing
 
 ### Roadmap Evolution
 
@@ -194,6 +198,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T20:43:30.912Z
-Stopped at: Completed 20-01-PLAN.md
+Last session: 2026-04-09T20:50:37Z
+Stopped at: Completed 20-02-PLAN.md (awaiting human verification)
 Resume file: None

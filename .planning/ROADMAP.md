@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Landing Page & Subscription** - Public landing page and 3-tier subscription structure (completed 2026-03-20)
 - [x] **Phase 18: Issue Triage & Manual Overrides** - Review stage between validate and clean, accept/reject/defer on individual issues, bulk actions (completed 2026-04-09)
 - [x] **Phase 19: Client-Grade Reports** - Executive vs Technical report modes, visual QC summaries, Statement of Quality auto-generation (completed 2026-04-09)
-- [ ] **Phase 20: Domain-Specific QC Packs** - Pre-built rule packs for pipeline surveys, tolerance-based validation, chain-aware checks
+- [x] **Phase 20: Domain-Specific QC Packs** - Pre-built rule packs for pipeline surveys, tolerance-based validation, chain-aware checks (completed 2026-04-09)
 
 ## Phase Details
 
@@ -354,7 +354,7 @@ Plans:
   6. Threshold editor has Chain Checks group for KP drift and segment continuity configuration
   7. Pipeline Validate stage auto-suggests matching pack based on column mappings
   8. Frontend and backend pack definitions stay in sync
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 20-01-PLAN.md -- Backend: schema extensions, KP drift + segment continuity validators with TDD, domain pack definitions, pipeline wiring
