@@ -174,6 +174,7 @@ Recent decisions affecting current work:
 - Phase 15 added: Dataset Comparison (as-built vs as-designed diff)
 - Phase 16 added: Pipeline Workflow (guided step-by-step processing flow)
 - Phase 19 added: Client-Grade Reports (executive vs technical modes, visual QC summaries, Statement of Quality)
+- Phase 20 added: Domain-Specific QC Packs (pre-built rule packs, tolerance-based validation, chain-aware checks)
 
 ### Pending Todos
 

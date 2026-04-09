@@ -24,6 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Landing Page & Subscription** - Public landing page and 3-tier subscription structure (completed 2026-03-20)
 - [x] **Phase 18: Issue Triage & Manual Overrides** - Review stage between validate and clean, accept/reject/defer on individual issues, bulk actions (completed 2026-04-09)
 - [x] **Phase 19: Client-Grade Reports** - Executive vs Technical report modes, visual QC summaries, Statement of Quality auto-generation (completed 2026-04-09)
+- [ ] **Phase 20: Domain-Specific QC Packs** - Pre-built rule packs for pipeline surveys, tolerance-based validation, chain-aware checks
 
 ## Phase Details
 
@@ -338,3 +339,13 @@ Plans:
 Plans:
 - [x] 19-01-PLAN.md -- Backend: matplotlib chart builder, report mode extension (Executive/Technical), Statement of Quality, API parameter updates, tests (completed 2026-04-09)
 - [x] 19-02-PLAN.md -- Frontend: Next.js proxy route update, ExportButtons dropdown, pipeline export dropdown with triage forwarding, human verification (completed 2026-04-09)
+
+### Phase 20: Domain-Specific QC Packs - Pre-built rule packs for Pipeline As-Laid, As-Built Survey, Pre-Commissioning, tolerance-based validation, chain-aware checks
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 19
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 20 to break down)
