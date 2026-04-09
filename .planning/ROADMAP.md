@@ -309,3 +309,13 @@ Plans:
 Plans:
 - [ ] 17-01-PLAN.md -- Wave 0 test stubs, missing audit log calls (parse, map, profile), enhanced auto-clean snapshots with row-level diffs
 - [ ] 17-02-PLAN.md -- Timeline UI enhancements (new action configs, date grouping, rich metadata), issue traceability (after-cleaning cross-reference), validation re-run button
+
+### Phase 18: Issue Triage & Manual Overrides - Review stage between validate and clean, accept/reject/comment on individual issues, mark issues as accepted with justification, bulk actions for issue management
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 17
+**Plans:** 1/2 plans executed
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 18 to break down)
