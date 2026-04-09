@@ -324,10 +324,17 @@ Plans:
 
 ### Phase 19: Client-Grade Reports - Executive vs Technical report modes, visual QC summaries, Statement of Quality auto-generation
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Users can download professional client-grade QC reports in two modes -- a concise Executive summary for client distribution and a detailed Technical report for engineering review -- with visual QC charts, Statement of Quality certification, and TruQC branding
+**Requirements**: RPT-01, RPT-02, RPT-03, RPT-04, RPT-05, RPT-06, RPT-07
 **Depends on:** Phase 18
-**Plans:** 0 plans
+**Success Criteria** (what must be TRUE):
+  1. User can download an Executive Report (1-2 page PDF) with verdict, severity pie chart, top issues, and Statement of Quality
+  2. User can download a Technical Report (multi-page PDF) with full issue breakdowns, KP density chart, methodology, and all sections
+  3. Both reports include matplotlib-rendered charts embedded as images and "Validated by TruQC" branded certification
+  4. PDF download button is a dropdown offering Executive and Technical options in both results dashboard and pipeline export
+  5. Pipeline export passes triage decision counts to the report, reflected in Statement of Quality
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 19 to break down)
+- [ ] 19-01-PLAN.md -- Backend: matplotlib chart builder, report mode extension (Executive/Technical), Statement of Quality, API parameter updates, tests
+- [ ] 19-02-PLAN.md -- Frontend: Next.js proxy route update, ExportButtons dropdown, pipeline export dropdown with triage forwarding, human verification
