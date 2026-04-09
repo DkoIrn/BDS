@@ -18,12 +18,18 @@ router = APIRouter(prefix="/api/v1", tags=["reports"])
 
 
 @router.get("/report/pdf/{run_id}")
-def get_pdf_report(run_id: str):
+def get_pdf_report(
+    run_id: str,
+    mode: str = Query(default="technical", pattern="^(executive|technical)$"),
+    triage_accepted: int | None = Query(default=None),
+    triage_rejected: int | None = Query(default=None),
+    triage_deferred: int | None = Query(default=None),
+):
     """Generate and return a PDF QC report for a validation run.
 
     Fetches run data, issues, and dataset info from Supabase, then
-    generates a branded PDF report with summary, methodology, and
-    issues table sections.
+    generates a branded PDF report. Supports executive (concise) and
+    technical (full) modes with optional triage summary.
     """
     supabase = get_supabase_client()
 
@@ -71,15 +77,24 @@ def get_pdf_report(run_id: str):
         except Exception:
             pass  # Use default name if dataset lookup fails
 
+    # Build triage_counts if any triage param provided
+    triage_counts = None
+    if triage_accepted is not None or triage_rejected is not None or triage_deferred is not None:
+        triage_counts = {
+            "accepted": triage_accepted or 0,
+            "rejected": triage_rejected or 0,
+            "deferred": triage_deferred or 0,
+        }
+
     # Generate PDF
-    pdf_bytes = generate_pdf_report(run_data, issues, dataset_name)
+    pdf_bytes = generate_pdf_report(run_data, issues, dataset_name, mode=mode, triage_counts=triage_counts)
 
     short_id = run_id[:8]
     return StreamingResponse(
         io.BytesIO(pdf_bytes),
         media_type="application/pdf",
         headers={
-            "Content-Disposition": f'attachment; filename="qc-report-{short_id}.pdf"'
+            "Content-Disposition": f'attachment; filename="qc-{mode}-{short_id}.pdf"'
         },
     )
 
