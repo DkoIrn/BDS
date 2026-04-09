@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 18 - Issue Triage & Manual Overrides
+**Current focus:** Phase 19 - Client-Grade Reports
 
 ## Current Position
 
-Phase: 18 of 18 (18-issue-triage-manual-overrides)
-Plan: 2 of 2
+Phase: 19 of 19 (19-client-grade-reports)
+Plan: 1 of 1
 Status: Complete
-Last activity: 2026-04-09 -- Plan 18-02 complete (review stage UI with severity tabs, triage actions, bulk toolbar)
+Last activity: 2026-04-09 -- Plan 19-01 complete (chart builder, executive/technical report modes, SoQ, TruQC branding)
 
 Progress: [██████████] 100%
 
@@ -73,6 +73,7 @@ Progress: [██████████] 100%
 | Phase 17 P02 | 3min | 3 tasks | 4 files |
 | Phase 18 P01 | 3min | 2 tasks | 5 files |
 | Phase 18 P02 | 2min | 2 tasks | 1 files |
+| Phase 19 P01 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,10 @@ Recent decisions affecting current work:
 - [Phase 18]: Issue ID convention: type-row-column-index for triage decision mapping
 - [Phase 18]: Inline severity colors to avoid ValidationSeverity type mismatch with client-side types
 - [Phase 18]: Bulk reject uses Dialog modal since one justification applies to many issues
+- [Phase 19]: Use matplotlib Figure directly (not pyplot) for thread safety in FastAPI
+- [Phase 19]: Temp file approach for PIL-to-FPDF image embedding (fpdf2 image() needs file path)
+- [Phase 19]: Executive mode returns early after top issues + SoQ (no methodology, no full table)
+- [Phase 19]: KP density uses scatter strip plot (y-axis hidden) for compact visualization
 
 ### Roadmap Evolution
 
@@ -181,6 +186,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T11:35:58.793Z
-Stopped at: Phase 19 context gathered
-Resume file: .planning/phases/19-client-grade-reports/19-CONTEXT.md
+Last session: 2026-04-09T11:57:44Z
+Stopped at: Completed 19-01-PLAN.md
+Resume file: .planning/phases/19-client-grade-reports/19-01-SUMMARY.md
