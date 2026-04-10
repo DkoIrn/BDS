@@ -1,5 +1,6 @@
 """FastAPI router for PDF report generation and annotated dataset export."""
 
+import base64
 import io
 import logging
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 
 from app.dependencies import get_supabase_client
 from app.services.dataset_export import export_annotated_csv, export_annotated_excel
@@ -17,19 +19,27 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["reports"])
 
 
-@router.get("/report/pdf/{run_id}")
-def get_pdf_report(
-    run_id: str,
-    mode: str = Query(default="technical", pattern="^(executive|technical)$"),
-    triage_accepted: int | None = Query(default=None),
-    triage_rejected: int | None = Query(default=None),
-    triage_deferred: int | None = Query(default=None),
-):
-    """Generate and return a PDF QC report for a validation run.
+class ReportRequest(BaseModel):
+    """POST body for branded PDF report generation."""
 
-    Fetches run data, issues, and dataset info from Supabase, then
-    generates a branded PDF report. Supports executive (concise) and
-    technical (full) modes with optional triage summary.
+    mode: str = "technical"
+    triage_accepted: int | None = None
+    triage_rejected: int | None = None
+    triage_deferred: int | None = None
+    sections: dict[str, bool] | None = None
+    commentary: dict[str, str] | None = None
+    brand_color: str | None = None
+    logo_base64: str | None = None  # Base64-encoded logo bytes
+
+
+def _fetch_report_data(run_id: str) -> tuple[dict, list[dict], str]:
+    """Fetch validation run, issues, and dataset name from Supabase.
+
+    Returns:
+        Tuple of (run_data, issues, dataset_name).
+
+    Raises:
+        HTTPException: If validation run not found.
     """
     supabase = get_supabase_client()
 
@@ -77,17 +87,43 @@ def get_pdf_report(
         except Exception:
             pass  # Use default name if dataset lookup fails
 
-    # Build triage_counts if any triage param provided
-    triage_counts = None
-    if triage_accepted is not None or triage_rejected is not None or triage_deferred is not None:
-        triage_counts = {
-            "accepted": triage_accepted or 0,
-            "rejected": triage_rejected or 0,
-            "deferred": triage_deferred or 0,
-        }
+    return run_data, issues, dataset_name
 
-    # Generate PDF
-    pdf_bytes = generate_pdf_report(run_data, issues, dataset_name, mode=mode, triage_counts=triage_counts)
+
+def _build_triage_counts(
+    accepted: int | None, rejected: int | None, deferred: int | None
+) -> dict | None:
+    """Build triage_counts dict if any param is provided."""
+    if accepted is not None or rejected is not None or deferred is not None:
+        return {
+            "accepted": accepted or 0,
+            "rejected": rejected or 0,
+            "deferred": deferred or 0,
+        }
+    return None
+
+
+@router.get("/report/pdf/{run_id}")
+def get_pdf_report(
+    run_id: str,
+    mode: str = Query(default="technical", pattern="^(executive|technical)$"),
+    triage_accepted: int | None = Query(default=None),
+    triage_rejected: int | None = Query(default=None),
+    triage_deferred: int | None = Query(default=None),
+):
+    """Generate and return a PDF QC report for a validation run.
+
+    Fetches run data, issues, and dataset info from Supabase, then
+    generates a branded PDF report. Supports executive (concise) and
+    technical (full) modes with optional triage summary.
+    """
+    run_data, issues, dataset_name = _fetch_report_data(run_id)
+    triage_counts = _build_triage_counts(triage_accepted, triage_rejected, triage_deferred)
+
+    # Generate PDF (no branding/sections/commentary for GET)
+    pdf_bytes = generate_pdf_report(
+        run_data, issues, dataset_name, mode=mode, triage_counts=triage_counts
+    )
 
     short_id = run_id[:8]
     return StreamingResponse(
@@ -95,6 +131,54 @@ def get_pdf_report(
         media_type="application/pdf",
         headers={
             "Content-Disposition": f'attachment; filename="qc-{mode}-{short_id}.pdf"'
+        },
+    )
+
+
+@router.post("/report/pdf/{run_id}")
+def post_pdf_report(run_id: str, body: ReportRequest):
+    """Generate a branded PDF QC report with customisation options.
+
+    Accepts sections toggle, commentary text, and branding (logo + colour)
+    via JSON body. Returns the PDF as a streaming download.
+    """
+    run_data, issues, dataset_name = _fetch_report_data(run_id)
+    triage_counts = _build_triage_counts(
+        body.triage_accepted, body.triage_rejected, body.triage_deferred
+    )
+
+    # Build branding dict
+    branding = None
+    if body.brand_color or body.logo_base64:
+        logo_bytes = None
+        if body.logo_base64:
+            try:
+                logo_bytes = base64.b64decode(body.logo_base64)
+            except Exception:
+                raise HTTPException(status_code=400, detail="Invalid base64 logo data")
+        branding = {
+            "logo_bytes": logo_bytes,
+            "brand_color": body.brand_color,
+        }
+
+    # Generate PDF with customisation
+    pdf_bytes = generate_pdf_report(
+        run_data,
+        issues,
+        dataset_name,
+        mode=body.mode,
+        triage_counts=triage_counts,
+        branding=branding,
+        sections=body.sections,
+        commentary=body.commentary,
+    )
+
+    short_id = run_id[:8]
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="qc-{body.mode}-{short_id}.pdf"'
         },
     )
 
