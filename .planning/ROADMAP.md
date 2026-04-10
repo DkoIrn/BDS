@@ -359,3 +359,22 @@ Plans:
 Plans:
 - [ ] 20-01-PLAN.md -- Backend: schema extensions, KP drift + segment continuity validators with TDD, domain pack definitions, pipeline wiring
 - [ ] 20-02-PLAN.md -- Frontend: TS type extensions, pack definitions, enhanced profile selector, chain checks UI, auto-suggestion banner, human verification
+
+### Phase 21: Usage Tracking & Tier Enforcement
+**Goal:** The platform tracks per-user usage (projects, QC checks, storage) against their plan limits and enforces those limits with clear feedback, enabling the subscription tiers to function as real commercial gates
+**Requirements**: SUBS-03, SUBS-04, SUBS-05
+**Depends on:** Phase 20
+**Success Criteria** (what must be TRUE):
+  1. System tracks project count, monthly QC check count, and total storage used per user
+  2. QC check counter resets monthly on the user's billing cycle date
+  3. Users on Free Trial are blocked from creating more than 3 projects, running more than 5 QC checks/month, or uploading files beyond 10MB total
+  4. Users on Pro are limited to 15 projects, 50 QC checks/month, and 50MB storage
+  5. Users on Max are limited to unlimited projects, 500 QC checks/month, and 200MB storage
+  6. When a user hits a limit, they see a clear message explaining the limit and an upgrade prompt
+  7. Settings page shows usage progress bars for each tracked metric
+  8. Enterprise users have no enforced limits
+**Plans:** 2 plans
+
+Plans:
+- [ ] 21-01-PLAN.md -- Usage tracking library (tier limits, live count queries, billing cycle calc), DB migration, enforcement in server actions and API route
+- [ ] 21-02-PLAN.md -- Usage progress bars on settings page, limit-reached banner component, UI error handling for limit feedback, human verification
