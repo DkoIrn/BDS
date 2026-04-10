@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { SURVEY_TYPES } from '@/lib/types/projects'
+import { TIER_LIMITS, checkUsageLimit } from '@/lib/usage'
 
 export async function createProject(
   prevState: { error?: string; success?: boolean } | null,
@@ -23,6 +24,26 @@ export async function createProject(
 
   if (!name || name.length < 3 || name.length > 100) {
     return { error: 'Project name must be between 3 and 100 characters' }
+  }
+
+  // Tier enforcement: check project limit
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan, billing_cycle_start')
+    .eq('id', user.id)
+    .single()
+
+  const plan = profile?.plan ?? 'free'
+  const limits = TIER_LIMITS[plan] ?? TIER_LIMITS['free']
+
+  const { count: projectCount } = await supabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+
+  const limitResult = checkUsageLimit(projectCount ?? 0, limits.maxProjects, 'projects', plan)
+  if (!limitResult.allowed) {
+    return { error: limitResult.message, limitReached: true }
   }
 
   const { error } = await supabase.from('projects').insert({

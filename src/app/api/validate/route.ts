@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/actions/audit'
 import type { ProfileConfig } from '@/lib/types/validation'
+import { TIER_LIMITS, checkUsageLimit, getCurrentBillingPeriodStart } from '@/lib/usage'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -44,6 +45,37 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: 'Dataset must be in "mapped" or "validated" status to validate' },
       { status: 400 }
+    )
+  }
+
+  // Tier enforcement: check monthly QC check limit
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan, billing_cycle_start')
+    .eq('id', user.id)
+    .single()
+
+  const plan = profile?.plan ?? 'free'
+  const limits = TIER_LIMITS[plan] ?? TIER_LIMITS['free']
+  const periodStart = getCurrentBillingPeriodStart(
+    profile?.billing_cycle_start ?? new Date().toISOString()
+  )
+
+  const { data: qcCheckCount } = await supabase.rpc('count_user_qc_checks', {
+    p_user_id: user.id,
+    p_since: periodStart.toISOString(),
+  })
+
+  const qcLimitResult = checkUsageLimit(
+    qcCheckCount ?? 0,
+    limits.maxQcChecksPerMonth,
+    'QC checks',
+    plan
+  )
+  if (!qcLimitResult.allowed) {
+    return NextResponse.json(
+      { error: qcLimitResult.message, limitReached: true },
+      { status: 403 }
     )
   }
 

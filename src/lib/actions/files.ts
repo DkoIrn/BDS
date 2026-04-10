@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { Dataset, DatasetStatus } from '@/lib/types/files'
 import type { ColumnMapping } from '@/lib/parsing/types'
+import { TIER_LIMITS, checkUsageLimit } from '@/lib/usage'
 
 export async function createFileRecord(data: {
   jobId: string
@@ -11,7 +12,7 @@ export async function createFileRecord(data: {
   fileSize: number
   mimeType: string
   storagePath: string
-}): Promise<{ success: true; id: string } | { error: string }> {
+}): Promise<{ success: true; id: string } | { error: string; limitReached?: boolean }> {
   const supabase = await createClient()
 
   const {
@@ -32,6 +33,36 @@ export async function createFileRecord(data: {
 
   if (jobError || !job) {
     return { error: 'Job not found or access denied' }
+  }
+
+  // Tier enforcement: check storage limit
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan, billing_cycle_start')
+    .eq('id', user.id)
+    .single()
+
+  const plan = profile?.plan ?? 'free'
+  const limits = TIER_LIMITS[plan] ?? TIER_LIMITS['free']
+
+  const { data: storageRows } = await supabase
+    .from('datasets')
+    .select('file_size')
+    .eq('user_id', user.id)
+
+  const currentStorageBytes = (storageRows ?? []).reduce(
+    (sum: number, row: { file_size: number }) => sum + (row.file_size || 0),
+    0
+  )
+
+  const storageLimitResult = checkUsageLimit(
+    currentStorageBytes + data.fileSize,
+    limits.maxStorageBytes,
+    'storage',
+    plan
+  )
+  if (!storageLimitResult.allowed) {
+    return { error: storageLimitResult.message, limitReached: true }
   }
 
   const { data: dataset, error } = await supabase
