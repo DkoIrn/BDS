@@ -167,7 +167,7 @@ export function ProfileSelector({
                           {t.expectedColumns.map((col) => (
                             <span
                               key={col}
-                              className="inline-flex rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                              className="inline-flex rounded-full bg-teal-100 px-1.5 py-0.5 text-[10px] font-medium text-teal-700 dark:bg-teal-900/50 dark:text-teal-300"
                             >
                               {COLUMN_TYPE_LABELS[col] ?? col}
                             </span>
