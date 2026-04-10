@@ -17,14 +17,29 @@ import {
   X,
   ChevronDown,
   Info,
+  Undo2,
+  Eraser,
+  Merge,
+  TrendingDown,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
 import { setPipelineHandoff } from "@/lib/pipeline-handoff"
 import { autoClean, type CleanAction, type CleanResult } from "../lib/auto-clean"
 import type { ValidationIssue } from "../lib/client-validate"
 import type { PipelineState, PipelineAction } from "../lib/pipeline-state"
 import { logAuditClient } from "@/lib/audit-client"
+import type { FixType, FixPreview, UndoEntry } from "../lib/fix-types"
+import {
+  previewFillMissing,
+  applyFillMissing,
+  previewRemoveDuplicates,
+  applyRemoveDuplicates,
+  previewSmoothSpikes,
+  applySmoothSpikes,
+} from "../lib/fix-engine"
+import { FixPreviewModal } from "./fix-preview-modal"
 
 interface StageCleanProps {
   state: PipelineState
@@ -69,8 +84,113 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
   const [aiRanWithNoResults, setAiRanWithNoResults] = useState(false)
   const [showAllActions, setShowAllActions] = useState(false)
 
+  // One-click fix state
+  const [undoStack, setUndoStack] = useState<UndoEntry[]>([])
+  const [activePreview, setActivePreview] = useState<FixPreview | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [appliedFixes, setAppliedFixes] = useState<FixType[]>([])
+
   const hasIssues = validationIssues.length > 0 || (state.issueCount !== null && state.issueCount > 0)
   const validationSkipped = state.stages.validate.skipped
+
+  // Current working data (cleaned if available, otherwise parsed)
+  const workingData = state.cleanedData ?? state.parsedData
+
+  // --- One-click fix preview ---
+  const FIX_TYPE_LABELS: Record<FixType, string> = {
+    fill_missing: "missing values",
+    remove_duplicates: "duplicates",
+    smooth_spikes: "spikes",
+  }
+
+  function handleFixPreview(fixType: FixType) {
+    if (!workingData || workingData.length < 2) return
+
+    setPreviewLoading(true)
+    let preview: FixPreview
+
+    switch (fixType) {
+      case "fill_missing":
+        preview = previewFillMissing(workingData)
+        break
+      case "remove_duplicates":
+        preview = previewRemoveDuplicates(workingData)
+        break
+      case "smooth_spikes":
+        preview = previewSmoothSpikes(workingData)
+        break
+    }
+
+    setPreviewLoading(false)
+
+    if (preview.totalAffected === 0) {
+      toast(`No ${FIX_TYPE_LABELS[fixType]} found`)
+      return
+    }
+
+    setActivePreview(preview)
+  }
+
+  function handleFixConfirm() {
+    if (!activePreview || !workingData) return
+
+    let result
+    switch (activePreview.type) {
+      case "fill_missing":
+        result = applyFillMissing(workingData)
+        break
+      case "remove_duplicates":
+        result = applyRemoveDuplicates(workingData)
+        break
+      case "smooth_spikes":
+        result = applySmoothSpikes(workingData)
+        break
+    }
+
+    // Push undo snapshot
+    const label = `${activePreview.type === "fill_missing" ? "Fill Missing" : activePreview.type === "remove_duplicates" ? "Remove Duplicates" : "Smooth Spikes"} (${result.preview.totalAffected} ${result.preview.totalAffected === 1 ? "row" : "rows"})`
+    setUndoStack((prev) => [...prev, { data: result.undoSnapshot, label, timestamp: Date.now() }])
+
+    // Update pipeline state
+    dispatch({ type: "AI_FIX_APPLIED", updatedData: result.data })
+
+    // Audit log
+    logAuditClient({
+      action: "clean.one_click_fix",
+      entityType: "dataset",
+      entityId: state.datasetId ?? undefined,
+      metadata: {
+        fixType: activePreview.type,
+        rowsAffected: result.preview.totalAffected,
+        changes: result.preview.affectedRows.slice(0, 100).map((r) => ({
+          row: r.rowIndex,
+          column: r.column,
+          before: r.before,
+          after: r.after,
+        })),
+      },
+    })
+
+    // Mark fix as applied
+    setAppliedFixes((prev) => [...prev, activePreview.type])
+
+    // Close modal and show toast
+    setActivePreview(null)
+    toast.success(`${result.preview.totalAffected} ${FIX_TYPE_LABELS[activePreview.type]} fix${result.preview.totalAffected !== 1 ? "es" : ""} applied`)
+  }
+
+  function handleUndo() {
+    if (undoStack.length === 0) return
+
+    const lastEntry = undoStack[undoStack.length - 1]
+    setUndoStack((prev) => prev.slice(0, -1))
+    dispatch({ type: "AI_FIX_APPLIED", updatedData: lastEntry.data })
+
+    // Remove last applied fix type
+    setAppliedFixes((prev) => prev.slice(0, -1))
+
+    toast(`Undid: ${lastEntry.label}`)
+  }
 
   // --- Auto-clean ---
   async function handleAutoClean() {
@@ -237,6 +357,17 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
     })
   }
 
+  // Fix preview modal (portaled — renders from any return path)
+  const fixPreviewModalEl = (
+    <FixPreviewModal
+      open={activePreview !== null}
+      onOpenChange={(open) => { if (!open) setActivePreview(null) }}
+      preview={activePreview}
+      onConfirm={handleFixConfirm}
+      loading={previewLoading}
+    />
+  )
+
   // --- Completed state (revisiting) ---
   if (state.stages.clean.completed) {
     return (
@@ -321,6 +452,8 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
     const displayActions = showAllActions ? actions : actions.slice(0, 6)
 
     return (
+      <>
+      {fixPreviewModalEl}
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -390,6 +523,14 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
               )}
             </div>
           )}
+
+          {/* One-Click Fixes (incremental fixing after auto-fix) */}
+          <OneClickFixSection
+            appliedFixes={appliedFixes}
+            onPreview={handleFixPreview}
+            undoStack={undoStack}
+            onUndo={handleUndo}
+          />
 
           {/* Unresolved issues — offer AI assist */}
           {unresolved.length > 0 && (
@@ -510,11 +651,14 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
           </div>
         </CardContent>
       </Card>
+      </>
     )
   }
 
   // --- Initial state ---
   return (
+    <>
+    {fixPreviewModalEl}
     <Card className="rounded-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -536,6 +680,14 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
                 </p>
               </div>
             </div>
+
+            {/* One-Click Fixes */}
+            <OneClickFixSection
+              appliedFixes={appliedFixes}
+              onPreview={handleFixPreview}
+              undoStack={undoStack}
+              onUndo={handleUndo}
+            />
 
             {/* Two-tier explanation */}
             <div className="grid gap-3 sm:grid-cols-2">
@@ -628,6 +780,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
         </div>
       </CardContent>
     </Card>
+    </>
   )
 }
 
@@ -815,6 +968,62 @@ function TransformToolLinks({
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+const FIX_BUTTONS: { type: FixType; label: string; icon: typeof Eraser }[] = [
+  { type: "fill_missing", label: "Fill Missing", icon: Eraser },
+  { type: "remove_duplicates", label: "Remove Duplicates", icon: Merge },
+  { type: "smooth_spikes", label: "Smooth Spikes", icon: TrendingDown },
+]
+
+function OneClickFixSection({
+  appliedFixes,
+  onPreview,
+  undoStack,
+  onUndo,
+}: {
+  appliedFixes: FixType[]
+  onPreview: (type: FixType) => void
+  undoStack: UndoEntry[]
+  onUndo: () => void
+}) {
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        One-Click Fixes
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {FIX_BUTTONS.map(({ type, label, icon: Icon }) => {
+          const applied = appliedFixes.includes(type)
+          return (
+            <Button
+              key={type}
+              variant="outline"
+              disabled={applied}
+              onClick={() => onPreview(type)}
+              className="gap-2"
+            >
+              {applied ? (
+                <CheckCircle className="size-3.5 text-green-600" />
+              ) : (
+                <Icon className="size-3.5" />
+              )}
+              {label}
+            </Button>
+          )
+        })}
+      </div>
+      {undoStack.length > 0 && (
+        <button
+          onClick={onUndo}
+          className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-900/50"
+        >
+          <Undo2 className="size-3.5" />
+          Undo: {undoStack[undoStack.length - 1].label}
+        </button>
+      )}
     </div>
   )
 }
