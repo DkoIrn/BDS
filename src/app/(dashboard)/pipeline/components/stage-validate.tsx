@@ -21,6 +21,10 @@ import {
   type ValidationResult,
 } from "../lib/client-validate"
 import { suggestProfileFromHeaders, getTemplateById } from "@/lib/validation/templates"
+import { clusterIssues, adaptPipelineIssues } from "@/lib/ai/cluster-issues"
+import { AISummaryPanel } from "@/components/files/ai-summary-panel"
+import { IssueClusterRow } from "@/components/files/issue-cluster"
+import type { IssueCluster } from "@/lib/ai/types"
 
 
 const SEVERITY_CONFIG = {
@@ -170,6 +174,14 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
   // Completed state
   if (state.stages.validate.completed) {
     const passed = state.issueCount === 0
+    const issueClusters: IssueCluster[] = result
+      ? clusterIssues(adaptPipelineIssues(result.issues))
+      : []
+    const rowCount = state.parsedData?.length ? state.parsedData.length - 1 : 0
+    const criticalCount = result?.summary.critical ?? 0
+    const computedPassRate = rowCount > 0
+      ? ((rowCount - criticalCount) / rowCount) * 100
+      : 100
 
     return (
       <Card className="rounded-2xl">
@@ -210,7 +222,20 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
                   </p>
                 </div>
               </div>
-              {result && <IssuesList issues={result.issues} summary={result.summary} />}
+              {issueClusters.length > 0 && (
+                <AISummaryPanel
+                  clusters={issueClusters}
+                  passRate={computedPassRate}
+                  totalIssues={result?.summary.total ?? 0}
+                  rowCount={rowCount}
+                  fileName={state.fileName ?? "Pipeline dataset"}
+                />
+              )}
+              {issueClusters.length > 0 ? (
+                <ClusteredIssuesList clusters={issueClusters} />
+              ) : result ? (
+                <IssuesList issues={result.issues} summary={result.summary} />
+              ) : null}
             </>
           )}
 
@@ -417,6 +442,28 @@ function IssuesList({
           className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           {expanded ? "Show less" : `Show all ${issues.length} issues`}
+        </button>
+      )}
+    </div>
+  )
+}
+
+function ClusteredIssuesList({ clusters }: { clusters: IssueCluster[] }) {
+  const [expanded, setExpanded] = useState(false)
+  const displayClusters = expanded ? clusters : clusters.slice(0, 5)
+
+  return (
+    <div className="space-y-2">
+      {displayClusters.map((cluster) => (
+        <IssueClusterRow key={cluster.id} cluster={cluster} />
+      ))}
+
+      {clusters.length > 5 && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {expanded ? "Show fewer clusters" : `Show all ${clusters.length} clusters`}
         </button>
       )}
     </div>

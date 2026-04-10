@@ -1,12 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Layers, List } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getValidationRuns, getValidationIssues } from "@/lib/actions/validation"
 import { ResultsStatCards } from "@/components/files/results-stat-cards"
 import { IssuesTable } from "@/components/files/issues-table"
 import { RunSwitcher } from "@/components/files/run-switcher"
 import { ExportButtons } from "@/components/files/export-buttons"
+import { AISummaryPanel } from "@/components/files/ai-summary-panel"
+import { IssueClusterRow } from "@/components/files/issue-cluster"
+import { clusterIssues, adaptServerIssues } from "@/lib/ai/cluster-issues"
+import type { IssueCluster } from "@/lib/ai/types"
 import type { ValidationRun, ValidationIssue, ValidationSeverity } from "@/lib/types/validation"
 
 interface ResultsDashboardProps {
@@ -17,6 +22,8 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
   const [runs, setRuns] = useState<ValidationRun[]>([])
   const [selectedRunId, setSelectedRunId] = useState<string>("")
   const [issues, setIssues] = useState<ValidationIssue[]>([])
+  const [clusters, setClusters] = useState<IssueCluster[]>([])
+  const [viewMode, setViewMode] = useState<"clustered" | "individual">("clustered")
   const [loadingRuns, setLoadingRuns] = useState(true)
   const [loadingIssues, setLoadingIssues] = useState(false)
   const [activeSeverity, setActiveSeverity] = useState<ValidationSeverity | "all">("all")
@@ -48,6 +55,7 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
       const result = await getValidationIssues(selectedRunId)
       if ("data" in result) {
         setIssues(result.data)
+        setClusters(clusterIssues(adaptServerIssues(result.data)))
       }
       setLoadingIssues(false)
     }
@@ -112,7 +120,18 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
         />
       )}
 
-      {/* Issues */}
+      {/* AI Summary Panel */}
+      {!loadingIssues && clusters.length > 0 && selectedRun && (
+        <AISummaryPanel
+          clusters={clusters}
+          passRate={selectedRun.pass_rate ?? 0}
+          totalIssues={selectedRun.total_issues ?? issues.length}
+          rowCount={issues.length}
+          fileName={datasetId}
+        />
+      )}
+
+      {/* View toggle + Issues */}
       {loadingIssues ? (
         <div className="space-y-3">
           <Skeleton className="h-10 w-full rounded-xl" />
@@ -120,12 +139,52 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
           <Skeleton className="h-20 w-full rounded-2xl" />
         </div>
       ) : (
-        <IssuesTable
-          issues={issues}
-          datasetId={datasetId}
-          activeSeverity={activeSeverity}
-          onSeverityChange={setActiveSeverity}
-        />
+        <>
+          {clusters.length > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode("clustered")}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                  viewMode === "clustered"
+                    ? "bg-foreground text-background"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Layers className="size-3" />
+                Clustered
+              </button>
+              <button
+                onClick={() => setViewMode("individual")}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                  viewMode === "individual"
+                    ? "bg-foreground text-background"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <List className="size-3" />
+                Individual
+              </button>
+            </div>
+          )}
+
+          {viewMode === "clustered" && clusters.length > 0 ? (
+            <div className="space-y-2">
+              {(activeSeverity === "all"
+                ? clusters
+                : clusters.filter((c) => c.severity === activeSeverity)
+              ).map((cluster) => (
+                <IssueClusterRow key={cluster.id} cluster={cluster} />
+              ))}
+            </div>
+          ) : (
+            <IssuesTable
+              issues={issues}
+              datasetId={datasetId}
+              activeSeverity={activeSeverity}
+              onSeverityChange={setActiveSeverity}
+            />
+          )}
+        </>
       )}
     </div>
   )
