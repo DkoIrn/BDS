@@ -378,3 +378,80 @@ Plans:
 Plans:
 - [ ] 21-01-PLAN.md -- Usage tracking library (tier limits, live count queries, billing cycle calc), DB migration, enforcement in server actions and API route
 - [ ] 21-02-PLAN.md -- Usage progress bars on settings page, limit-reached banner component, UI error handling for limit feedback, human verification
+
+### Phase 22: AI Issue Prioritisation & Smart Grouping
+**Goal:** The validation results surface actionable intelligence — top blockers, clustered issues, and dataset accept/reject recommendations — so users make faster decisions instead of scanning raw issue lists
+**Requirements**: AIFR-01, AIFR-03, AIFR-04
+**Depends on:** Phase 21
+**Success Criteria** (what must be TRUE):
+  1. Results dashboard shows "Top 3 Blockers" summary highlighting the most impactful issues
+  2. Similar issues are clustered (e.g. "23 KP gaps between KP 102-118") instead of listed individually
+  3. AI generates a plain-English summary of the validation results
+  4. System provides a dataset accept/reject recommendation with confidence percentage
+  5. Issue clusters are expandable to see individual instances
+  6. Prioritisation works on both pipeline and project validation flows
+**Plans:** 0 plans
+
+### Phase 23: One-Click Data Fixes
+**Goal:** Users can resolve common QC issues directly in TruQC with one-click fixes — interpolate missing values, remove duplicates, smooth spikes — with before/after preview, eliminating the need to export and fix externally
+**Requirements**: CLEN-01, CLEN-02, CLEN-03, CLEN-04
+**Depends on:** Phase 22
+**Success Criteria** (what must be TRUE):
+  1. User can apply "Fill Missing" fix that interpolates gaps using surrounding values
+  2. User can apply "Remove Duplicates" fix that deduplicates rows keeping the first occurrence
+  3. User can apply "Smooth Spikes" fix that replaces outlier values with interpolated alternatives
+  4. Each fix shows a before/after diff preview before applying
+  5. Fixes are reversible (undo last fix)
+  6. Fix actions are logged in the audit trail
+**Plans:** 0 plans
+
+### Phase 24: Branded Client Reports
+**Goal:** Users can customise QC reports with their company branding — logo, colours, toggleable sections, and commentary — producing client-ready deliverables directly from TruQC
+**Requirements**: RPTX-01, RPTX-02, RPTX-03, RPTX-04
+**Depends on:** Phase 23
+**Success Criteria** (what must be TRUE):
+  1. User can upload their company logo in settings, which appears on all generated PDF reports
+  2. User can set a primary brand colour that themes report headers and accents
+  3. User can toggle report sections on/off before generating (e.g. hide methodology, show only summary)
+  4. User can add commentary/notes to report sections before generation
+  5. Report branding settings persist per user account
+  6. Both Executive and Technical reports respect branding settings
+**Plans:** 0 plans
+
+### Phase 25: Multi-User & Roles
+**Goal:** Teams can collaborate on QC workflows with role-based access — Admins manage the account, Reviewers validate and approve, Viewers see results — enabling TruQC to sell to teams rather than individuals
+**Requirements**: TEAM-01, TEAM-03, TEAM-04, TEAM-05
+**Depends on:** Phase 24
+**Success Criteria** (what must be TRUE):
+  1. Admin can invite team members by email and assign roles (Admin, Reviewer, Viewer)
+  2. Reviewers can run validation, triage issues, and generate reports but cannot manage billing or team
+  3. Viewers can see project results and download reports but cannot modify data or run validation
+  4. Team members share projects and datasets within the organisation
+  5. Users can comment on individual validation issues
+  6. Approval workflow: datasets can be marked as Reviewed → Approved → Issued
+**Plans:** 0 plans
+
+### Phase 26: Enterprise API
+**Goal:** Enterprise tier users can integrate TruQC into their pipeline programmatically — upload files, trigger validation, fetch results and reports via REST API — with API key management and webhook notifications
+**Requirements**: SUBS-05, EAPI-01, EAPI-02, EAPI-03, EAPI-04
+**Depends on:** Phase 25
+**Success Criteria** (what must be TRUE):
+  1. Enterprise users can generate and manage API keys from settings
+  2. API supports file upload, validation trigger, and result retrieval
+  3. API returns validation results as structured JSON
+  4. API can generate and download PDF reports
+  5. Webhooks notify external systems when validation completes or fails
+  6. API is rate-limited and scoped to the user's organisation
+**Plans:** 0 plans
+
+### Phase 27: Spatial QC Map Overlay
+**Goal:** Users can visualise validation issues geographically — flagged data points plotted on the interactive map with error density heatmaps and spatial dataset comparison — making spatial QC intuitive and visual
+**Requirements**: SQCV-01, SQCV-02, SQCV-03
+**Depends on:** Phase 26
+**Success Criteria** (what must be TRUE):
+  1. After validation, users can view flagged issues plotted on the map with severity-coloured markers
+  2. Error density heatmap layer shows concentration of issues across the survey area
+  3. Users can compare two datasets spatially on the map with deviation highlights
+  4. Map view is accessible from both the results dashboard and the pipeline
+  5. Issue markers are clickable with popup showing issue details
+**Plans:** 0 plans

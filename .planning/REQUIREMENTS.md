@@ -137,11 +137,43 @@ Deferred to future release. Tracked but not in current roadmap.
 
 - **AIFR-01**: AI-powered natural language summaries of QC results
 - **AIFR-02**: AI-suggested data corrections with confidence scores
+- **AIFR-03**: AI-driven issue prioritisation with top blockers and clustering
+- **AIFR-04**: Dataset accept/reject recommendation with confidence score
+
+### Data Cleaning
+
+- **CLEN-01**: One-click fix for missing values (interpolation)
+- **CLEN-02**: One-click duplicate removal
+- **CLEN-03**: One-click spike smoothing
+- **CLEN-04**: Before vs after diff preview of cleaning actions
+
+### Reporting (Enhanced)
+
+- **RPTX-01**: Company logo upload for branded reports
+- **RPTX-02**: Custom colour scheme on reports
+- **RPTX-03**: Toggleable report sections
+- **RPTX-04**: Commentary/notes on report sections
 
 ### Team & Collaboration
 
 - **TEAM-01**: Multi-user accounts with role-based access
 - **TEAM-02**: Google OAuth login
+- **TEAM-03**: Admin/Reviewer/Viewer roles with permissions
+- **TEAM-04**: Team invites and member management
+- **TEAM-05**: Issue comments and approval workflow
+
+### Enterprise API
+
+- **EAPI-01**: REST API for programmatic file upload and validation
+- **EAPI-02**: API key management in settings
+- **EAPI-03**: Fetch validation results and reports via API
+- **EAPI-04**: Webhook notifications (validation complete, QC failed)
+
+### Spatial QC
+
+- **SQCV-01**: Overlay flagged issues on map visualiser
+- **SQCV-02**: Error density heatmap
+- **SQCV-03**: Compare two datasets spatially on map
 
 ## Out of Scope
 
