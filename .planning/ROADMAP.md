@@ -407,7 +407,11 @@ Plans:
   4. Each fix shows a before/after diff preview before applying
   5. Fixes are reversible (undo last fix)
   6. Fix actions are logged in the audit trail
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 23-01-PLAN.md -- TDD fix engine: individual fix functions (fillMissing, removeDuplicates, smoothSpikes) with preview and undo support
+- [ ] 23-02-PLAN.md -- Clean stage UI: fix preview modal, one-click fix buttons, undo button, audit logging, human verification
 
 ### Phase 24: Branded Client Reports
 **Goal:** Users can customise QC reports with their company branding — logo, colours, toggleable sections, and commentary — producing client-ready deliverables directly from TruQC
