@@ -424,7 +424,11 @@ Plans:
   4. User can add commentary/notes to report sections before generation
   5. Report branding settings persist per user account
   6. Both Executive and Technical reports respect branding settings
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 24-01-PLAN.md -- Backend: DB migration for branding columns, report builder branding/sections/commentary params, FastAPI POST endpoint, tests
+- [ ] 24-02-PLAN.md -- Frontend: branding settings UI (logo upload + colour picker), pre-generation dialog (section toggles + commentary), POST proxy route, human verification
 
 ### Phase 25: Multi-User & Roles
 **Goal:** Teams can collaborate on QC workflows with role-based access — Admins manage the account, Reviewers validate and approve, Viewers see results — enabling TruQC to sell to teams rather than individuals
