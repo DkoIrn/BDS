@@ -53,9 +53,10 @@ const SEVERITY_CONFIG = {
 
 interface StageValidateProps extends StagePanelProps {
   onIssuesFound?: (issues: ValidationIssue[]) => void
+  validationIssues?: ValidationIssue[]
 }
 
-export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateProps) {
+export function StageValidate({ state, dispatch, onIssuesFound, validationIssues }: StageValidateProps) {
   const [validating, setValidating] = useState(false)
   const [result, setResult] = useState<ValidationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -174,8 +175,9 @@ export function StageValidate({ state, dispatch, onIssuesFound }: StageValidateP
   // Completed state
   if (state.stages.validate.completed) {
     const passed = state.issueCount === 0
-    const issueClusters: IssueCluster[] = result
-      ? clusterIssues(adaptPipelineIssues(result.issues))
+    const issuesSource = result?.issues ?? validationIssues ?? []
+    const issueClusters: IssueCluster[] = issuesSource.length > 0
+      ? clusterIssues(adaptPipelineIssues(issuesSource))
       : []
     const rowCount = state.parsedData?.length ? state.parsedData.length - 1 : 0
     const criticalCount = result?.summary.critical ?? 0

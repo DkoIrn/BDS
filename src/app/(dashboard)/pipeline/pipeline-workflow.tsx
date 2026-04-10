@@ -129,7 +129,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
         )}
 
         {state.currentStage === "validate" && (
-          <StageValidate state={state} dispatch={dispatch} onIssuesFound={setValidationIssues} />
+          <StageValidate state={state} dispatch={dispatch} onIssuesFound={setValidationIssues} validationIssues={validationIssues} />
         )}
 
         {state.currentStage === "review" && (
