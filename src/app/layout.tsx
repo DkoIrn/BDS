@@ -12,6 +12,9 @@ const nunito = Nunito({
 export const metadata: Metadata = {
   title: "TruQC",
   description: "Validate. Transform. Visualise.",
+  verification: {
+    google: "z8ije5VnDAAxdQdxXyIFwjgwUTOk2UtHw_UzsF2JnTI",
+  },
 };
 
 export default function RootLayout({
