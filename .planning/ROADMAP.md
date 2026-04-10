@@ -373,7 +373,7 @@ Plans:
   6. When a user hits a limit, they see a clear message explaining the limit and an upgrade prompt
   7. Settings page shows usage progress bars for each tracked metric
   8. Enterprise users have no enforced limits
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 21-01-PLAN.md -- Usage tracking library (tier limits, live count queries, billing cycle calc), DB migration, enforcement in server actions and API route
