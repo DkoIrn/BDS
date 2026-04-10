@@ -374,13 +374,17 @@ export function FileDetailView({
       })
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}))
-        const message =
-          (errData as { error?: string }).error ?? "Validation failed"
+        const errData = await response.json().catch(() => ({}) as Record<string, unknown>)
+        const typedErr = errData as { error?: string; limitReached?: boolean }
+        const message = typedErr.error ?? "Validation failed"
         setValidationError(message)
         setDatasetStatus("validation_error")
         setValidating(false)
-        toast.error(message)
+        toast.error(
+          typedErr.limitReached
+            ? `${message} (Upgrade your plan in Settings)`
+            : message
+        )
         return
       }
 
@@ -417,13 +421,17 @@ export function FileDetailView({
       })
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}))
-        const message =
-          (errData as { error?: string }).error ?? "Validation failed"
+        const errData = await response.json().catch(() => ({}) as Record<string, unknown>)
+        const typedErr = errData as { error?: string; limitReached?: boolean }
+        const message = typedErr.error ?? "Validation failed"
         setValidationError(message)
         setDatasetStatus("validation_error")
         setValidating(false)
-        toast.error(message)
+        toast.error(
+          typedErr.limitReached
+            ? `${message} (Upgrade your plan in Settings)`
+            : message
+        )
         return
       }
 

@@ -28,6 +28,8 @@ export function CreateProjectDialog() {
       setOpen(false)
       toast.success("Project created")
       formRef.current?.reset()
+    } else if (state?.error && "limitReached" in state && state.limitReached) {
+      toast.error(`${state.error} (Upgrade your plan in Settings)`)
     }
   }, [state])
 

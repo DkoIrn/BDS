@@ -201,6 +201,22 @@ export function FileUploadZone({
       if ("error" in result) {
         // Clean up storage since DB insert failed
         await supabase.storage.from("datasets").remove([storagePath])
+
+        // If limit reached, show specific toast and signal to stop the queue
+        if ("limitReached" in result && result.limitReached) {
+          toast.error(`${result.error} (Upgrade your plan in Settings)`)
+          setUploadItems((prev) =>
+            prev.map((i) =>
+              i.id === item.id
+                ? { ...i, status: "failed" as const, error: result.error }
+                : i.status === "queued"
+                  ? { ...i, status: "cancelled" as const }
+                  : i
+            )
+          )
+          return
+        }
+
         throw new Error(result.error)
       }
 
