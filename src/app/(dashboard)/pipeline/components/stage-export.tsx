@@ -5,12 +5,10 @@ import {
   Download,
   Loader2,
   Check,
-  FileText,
   RefreshCw,
   AlertCircle,
   ArrowLeft,
   FolderPlus,
-  ChevronDown,
   ExternalLink,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -198,22 +196,24 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Download success */}
-          <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
-            <Check className="size-5 text-green-600 dark:text-green-400" />
-            <div>
-              <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                Downloaded: {downloadedFilename}
-              </p>
-              {downloadedSize && (
-                <p className="text-xs text-green-600 dark:text-green-400">
-                  {formatFileSize(downloadedSize)}
+          {downloadedFilename && (
+            <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
+              <Check className="size-5 text-green-600 dark:text-green-400" />
+              <div>
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  Downloaded: {downloadedFilename}
                 </p>
-              )}
+                {downloadedSize && (
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    {formatFileSize(downloadedSize)}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Re-download */}
-          {blobUrlRef.current && downloadedFilename && (
+          {/* Download / Re-download */}
+          {blobUrlRef.current && downloadedFilename ? (
             <Button
               variant="outline"
               onClick={() =>
@@ -224,12 +224,22 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
               <Download className="mr-2 size-4" />
               Download Again
             </Button>
+          ) : !downloadedFilename && (
+            <Button
+              variant="outline"
+              onClick={handleDownload}
+              disabled={!state.exportFormat || downloading}
+              className="w-full"
+            >
+              {downloading ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 size-4" />
+              )}
+              {downloading ? "Exporting..." : "Download Dataset"}
+            </Button>
           )}
 
-          {/* QC Report dropdown */}
-          {state.validationRunId && (
-            <QcReportDropdown state={state} />
-          )}
 
           {/* Stage summary */}
           <div className="rounded-lg border bg-muted/30 p-4">
@@ -256,6 +266,7 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
           {/* Save to Project */}
           <SaveToProject
             state={state}
+            dispatch={dispatch}
             userId={userId}
             fileRef={fileRef}
             validationIssues={validationIssues}
@@ -316,33 +327,42 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
           </div>
         )}
 
+
         {/* Actions */}
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() =>
-              dispatch({ type: "GO_TO_STAGE", stage: "clean" })
-            }
-          >
-            <ArrowLeft className="mr-2 size-4" />
-            Back
-          </Button>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() =>
+                dispatch({ type: "GO_TO_STAGE", stage: "clean" })
+              }
+            >
+              <ArrowLeft className="mr-2 size-4" />
+              Back
+            </Button>
+            <button
+              onClick={handleDownload}
+              disabled={!state.exportFormat || downloading}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+            >
+              {downloading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="size-4" />
+                  Download Dataset
+                </>
+              )}
+            </button>
+          </div>
           <button
-            onClick={handleDownload}
-            disabled={!state.exportFormat || downloading}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+            onClick={() => setDownloaded(true)}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted/50 hover:text-foreground"
           >
-            {downloading ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <Download className="size-4" />
-                Download Dataset
-              </>
-            )}
+            Skip Download
           </button>
         </div>
       </CardContent>
@@ -350,105 +370,6 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
   )
 }
 
-// --- QC Report Dropdown ---
-
-function QcReportDropdown({ state }: { state: PipelineState }) {
-  const [open, setOpen] = useState(false)
-  const [downloading, setDownloading] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!open) return
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [open])
-
-  // Compute triage counts
-  const hasTriageData =
-    Object.keys(state.triageDecisions).length > 0 && !state.triageAutoSkipped
-  const triageCounts = hasTriageData
-    ? Object.values(state.triageDecisions).reduce(
-        (acc, entry) => {
-          acc[entry.decision] = (acc[entry.decision] || 0) + 1
-          return acc
-        },
-        { accept: 0, reject: 0, defer: 0 } as Record<string, number>
-      )
-    : null
-
-  async function handleDownloadReport(mode: "executive" | "technical") {
-    setOpen(false)
-    setDownloading(true)
-    try {
-      let url = `/api/reports/pdf?runId=${state.validationRunId}&mode=${mode}`
-      if (triageCounts) {
-        url += `&triage_accepted=${triageCounts.accept}&triage_rejected=${triageCounts.reject}&triage_deferred=${triageCounts.defer}`
-      }
-
-      const res = await fetch(url)
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: "Download failed" }))
-        throw new Error(body.error || "Download failed")
-      }
-
-      const blob = await res.blob()
-      const blobUrl = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = blobUrl
-      a.download = `qc-${mode}-report-${(state.validationRunId || "").slice(0, 8)}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(blobUrl)
-    } catch (err) {
-      console.error("QC Report download failed:", err)
-    } finally {
-      setDownloading(false)
-    }
-  }
-
-  return (
-    <div className="relative" ref={menuRef}>
-      <Button
-        variant="outline"
-        className="w-full"
-        disabled={downloading}
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        {downloading ? (
-          <Loader2 className="mr-2 size-4 animate-spin" />
-        ) : (
-          <FileText className="mr-2 size-4" />
-        )}
-        QC Report
-        <ChevronDown className="ml-2 size-3" />
-      </Button>
-      {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-full min-w-[200px] rounded-lg border bg-popover p-1 shadow-md">
-          <button
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
-            onClick={() => handleDownloadReport("executive")}
-          >
-            <FileText className="size-4 text-teal-600" />
-            Executive Report
-          </button>
-          <button
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
-            onClick={() => handleDownloadReport("technical")}
-          >
-            <FileText className="size-4 text-blue-600" />
-            Technical Report
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
 
 function SummaryRow({
   label,
@@ -475,11 +396,13 @@ type SaveStep = "prompt" | "form" | "saving" | "saved"
 
 function SaveToProject({
   state,
+  dispatch,
   userId,
   fileRef,
   validationIssues,
 }: {
   state: PipelineState
+  dispatch: React.Dispatch<PipelineAction>
   userId: string
   fileRef: React.MutableRefObject<File | null>
   validationIssues: ValidationIssue[]
@@ -617,23 +540,37 @@ function SaveToProject({
       // 7. Save pipeline validation results if we ran validation
       // Runs after mapping so final status ends up as 'validated'
       if (validationIssues.length > 0 || state.stages.validate.completed) {
-        await fetch("/api/pipeline-validation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            datasetId: fileResult.id,
-            issues: validationIssues.map((i) => ({
-              type: i.type,
-              severity: i.severity,
-              row: i.row,
-              column: i.column,
-              message: i.message,
-              detail: i.detail,
-            })),
-            totalRows: state.rowCount ?? 0,
-            cleanActionCount: state.cleanActionCount ?? 0,
-          }),
-        }).catch(() => {})
+        try {
+          const valRes = await fetch("/api/pipeline-validation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              datasetId: fileResult.id,
+              issues: validationIssues.map((i) => ({
+                type: i.type,
+                severity: i.severity,
+                row: i.row,
+                column: i.column,
+                message: i.message,
+                detail: i.detail,
+              })),
+              totalRows: state.rowCount ?? 0,
+              cleanActionCount: state.cleanActionCount ?? 0,
+            }),
+          })
+          if (valRes.ok) {
+            const valData = await valRes.json()
+            if (valData.runId) {
+              dispatch({
+                type: "VALIDATE_COMPLETE",
+                runId: valData.runId,
+                issueCount: valData.totalIssues ?? validationIssues.length,
+              })
+            }
+          }
+        } catch {
+          // Non-critical — validation results just won't be linked
+        }
       }
 
       // 8. Log pipeline audit events with the now-known dataset ID
@@ -738,23 +675,25 @@ function SaveToProject({
   // Saved state
   if (step === "saved" && savedProjectId) {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
-        <div className="flex items-center gap-2">
-          <Check className="size-4 text-green-600 dark:text-green-400" />
-          <p className="text-sm font-semibold text-green-700 dark:text-green-300">
-            Saved to project
+      <div className="space-y-3">
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
+          <div className="flex items-center gap-2">
+            <Check className="size-4 text-green-600 dark:text-green-400" />
+            <p className="text-sm font-semibold text-green-700 dark:text-green-300">
+              Saved to project
+            </p>
+          </div>
+          <p className="mt-1 text-xs text-green-600 dark:text-green-400">
+            {projectName} / {jobName}
           </p>
+          <a
+            href={`/projects/${savedProjectId}`}
+            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-700 underline hover:text-green-900 dark:text-green-300 dark:hover:text-green-100"
+          >
+            View Project
+            <ExternalLink className="size-3" />
+          </a>
         </div>
-        <p className="mt-1 text-xs text-green-600 dark:text-green-400">
-          {projectName} / {jobName}
-        </p>
-        <a
-          href={`/projects/${savedProjectId}`}
-          className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-700 underline hover:text-green-900 dark:text-green-300 dark:hover:text-green-100"
-        >
-          View Project
-          <ExternalLink className="size-3" />
-        </a>
       </div>
     )
   }
