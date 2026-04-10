@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 23-02-PLAN.md
-last_updated: "2026-04-10T21:15:34.266Z"
-last_activity: 2026-04-10 -- Plan 23-02 complete (one-click fix UI with preview, undo, audit)
+status: in-progress
+stopped_at: Completed 24-01-PLAN.md
+last_updated: "2026-04-10T22:06:25.000Z"
+last_activity: 2026-04-10 -- Plan 24-01 complete (backend branded report pipeline)
 progress:
   total_phases: 27
   completed_phases: 22
-  total_plans: 52
-  completed_plans: 52
-  percent: 100
+  total_plans: 54
+  completed_plans: 53
+  percent: 98
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 23 - One-Click Data Fixes
+**Current focus:** Phase 24 - Branded Client Reports
 
 ## Current Position
 
-Phase: 23 of 27 (23-one-click-data-fixes)
-Plan: 2 of 2
-Status: Phase Complete
-Last activity: 2026-04-10 -- Plan 23-02 complete (one-click fix UI with preview, undo, audit)
+Phase: 24 of 27 (24-branded-client-reports)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-04-10 -- Plan 24-01 complete (backend branded report pipeline)
 
 Progress: [██████████] 100%
 
@@ -83,6 +83,7 @@ Progress: [██████████] 100%
 | Phase 22 P02 | 8min | 3 tasks | 6 files |
 | Phase 23 P01 | 4min | 2 tasks | 4 files |
 | Phase 23 P02 | 5min | 2 tasks | 2 files |
+| Phase 24 P01 | 6min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -187,6 +188,10 @@ Recent decisions affecting current work:
 - [Phase 22]: validationIssues prop for cluster persistence on pipeline back-navigation
 - [Phase 23]: Preview-then-apply pattern: each fix type has preview (read-only) and apply (returns FixResult with undo snapshot)
 - [Phase 23]: Undo stack in React state only (not sessionStorage) due to data snapshot size; preview row cap at 50
+- [Phase 24]: Brand colour accent line below header bar (not full background replace) to preserve TruQC identity
+- [Phase 24]: Section guard closure (_section_on) inside generate_pdf_report for clean toggle logic
+- [Phase 24]: ReportRequest Pydantic model with logo_base64 for base64 logo transmission from frontend
+- [Phase 24]: Extracted _fetch_report_data/_build_triage_counts helpers to deduplicate GET/POST report endpoints
 
 ### Roadmap Evolution
 
@@ -213,6 +218,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T21:15:31.682Z
-Stopped at: Completed 23-02-PLAN.md
+Last session: 2026-04-10T22:06:25.000Z
+Stopped at: Completed 24-01-PLAN.md
 Resume file: None

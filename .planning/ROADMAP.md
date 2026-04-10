@@ -424,7 +424,7 @@ Plans:
   4. User can add commentary/notes to report sections before generation
   5. Report branding settings persist per user account
   6. Both Executive and Technical reports respect branding settings
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 24-01-PLAN.md -- Backend: DB migration for branding columns, report builder branding/sections/commentary params, FastAPI POST endpoint, tests
