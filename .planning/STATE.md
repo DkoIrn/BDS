@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 20-02-PLAN.md (human verification approved)
-last_updated: "2026-04-10T10:35:18.847Z"
-last_activity: 2026-04-10 -- Plan 20-02 approved (frontend domain QC packs, chain checks UI, suggestion banner -- human verification passed)
+stopped_at: Completed 21-01-PLAN.md
+last_updated: "2026-04-10T16:24:41.000Z"
+last_activity: 2026-04-10 -- Plan 21-01 complete (usage tracking library + tier enforcement at 3 action boundaries)
 progress:
-  total_phases: 20
+  total_phases: 21
   completed_phases: 19
-  total_plans: 46
-  completed_plans: 46
-  percent: 100
+  total_plans: 48
+  completed_plans: 47
+  percent: 98
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 19 - Client-Grade Reports
+**Current focus:** Phase 21 - Usage Tracking & Tier Enforcement
 
 ## Current Position
 
-Phase: 20 of 20 (20-domain-qc-packs)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-04-10 -- Plan 20-02 approved (human verification passed, phase 20 complete)
+Phase: 21 of 21 (21-usage-tracking-tier-enforcement)
+Plan: 1 of 2
+Status: Executing
+Last activity: 2026-04-10 -- Plan 21-01 complete (usage tracking library + tier enforcement at 3 action boundaries)
 
-Progress: [██████████] 100%
+Progress: [█████████▊] 98%
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Progress: [██████████] 100%
 | Phase 19 P02 | 4min | 3 tasks | 3 files |
 | Phase 20 P01 | 5min | 2 tasks | 9 files |
 | Phase 20 P02 | 6min | 2 tasks | 5 files |
+| Phase 21 P01 | 7min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -173,6 +174,8 @@ Recent decisions affecting current work:
 - [Phase 20]: Chain check numeric inputs disabled with opacity-50 when toggle off
 - [Phase 20]: KP drift tolerance displayed as percentage for user-friendly editing
 - [Phase 20]: Domain QC packs complete: 4 packs replace old templates, chain-aware validators, auto-suggestion verified
+- [Phase 21]: Pure function checkUsageLimit for testable tier enforcement; limitReached flag on errors for upgrade prompts
+- [Phase 21]: Billing period clamping via Math.min(anchorDay, daysInMonth) for month-end edge cases
 
 ### Roadmap Evolution
 
@@ -199,6 +202,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T10:35:17.031Z
-Stopped at: Completed 20-02-PLAN.md (human verification approved)
+Last session: 2026-04-10T16:24:41.000Z
+Stopped at: Completed 21-01-PLAN.md
 Resume file: None
