@@ -407,7 +407,7 @@ Plans:
   4. Each fix shows a before/after diff preview before applying
   5. Fixes are reversible (undo last fix)
   6. Fix actions are logged in the audit trail
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 23-01-PLAN.md -- TDD fix engine: individual fix functions (fillMissing, removeDuplicates, smoothSpikes) with preview and undo support

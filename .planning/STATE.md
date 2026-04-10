@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 22-02-PLAN.md
-last_updated: "2026-04-10T20:07:42.642Z"
-last_activity: 2026-04-10 -- Plan 22-01 complete (deterministic issue clustering engine)
+stopped_at: Completed 23-01-PLAN.md
+last_updated: "2026-04-10T20:26:07.560Z"
+last_activity: 2026-04-10 -- Plan 23-01 complete (one-click fix engine with TDD)
 progress:
   total_phases: 27
   completed_phases: 21
-  total_plans: 50
-  completed_plans: 50
+  total_plans: 52
+  completed_plans: 51
   percent: 98
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 22 - AI Issue Prioritisation & Smart Grouping
+**Current focus:** Phase 23 - One-Click Data Fixes
 
 ## Current Position
 
-Phase: 22 of 27 (22-ai-issue-prioritisation-smart-grouping)
-Plan: 2 of 2
-Status: Phase Complete
-Last activity: 2026-04-10 -- Plan 22-02 complete (AI summary & clustering UI integration)
+Phase: 23 of 27 (23-one-click-data-fixes)
+Plan: 1 of 2
+Status: Executing
+Last activity: 2026-04-10 -- Plan 23-01 complete (one-click fix engine with TDD)
 
-Progress: [██████████] 100%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [██████████] 100%
 | Phase 21 P02 | 5min | 3 tasks | 7 files |
 | Phase 22 P01 | 3min | 1 tasks | 3 files |
 | Phase 22 P02 | 8min | 3 tasks | 6 files |
+| Phase 23 P01 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -183,6 +184,7 @@ Recent decisions affecting current work:
 - [Phase 22]: Cluster ID uses composite key rule_type::column_name for stable deterministic grouping
 - [Phase 22]: Deterministic top blockers shown immediately; AI narrative loads async without blocking UI
 - [Phase 22]: validationIssues prop for cluster persistence on pipeline back-navigation
+- [Phase 23]: Preview-then-apply pattern: each fix type has preview (read-only) and apply (returns FixResult with undo snapshot)
 
 ### Roadmap Evolution
 
@@ -209,6 +211,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T20:07:42.635Z
-Stopped at: Completed 22-02-PLAN.md
+Last session: 2026-04-10T20:26:07.554Z
+Stopped at: Completed 23-01-PLAN.md
 Resume file: None
