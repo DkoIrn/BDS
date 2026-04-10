@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import { toast } from "sonner"
 import { updateUserProfile } from "@/lib/actions/user-profile"
 import { updatePassword } from "@/lib/actions/auth"
-import { Check, Crown, FileText, Shield, ExternalLink, Loader2 } from "lucide-react"
+import { uploadBrandingLogo, saveBrandColor, getBrandingSettings } from "@/lib/actions/branding"
+import { Check, Crown, FileText, Shield, ExternalLink, Loader2, Upload, Palette } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
@@ -56,9 +57,13 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordError, setPasswordError] = useState("")
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+  const [brandColor, setBrandColor] = useState("#14B8A6")
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const logoInputRef = useRef<HTMLInputElement>(null)
   const currency = gbp
   const [profilePending, startProfileTransition] = useTransition()
   const [passwordPending, startPasswordTransition] = useTransition()
+  const [brandingPending, startBrandingTransition] = useTransition()
 
   const currentTierName = planToTierName[currentPlan] || 'Free Trial'
 
@@ -82,6 +87,11 @@ export default function SettingsPage() {
           .single()
         setFullName(profile?.full_name ?? "")
         setCurrentPlan(profile?.plan ?? "free")
+
+        // Load branding settings
+        const branding = await getBrandingSettings()
+        setBrandColor(branding.brandColor)
+        setLogoUrl(branding.logoUrl)
       }
     }
 
@@ -204,6 +214,130 @@ export default function SettingsPage() {
               {profilePending ? "Saving..." : "Save changes"}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Report Branding Section */}
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-teal-50">
+              <Palette className="size-4 text-teal-600" />
+            </div>
+            Report Branding
+          </CardTitle>
+          <CardDescription>Customise your QC reports with company branding</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Logo Upload */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Company Logo</Label>
+            {logoUrl ? (
+              <div className="space-y-2">
+                <div className="inline-flex rounded-xl border bg-slate-100 p-3">
+                  <img
+                    src={logoUrl}
+                    alt="Company logo preview"
+                    className="h-[60px] w-[120px] object-contain"
+                  />
+                </div>
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl"
+                    disabled={brandingPending}
+                    onClick={() => logoInputRef.current?.click()}
+                  >
+                    <Upload className="size-4" />
+                    Change Logo
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="flex w-full cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/25 px-6 py-8 text-center transition-colors hover:border-muted-foreground/50 hover:bg-muted/50"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                <Upload className="size-8 text-muted-foreground" />
+                <p className="text-sm font-medium text-muted-foreground">Upload your company logo</p>
+                <p className="text-xs text-muted-foreground/70">(PNG or JPEG, max 2MB)</p>
+              </button>
+            )}
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                const fd = new FormData()
+                fd.set("logo", file)
+                startBrandingTransition(async () => {
+                  const result = await uploadBrandingLogo(fd)
+                  if (result.error) {
+                    toast.error(result.error)
+                  } else {
+                    toast.success("Logo uploaded successfully")
+                    const branding = await getBrandingSettings()
+                    setLogoUrl(branding.logoUrl)
+                  }
+                })
+                // Reset input so re-uploading the same file triggers onChange
+                e.target.value = ""
+              }}
+            />
+          </div>
+
+          {/* Brand Colour */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Brand Colour</Label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
+                className="h-10 w-14 cursor-pointer rounded-lg border"
+              />
+              <Input
+                value={brandColor}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                    setBrandColor(val)
+                  }
+                }}
+                className="w-28 rounded-xl font-mono text-sm"
+              />
+              <Button
+                type="button"
+                size="sm"
+                className="rounded-xl bg-foreground text-background hover:bg-foreground/90"
+                disabled={brandingPending || !/^#[0-9A-Fa-f]{6}$/.test(brandColor)}
+                onClick={() => {
+                  const fd = new FormData()
+                  fd.set("brand_color", brandColor)
+                  startBrandingTransition(async () => {
+                    const result = await saveBrandColor(fd)
+                    if (result.error) {
+                      toast.error(result.error)
+                    } else {
+                      toast.success("Brand colour saved")
+                    }
+                  })
+                }}
+              >
+                {brandingPending ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Your logo and colour will appear on all generated PDF reports.
+          </p>
         </CardContent>
       </Card>
 
