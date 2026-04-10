@@ -1,8 +1,20 @@
 """Tests for QC PDF report generation."""
 
+import io
+
 import pytest
 
 from app.services.report_builder import generate_pdf_report
+
+
+def _make_tiny_png() -> bytes:
+    """Create a small 100x50 red PNG for testing logo embedding."""
+    from PIL import Image
+
+    img = Image.new("RGB", (100, 50), color=(255, 0, 0))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
 
 
 @pytest.fixture
@@ -270,3 +282,111 @@ class TestKPDensityInReport:
             run_data_pass, issues_no_kp, "test_dataset.csv", mode="technical"
         )
         assert b"KP density chart unavailable" in pdf_bytes
+
+
+class TestBrandingCustomisation:
+    """Tests for user branding (logo + colour) in reports."""
+
+    def test_branding_logo(self, run_data_pass, sample_issues):
+        logo = _make_tiny_png()
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            branding={"logo_bytes": logo, "brand_color": "#1E40AF"},
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+        assert len(pdf_bytes) > 0
+
+    def test_branding_color(self, run_data_pass, sample_issues):
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            branding={"brand_color": "#FF0000"},
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+        assert len(pdf_bytes) > 0
+
+    def test_branding_logo_executive(self, run_data_pass, sample_issues):
+        logo = _make_tiny_png()
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            mode="executive",
+            branding={"logo_bytes": logo, "brand_color": "#1E40AF"},
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+
+
+class TestSectionToggles:
+    """Tests for toggleable section inclusion/exclusion."""
+
+    def test_section_toggles_exclude(self, run_data_fail, sample_issues):
+        full_pdf = generate_pdf_report(
+            run_data_fail, sample_issues, "test_dataset.csv",
+        )
+        toggled_pdf = generate_pdf_report(
+            run_data_fail, sample_issues, "test_dataset.csv",
+            sections={"methodology": False, "detailed_issues": False},
+        )
+        assert toggled_pdf[:5] == b"%PDF-"
+        assert len(toggled_pdf) < len(full_pdf)
+
+    def test_section_toggles_methodology_off(self, run_data_pass, sample_issues):
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            sections={"methodology": False},
+        )
+        assert b"Methodology" not in pdf_bytes
+
+    def test_section_toggles_all_on(self, run_data_pass, sample_issues):
+        """Explicit all-on should match default behaviour."""
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            sections={"methodology": True, "soq": True, "detailed_issues": True},
+        )
+        assert b"Statement of Quality" in pdf_bytes
+        assert b"Methodology" in pdf_bytes
+
+
+class TestCommentary:
+    """Tests for commentary text rendering in reports."""
+
+    def test_commentary_executive_summary(self, run_data_pass, sample_issues):
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            commentary={"executive_summary": "Test commentary note"},
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+        assert b"Test commentary note" in pdf_bytes
+
+    def test_commentary_soq(self, run_data_pass, sample_issues):
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            commentary={"soq": "Quality note for SoQ section"},
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+        assert b"Quality note for SoQ section" in pdf_bytes
+
+    def test_no_commentary(self, run_data_pass, sample_issues):
+        """No commentary param should work fine (backwards compat)."""
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+
+
+class TestBackwardsCompatibility:
+    """Ensure existing call signatures still work without new params."""
+
+    def test_backwards_compat_no_new_params(self, run_data_pass, sample_issues):
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+        assert b"TruQC" in pdf_bytes
+        assert b"Statement of Quality" in pdf_bytes
+
+    def test_backwards_compat_with_triage(self, run_data_pass, sample_issues, triage_counts):
+        pdf_bytes = generate_pdf_report(
+            run_data_pass, sample_issues, "test_dataset.csv",
+            mode="technical", triage_counts=triage_counts,
+        )
+        assert pdf_bytes[:5] == b"%PDF-"
+        assert b"accepted" in pdf_bytes

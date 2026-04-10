@@ -10,6 +10,7 @@ Generates branded, engineering-grade QC reports with:
 from __future__ import annotations
 
 import io
+import os
 import tempfile
 from collections import Counter, defaultdict
 
@@ -59,6 +60,37 @@ CHECK_CATEGORIES = {
 MAX_ISSUES_IN_PDF = 500
 
 
+def hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
+    """Convert a hex color string like '#1E40AF' to an (R, G, B) tuple."""
+    h = hex_color.lstrip("#")
+    if len(h) != 6:
+        return BRAND_TEAL  # fallback
+    return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+def _embed_logo(pdf: QCReport, logo_bytes: bytes, max_height: float = 10.0) -> None:
+    """Embed a logo image in the PDF header from raw bytes."""
+    from PIL import Image
+
+    img = Image.open(io.BytesIO(logo_bytes))
+    w, h = img.size
+    aspect = w / h
+    logo_h = min(max_height, h)
+    logo_w = logo_h * aspect
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    tmp_path = tmp.name
+    try:
+        img.save(tmp, format="PNG")
+        tmp.close()
+        pdf.image(tmp_path, x=pdf.l_margin, y=2, h=logo_h)
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+
 def _sanitize(text: str) -> str:
     """Replace Unicode characters that Helvetica can't encode."""
     return (
@@ -78,17 +110,29 @@ def _sanitize(text: str) -> str:
 class QCReport(FPDF):
     """Custom FPDF subclass for QC reports."""
 
-    def __init__(self, dataset_name: str = "", report_mode: str = "technical"):
+    def __init__(
+        self,
+        dataset_name: str = "",
+        report_mode: str = "technical",
+        brand_color: tuple[int, int, int] | None = None,
+        logo_bytes: bytes | None = None,
+    ):
         super().__init__()
         self.set_compression(False)
         self.dataset_name = dataset_name
         self.report_mode = report_mode
+        self.brand_color = brand_color or BRAND_TEAL
+        self.logo_bytes = logo_bytes
         self.set_auto_page_break(auto=True, margin=20)
 
     def header(self):
-        # Top bar
+        # Top bar with brand color accent
         self.set_fill_color(*BRAND_DARK)
         self.rect(0, 0, 210, 12, "F")
+        # Thin accent line using brand color
+        self.set_fill_color(*self.brand_color)
+        self.rect(0, 12, 210, 0.8, "F")
+
         self.set_y(2)
         self.set_font("Helvetica", "B", 8)
         self.set_text_color(*WHITE)
@@ -96,7 +140,14 @@ class QCReport(FPDF):
             title = "TruQC  |  QC Summary Report"
         else:
             title = "TruQC  |  QC Technical Report"
-        self.cell(0, 8, title, align="C")
+
+        if self.logo_bytes:
+            _embed_logo(self, self.logo_bytes)
+            # Position title text to the right of the logo area
+            self.set_xy(35, 2)
+            self.cell(0, 8, title, align="L")
+        else:
+            self.cell(0, 8, title, align="C")
         self.set_y(16)
 
     def footer(self):
@@ -111,9 +162,11 @@ class QCReport(FPDF):
         self.set_font("Helvetica", "B", 13)
         self.set_text_color(*BRAND_DARK)
         self.cell(0, 8, title, new_x="LMARGIN", new_y="NEXT")
-        # Underline
-        self.set_draw_color(*BORDER_GRAY)
+        # Underline using brand color
+        self.set_draw_color(*self.brand_color)
+        self.set_line_width(0.5)
         self.line(self.l_margin, self.get_y(), 210 - self.r_margin, self.get_y())
+        self.set_line_width(0.2)  # reset
         self.ln(4)
 
     def kv_row(self, label: str, value: str, bold_value: bool = False, value_color: tuple | None = None):
@@ -244,12 +297,29 @@ def _embed_chart(pdf: QCReport, chart_img, width: int = 90) -> None:
         pass
 
 
+def _render_commentary(pdf: QCReport, commentary: dict | None, key: str) -> None:
+    """Render commentary text as an italic block if present for the given key."""
+    if not commentary or key not in commentary:
+        return
+    text = commentary[key]
+    if not text:
+        return
+    pdf.set_font("Helvetica", "I", 9)
+    pdf.set_text_color(*BRAND_MID)
+    pdf.multi_cell(0, 5, _sanitize(text))
+    pdf.ln(2)
+    pdf.set_font("Helvetica", "", 9)  # reset
+
+
 def generate_pdf_report(
     run_data: dict,
     issues: list[dict],
     dataset_name: str,
     mode: str = "technical",
     triage_counts: dict | None = None,
+    branding: dict | None = None,
+    sections: dict | None = None,
+    commentary: dict | None = None,
 ) -> bytes:
     """Generate an engineering-grade PDF QC report.
 
@@ -259,8 +329,24 @@ def generate_pdf_report(
         dataset_name: Name of the dataset file.
         mode: "executive" for concise summary, "technical" for full report.
         triage_counts: Optional dict with accepted/rejected/deferred counts.
+        branding: Optional dict with logo_bytes and/or brand_color hex string.
+        sections: Optional dict mapping section keys to booleans for toggling.
+        commentary: Optional dict mapping section keys to commentary text.
     """
-    pdf = QCReport(dataset_name=dataset_name, report_mode=mode)
+    # Parse branding
+    brand_color_rgb = None
+    logo_bytes = None
+    if branding:
+        if branding.get("brand_color"):
+            brand_color_rgb = hex_to_rgb(branding["brand_color"])
+        logo_bytes = branding.get("logo_bytes")
+
+    pdf = QCReport(
+        dataset_name=dataset_name,
+        report_mode=mode,
+        brand_color=brand_color_rgb,
+        logo_bytes=logo_bytes,
+    )
     pdf.alias_nb_pages()
     pdf.add_page()
 
@@ -271,7 +357,13 @@ def generate_pdf_report(
     pass_rate = run_data.get("pass_rate", 0)
     verdict = "PASS" if critical == 0 else "FAIL"
 
-    # ── Executive Summary (both modes) ────────────────────
+    # Helper to check if a section is enabled
+    def _section_on(key: str) -> bool:
+        if sections is None:
+            return True
+        return sections.get(key, True)
+
+    # ── Executive Summary (both modes, always shown) ────────────────────
     pdf.section_title("Executive Summary")
 
     # Verdict box
@@ -303,51 +395,57 @@ def generate_pdf_report(
         pdf.kv_row("Active Checks", f"{active_checks} of {len(enabled)}" if enabled else "All (default)")
 
     pdf.ln(2)
+    _render_commentary(pdf, commentary, "executive_summary")
 
     # ── Severity Pie Chart (both modes) ───────────────────
-    pie_img = generate_severity_pie(critical, warnings, info)
-    _embed_chart(pdf, pie_img, width=90)
+    if _section_on("severity_pie"):
+        pie_img = generate_severity_pie(critical, warnings, info)
+        _embed_chart(pdf, pie_img, width=90)
 
     # ── Executive-only sections ───────────────────────────
     if mode == "executive":
-        _add_top_issues(pdf, issues, n=3)
-        _add_soq_section(pdf, run_data, dataset_name, triage_counts)
+        if _section_on("top_issues"):
+            _add_top_issues(pdf, issues, n=3)
+        if _section_on("soq"):
+            _add_soq_section(pdf, run_data, dataset_name, triage_counts)
+            _render_commentary(pdf, commentary, "soq")
         return pdf.output()
 
     # ── Technical-only sections below ─────────────────────
 
     # Severity Breakdown bars
-    pdf.section_title("Severity Breakdown")
+    if _section_on("severity_breakdown"):
+        pdf.section_title("Severity Breakdown")
 
-    severity_data = [
-        ("Critical", critical, SEVERITY_COLORS["critical"]),
-        ("Warning", warnings, SEVERITY_COLORS["warning"]),
-        ("Info", info, SEVERITY_COLORS["info"]),
-    ]
+        severity_data = [
+            ("Critical", critical, SEVERITY_COLORS["critical"]),
+            ("Warning", warnings, SEVERITY_COLORS["warning"]),
+            ("Info", info, SEVERITY_COLORS["info"]),
+        ]
 
-    bar_max_width = 120
-    max_count = max(critical, warnings, info, 1)
+        bar_max_width = 120
+        max_count = max(critical, warnings, info, 1)
 
-    for label, count, color in severity_data:
-        pdf.set_font("Helvetica", "B", 9)
-        pdf.set_text_color(*BRAND_DARK)
-        pdf.cell(30, 8, label)
+        for label, count, color in severity_data:
+            pdf.set_font("Helvetica", "B", 9)
+            pdf.set_text_color(*BRAND_DARK)
+            pdf.cell(30, 8, label)
 
-        bar_width = (count / max_count) * bar_max_width if max_count > 0 else 0
-        y = pdf.get_y() + 1.5
-        pdf.set_fill_color(*color)
-        if bar_width > 0:
-            pdf.rect(pdf.get_x(), y, bar_width, 5, "F")
+            bar_width = (count / max_count) * bar_max_width if max_count > 0 else 0
+            y = pdf.get_y() + 1.5
+            pdf.set_fill_color(*color)
+            if bar_width > 0:
+                pdf.rect(pdf.get_x(), y, bar_width, 5, "F")
 
-        pdf.set_font("Helvetica", "", 8)
-        pdf.set_text_color(*BRAND_MID)
-        pdf.cell(bar_max_width + 5, 8, "")
-        pdf.cell(0, 8, str(count), new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 8)
+            pdf.set_text_color(*BRAND_MID)
+            pdf.cell(bar_max_width + 5, 8, "")
+            pdf.cell(0, 8, str(count), new_x="LMARGIN", new_y="NEXT")
 
-    pdf.ln(2)
+        pdf.ln(2)
 
     # ── Issues by Category ────────────────────────────────
-    if issues:
+    if issues and _section_on("issues_by_category"):
         pdf.section_title("Issues by Check Category")
 
         category_counts: dict[str, dict[str, int]] = defaultdict(lambda: {"critical": 0, "warning": 0, "info": 0})
@@ -401,7 +499,7 @@ def generate_pdf_report(
         pdf.ln(2)
 
     # ── Per-Column Summary ────────────────────────────────
-    if issues:
+    if issues and _section_on("issues_by_column"):
         pdf.section_title("Issues by Column")
 
         col_counts: dict[str, int] = Counter()
@@ -421,45 +519,49 @@ def generate_pdf_report(
         pdf.ln(2)
 
     # ── KP Density Chart ──────────────────────────────────
-    kp_img = generate_kp_density_chart(issues)
-    if kp_img is not None:
-        pdf.section_title("KP Density")
-        _embed_chart(pdf, kp_img, width=170)
-    else:
-        pdf.ln(2)
-        pdf.set_font("Helvetica", "I", 8)
-        pdf.set_text_color(*BRAND_LIGHT)
-        pdf.cell(0, 6, "KP density chart unavailable -- no KP data in dataset", new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(2)
+    if _section_on("kp_density"):
+        kp_img = generate_kp_density_chart(issues)
+        if kp_img is not None:
+            pdf.section_title("KP Density")
+            _embed_chart(pdf, kp_img, width=170)
+        else:
+            pdf.ln(2)
+            pdf.set_font("Helvetica", "I", 8)
+            pdf.set_text_color(*BRAND_LIGHT)
+            pdf.cell(0, 6, "KP density chart unavailable -- no KP data in dataset", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
 
     # ── Methodology ───────────────────────────────────────
-    pdf.section_title("Methodology")
+    if _section_on("methodology"):
+        pdf.section_title("Methodology")
 
-    pdf.set_font("Helvetica", "", 9)
-    pdf.set_text_color(*BRAND_MID)
-    methodology = (
-        "This report was generated by the TruQC automated QC engine. "
-        "The dataset was validated against engineering-grade checks including:\n\n"
-        "Basic QC: Range validation, missing data detection, duplicate row/KP identification, "
-        "KP gap analysis, KP monotonicity enforcement, and statistical outlier detection "
-        "(z-score and IQR methods).\n\n"
-        "Engineering-Grade QC: Cross-column physical consistency checks "
-        "(e.g. DOB vs water depth, DOC vs DOB), spike and gradient detection "
-        "with KP-aware rate-of-change thresholds, and coordinate sanity validation "
-        "including bounds checking and consecutive point jump detection.\n\n"
-        "Each flagged issue includes severity level, affected row and column, "
-        "and a human-readable explanation of the problem found. "
-        "Issues are classified as Critical (data integrity broken), "
-        "Warning (suspicious but usable), or Info (informational)."
-    )
-    pdf.multi_cell(0, 5, methodology)
-    pdf.ln(3)
+        pdf.set_font("Helvetica", "", 9)
+        pdf.set_text_color(*BRAND_MID)
+        methodology = (
+            "This report was generated by the TruQC automated QC engine. "
+            "The dataset was validated against engineering-grade checks including:\n\n"
+            "Basic QC: Range validation, missing data detection, duplicate row/KP identification, "
+            "KP gap analysis, KP monotonicity enforcement, and statistical outlier detection "
+            "(z-score and IQR methods).\n\n"
+            "Engineering-Grade QC: Cross-column physical consistency checks "
+            "(e.g. DOB vs water depth, DOC vs DOB), spike and gradient detection "
+            "with KP-aware rate-of-change thresholds, and coordinate sanity validation "
+            "including bounds checking and consecutive point jump detection.\n\n"
+            "Each flagged issue includes severity level, affected row and column, "
+            "and a human-readable explanation of the problem found. "
+            "Issues are classified as Critical (data integrity broken), "
+            "Warning (suspicious but usable), or Info (informational)."
+        )
+        pdf.multi_cell(0, 5, methodology)
+        pdf.ln(3)
 
     # ── Statement of Quality ──────────────────────────────
-    _add_soq_section(pdf, run_data, dataset_name, triage_counts)
+    if _section_on("soq"):
+        _add_soq_section(pdf, run_data, dataset_name, triage_counts)
+        _render_commentary(pdf, commentary, "soq")
 
     # ── Detailed Issues Table ─────────────────────────────
-    if issues:
+    if issues and _section_on("detailed_issues"):
         pdf.add_page()
         pdf.section_title(f"Detailed Issues ({min(len(issues), MAX_ISSUES_IN_PDF)} of {len(issues)})")
 
