@@ -272,7 +272,11 @@ Plans:
 **Goal:** Users can compare two datasets (e.g. as-built vs as-designed) and see a visual diff of differences, deviations, and mismatches
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 15 to break down)
@@ -390,7 +394,11 @@ Plans:
   4. System provides a dataset accept/reject recommendation with confidence percentage
   5. Issue clusters are expandable to see individual instances
   6. Prioritisation works on both pipeline and project validation flows
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
 
 ### Phase 23: One-Click Data Fixes
 **Goal:** Users can resolve common QC issues directly in TruQC with one-click fixes — interpolate missing values, remove duplicates, smooth spikes — with before/after preview, eliminating the need to export and fix externally
@@ -403,7 +411,11 @@ Plans:
   4. Each fix shows a before/after diff preview before applying
   5. Fixes are reversible (undo last fix)
   6. Fix actions are logged in the audit trail
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
 
 ### Phase 24: Branded Client Reports
 **Goal:** Users can customise QC reports with their company branding — logo, colours, toggleable sections, and commentary — producing client-ready deliverables directly from TruQC
@@ -416,7 +428,11 @@ Plans:
   4. User can add commentary/notes to report sections before generation
   5. Report branding settings persist per user account
   6. Both Executive and Technical reports respect branding settings
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
 
 ### Phase 25: Multi-User & Roles
 **Goal:** Teams can collaborate on QC workflows with role-based access — Admins manage the account, Reviewers validate and approve, Viewers see results — enabling TruQC to sell to teams rather than individuals
@@ -429,7 +445,11 @@ Plans:
   4. Team members share projects and datasets within the organisation
   5. Users can comment on individual validation issues
   6. Approval workflow: datasets can be marked as Reviewed → Approved → Issued
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
 
 ### Phase 26: Enterprise API
 **Goal:** Enterprise tier users can integrate TruQC into their pipeline programmatically — upload files, trigger validation, fetch results and reports via REST API — with API key management and webhook notifications
@@ -442,7 +462,11 @@ Plans:
   4. API can generate and download PDF reports
   5. Webhooks notify external systems when validation completes or fails
   6. API is rate-limited and scoped to the user's organisation
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
 
 ### Phase 27: Spatial QC Map Overlay
 **Goal:** Users can visualise validation issues geographically — flagged data points plotted on the interactive map with error density heatmaps and spatial dataset comparison — making spatial QC intuitive and visual
@@ -454,4 +478,8 @@ Plans:
   3. Users can compare two datasets spatially on the map with deviation highlights
   4. Map view is accessible from both the results dashboard and the pipeline
   5. Issue markers are clickable with popup showing issue details
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+Plans:
+- [ ] 22-01-PLAN.md -- TDD clustering engine: deterministic issue grouping, priority scoring, adapter functions for both validation flows
+- [ ] 22-02-PLAN.md -- AI summary API route, top blockers panel, clustered issue UI, integration into results dashboard and pipeline validate
