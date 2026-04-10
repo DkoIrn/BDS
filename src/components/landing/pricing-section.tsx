@@ -29,7 +29,7 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {tiers.map((tier) => (
             <Card
               key={tier.name}
@@ -88,7 +88,11 @@ export function PricingSection() {
                       : 'border border-input bg-background text-foreground hover:bg-muted'
                   }`}
                 >
-                  {tier.basePrice !== null ? 'Get Started' : 'Contact Sales'}
+                  {tier.basePrice === null
+                    ? 'Contact Sales'
+                    : tier.basePrice === 0
+                      ? 'Start Free Trial'
+                      : 'Get Started'}
                 </Link>
               </CardFooter>
             </Card>

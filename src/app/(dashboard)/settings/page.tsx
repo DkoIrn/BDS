@@ -1,27 +1,65 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
+import { useSearchParams } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import { toast } from "sonner"
 import { updateUserProfile } from "@/lib/actions/user-profile"
 import { updatePassword } from "@/lib/actions/auth"
-import { Check, Crown } from "lucide-react"
+import { Check, Crown, FileText, Shield, ExternalLink, Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { tiers, detectCurrency, formatPrice, type CurrencyConfig } from "@/lib/pricing-tiers"
+import { tiers, formatPrice, type CurrencyConfig } from "@/lib/pricing-tiers"
+
+const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
+
+// Map DB plan values to tier display names
+const planToTierName: Record<string, string> = {
+  free: 'Free Trial',
+  pro: 'Pro',
+  max: 'Max',
+  enterprise: 'Enterprise',
+}
+
+// Map tier names to checkout plan keys
+const tierToCheckoutPlan: Record<string, string> = {
+  Pro: 'pro',
+  Max: 'max',
+}
+
+function CheckoutToast() {
+  const searchParams = useSearchParams()
+  const checkout = searchParams.get('checkout')
+
+  useEffect(() => {
+    if (checkout === 'success') {
+      toast.success('Subscription activated! Welcome aboard.')
+    } else if (checkout === 'cancel') {
+      toast('Checkout cancelled — no changes made.')
+    }
+  }, [checkout])
+
+  return null
+}
 
 export default function SettingsPage() {
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
+  const [currentPlan, setCurrentPlan] = useState("free")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [passwordError, setPasswordError] = useState("")
-  const [currency, setCurrency] = useState<CurrencyConfig | null>(null)
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+  const currency = gbp
   const [profilePending, startProfileTransition] = useTransition()
   const [passwordPending, startPasswordTransition] = useTransition()
+
+  const currentTierName = planToTierName[currentPlan] || 'Free Trial'
 
   useEffect(() => {
     const supabase = createBrowserClient(
@@ -38,16 +76,41 @@ export default function SettingsPage() {
         setEmail(user.email ?? "")
         const { data: profile } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, plan")
           .eq("id", user.id)
           .single()
         setFullName(profile?.full_name ?? "")
+        setCurrentPlan(profile?.plan ?? "free")
       }
     }
 
     loadUser()
-    setCurrency(detectCurrency())
   }, [])
+
+  async function handleUpgrade(tierName: string) {
+    const plan = tierToCheckoutPlan[tierName]
+    if (!plan) return
+
+    setCheckoutLoading(tierName)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      })
+      const data = await res.json()
+
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        toast.error(data.error || 'Failed to start checkout')
+        setCheckoutLoading(null)
+      }
+    } catch {
+      toast.error('Something went wrong')
+      setCheckoutLoading(null)
+    }
+  }
 
   function handleProfileSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -94,9 +157,17 @@ export default function SettingsPage() {
     })
   }
 
+  // Determine tier ordering for upgrade/downgrade logic
+  const tierOrder = ['Free Trial', 'Pro', 'Max', 'Enterprise']
+  const currentTierIndex = tierOrder.indexOf(currentTierName)
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+
+      <Suspense fallback={null}>
+        <CheckoutToast />
+      </Suspense>
 
       {/* Profile Section */}
       <Card className="rounded-2xl">
@@ -145,13 +216,15 @@ export default function SettingsPage() {
             Plan & Billing
           </CardTitle>
           <CardDescription>
-            You are currently on the <span className="font-semibold text-foreground">Starter</span> plan
+            You are currently on the <span className="font-semibold text-foreground">{currentTierName}</span> plan
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {tiers.map((tier) => {
-              const isCurrent = tier.name === "Starter"
+              const isCurrent = tier.name === currentTierName
+              const tierIndex = tierOrder.indexOf(tier.name)
+              const isDowngrade = tierIndex < currentTierIndex
               return (
                 <div
                   key={tier.name}
@@ -163,7 +236,7 @@ export default function SettingsPage() {
                         : ""
                   }`}
                 >
-                  {tier.highlighted && (
+                  {tier.highlighted && !isCurrent && (
                     <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-md bg-teal-500 text-[10px] text-white">
                       Recommended
                     </Badge>
@@ -177,9 +250,9 @@ export default function SettingsPage() {
                     <p className="font-semibold">{tier.name}</p>
                     <p className="text-2xl font-bold">
                       {tier.basePrice !== null
-                        ? (currency ? formatPrice(tier.basePrice, currency) : `$${tier.basePrice}`)
+                        ? formatPrice(tier.basePrice, currency)
                         : "Custom"}
-                      {tier.basePrice !== null && (
+                      {tier.basePrice !== null && tier.basePrice > 0 && (
                         <span className="text-sm font-normal text-muted-foreground">/mo</span>
                       )}
                     </p>
@@ -199,25 +272,33 @@ export default function SettingsPage() {
                   </ul>
                   <Button
                     className={`mt-3 w-full rounded-xl ${
-                      isCurrent
+                      isCurrent || isDowngrade
                         ? ""
                         : tier.highlighted
                           ? "bg-foreground text-background hover:bg-foreground/90"
                           : ""
                     }`}
                     size="sm"
-                    variant={isCurrent ? "outline" : tier.highlighted ? "default" : "outline"}
-                    disabled={isCurrent}
+                    variant={isCurrent || isDowngrade ? "outline" : tier.highlighted ? "default" : "outline"}
+                    disabled={isCurrent || isDowngrade || checkoutLoading !== null}
+                    onClick={() => handleUpgrade(tier.name)}
                   >
-                    {isCurrent ? "Current Plan" : tier.basePrice !== null ? "Upgrade" : "Contact Sales"}
+                    {checkoutLoading === tier.name ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : isCurrent ? (
+                      "Current Plan"
+                    ) : isDowngrade ? (
+                      "Downgrade"
+                    ) : tier.basePrice === null ? (
+                      "Contact Sales"
+                    ) : (
+                      "Upgrade"
+                    )}
                   </Button>
                 </div>
               )
             })}
           </div>
-          <p className="text-xs text-muted-foreground">
-            Billing integration coming soon. Contact support for plan changes.
-          </p>
         </CardContent>
       </Card>
 
@@ -258,6 +339,48 @@ export default function SettingsPage() {
               {passwordPending ? "Updating..." : "Update password"}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      {/* Legal Section */}
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle>Legal</CardTitle>
+          <CardDescription>Privacy, terms, and policies</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="flex items-center justify-between rounded-xl border p-3 transition-colors hover:bg-muted/50"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50">
+                <Shield className="size-4 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Privacy Policy</p>
+                <p className="text-xs text-muted-foreground">How we handle your data</p>
+              </div>
+            </div>
+            <ExternalLink className="size-4 text-muted-foreground" />
+          </Link>
+          <Link
+            href="/terms"
+            target="_blank"
+            className="flex items-center justify-between rounded-xl border p-3 transition-colors hover:bg-muted/50"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-violet-50">
+                <FileText className="size-4 text-violet-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Terms of Service</p>
+                <p className="text-xs text-muted-foreground">Rules and conditions of use</p>
+              </div>
+            </div>
+            <ExternalLink className="size-4 text-muted-foreground" />
+          </Link>
         </CardContent>
       </Card>
     </div>

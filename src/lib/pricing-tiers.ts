@@ -1,6 +1,7 @@
 export interface PricingTier {
   name: string
-  basePrice: number | null // USD base price
+  slug: string // used for checkout (e.g. 'pro', 'max')
+  basePrice: number | null // GBP base price
   description: string
   features: string[]
   highlighted: boolean
@@ -102,48 +103,65 @@ export function formatPrice(baseGbp: number, currency: CurrencyConfig): string {
 
 export const tiers: PricingTier[] = [
   {
-    name: 'Starter',
-    basePrice: 39,
-    description: 'For small teams running QC on survey datasets.',
+    name: 'Free Trial',
+    slug: 'free',
+    basePrice: 0,
+    description: 'Try TruQC free for 14 days — no card required.',
     features: [
-      '5 projects',
-      '10 QC checks per month',
-      '25MB file size limit',
+      '3 projects',
+      '5 QC checks per month',
+      '10MB file size limit',
       'Core validation rules',
-      'Auto-fix common issues',
       'PDF QC reports',
-      'Email support',
+      '14-day trial period',
     ],
     highlighted: false,
   },
   {
-    name: 'Professional',
-    basePrice: 119,
-    description: 'For survey teams that need full QC coverage and compliance.',
+    name: 'Pro',
+    slug: 'pro',
+    basePrice: 49,
+    description: 'For survey teams running regular QC on project data.',
     features: [
-      'Unlimited projects',
-      '100 QC checks per month',
+      '15 projects',
+      '50 QC checks per month',
       '50MB file size limit',
       'All validators + custom profiles',
-      'AI-assisted issue resolution',
+      'Auto-fix common issues',
       'PDF reports + clean data export',
-      'Priority processing',
-      'Audit trail',
+      'Email support',
     ],
     highlighted: true,
   },
   {
+    name: 'Max',
+    slug: 'max',
+    basePrice: 149,
+    description: 'For busy teams running multiple survey campaigns.',
+    features: [
+      'Unlimited projects',
+      '500 QC checks per month',
+      '200MB file size limit',
+      'Everything in Pro',
+      'Priority processing',
+      'Audit trail',
+      'AI-assisted issue resolution',
+      'Dedicated support',
+    ],
+    highlighted: false,
+  },
+  {
     name: 'Enterprise',
+    slug: 'enterprise',
     basePrice: null,
     description: 'For organisations with custom QC and compliance needs.',
     features: [
-      'Everything in Professional',
+      'Everything in Max',
       'Unlimited QC checks',
-      '100MB file size limit',
       'API access',
       'Custom validation rules',
-      'Dedicated support',
       'SSO integration',
+      'Dedicated account manager',
     ],
     highlighted: false,
   },
