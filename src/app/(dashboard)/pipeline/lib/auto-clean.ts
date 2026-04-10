@@ -366,7 +366,7 @@ function standardizeColumn(
 
 // --- Utilities ---
 
-function findKpColumn(headers: string[]): number {
+export function findKpColumn(headers: string[]): number {
   const patterns = [/^kp$/i, /^chainage$/i, /^station/i, /^km\s*p/i]
   for (let i = 0; i < headers.length; i++) {
     if (patterns.some((p) => p.test(headers[i].trim()))) return i
@@ -374,7 +374,7 @@ function findKpColumn(headers: string[]): number {
   return -1
 }
 
-function detectNumericColumns(headers: string[], rows: string[][]): number[] {
+export function detectNumericColumns(headers: string[], rows: string[][]): number[] {
   const numericCols: number[] = []
   const sampleSize = Math.min(rows.length, 20)
 

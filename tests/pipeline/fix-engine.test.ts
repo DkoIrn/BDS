@@ -24,7 +24,7 @@ function numericRows(count: number, opts?: { spike?: number; missing?: number[] 
     let temp = String(20 + i * 0.1)
 
     if (opts?.spike !== undefined && i === opts.spike) {
-      depth = "9999" // extreme spike
+      depth = "500" // spike value -- moderate but detectable with enough rows
     }
     if (opts?.missing?.includes(i)) {
       depth = ""
@@ -193,21 +193,21 @@ describe("applyRemoveDuplicates", () => {
 
 describe("previewSmoothSpikes", () => {
   it("detects spikes and shows replacement values", () => {
-    // Need at least 5 data values for stats, with one extreme outlier
-    const rows = numericRows(10, { spike: 5 })
+    // Need enough rows for z-score stats, with one outlier
+    const rows = numericRows(30, { spike: 15 })
     const data = makeData(HEADERS, rows)
     const preview = previewSmoothSpikes(data)
 
     expect(preview.type).toBe("smooth_spikes")
     expect(preview.totalAffected).toBeGreaterThan(0)
 
-    const spike = preview.affectedRows.find((r) => r.before === "9999")
+    const spike = preview.affectedRows.find((r) => r.before === "500")
     expect(spike).toBeDefined()
     expect(Number(spike!.after)).toBeLessThan(100) // should be replaced with neighbor median
   })
 
   it("does NOT mutate the input data", () => {
-    const rows = numericRows(10, { spike: 5 })
+    const rows = numericRows(30, { spike: 15 })
     const data = makeData(HEADERS, rows)
     const dataCopy = JSON.parse(JSON.stringify(data))
 
@@ -217,7 +217,7 @@ describe("previewSmoothSpikes", () => {
   })
 
   it("returns empty preview when no spikes", () => {
-    const data = makeData(HEADERS, numericRows(10))
+    const data = makeData(HEADERS, numericRows(30))
     const preview = previewSmoothSpikes(data)
 
     expect(preview.totalAffected).toBe(0)
@@ -233,19 +233,19 @@ describe("previewSmoothSpikes", () => {
 
 describe("applySmoothSpikes", () => {
   it("replaces spike values with neighbor median", () => {
-    const rows = numericRows(10, { spike: 5 })
+    const rows = numericRows(30, { spike: 15 })
     const data = makeData(HEADERS, rows)
     const result = applySmoothSpikes(data)
 
-    // The spike at data row 5 (index 6 with header) should be replaced
-    const fixedVal = Number(result.data[6][1])
+    // The spike at data row 15 (index 16 with header) should be replaced
+    const fixedVal = Number(result.data[16][1])
     expect(fixedVal).toBeLessThan(100)
     expect(result.preview.totalAffected).toBeGreaterThan(0)
     expect(result.undoSnapshot).toEqual(data)
   })
 
   it("does NOT mutate original data", () => {
-    const rows = numericRows(10, { spike: 5 })
+    const rows = numericRows(30, { spike: 15 })
     const data = makeData(HEADERS, rows)
     const dataCopy = JSON.parse(JSON.stringify(data))
 
