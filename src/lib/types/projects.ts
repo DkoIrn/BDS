@@ -21,6 +21,7 @@ export type JobStatus = (typeof JOB_STATUSES)[number]
 export interface Project {
   id: string
   user_id: string
+  org_id: string
   name: string
   description: string | null
   status: ProjectStatus

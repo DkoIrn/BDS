@@ -33,6 +33,7 @@ export interface Dataset {
   parse_warnings: string[] | null
   created_at: string
   updated_at: string
+  approval_status?: 'draft' | 'reviewed' | 'approved' | 'issued'
 }
 
 /** Client-side file queue item for tracking upload state */
