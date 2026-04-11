@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Layers, List } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import dynamic from "next/dynamic"
+import { Layers, List, Globe } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getValidationRuns, getValidationIssues } from "@/lib/actions/validation"
 import { ResultsStatCards } from "@/components/files/results-stat-cards"
@@ -11,23 +12,52 @@ import { ExportButtons } from "@/components/files/export-buttons"
 import { AISummaryPanel } from "@/components/files/ai-summary-panel"
 import { IssueClusterRow } from "@/components/files/issue-cluster"
 import { clusterIssues, adaptServerIssues } from "@/lib/ai/cluster-issues"
+import { hasSpatialColumns, extractSpatialIssues } from "@/components/spatial-qc/lib/coordinate-extractor"
+import { SEVERITY_HEAT_INTENSITY } from "@/components/spatial-qc/lib/severity-colors"
 import type { IssueCluster } from "@/lib/ai/types"
 import type { ValidationRun, ValidationIssue, ValidationSeverity } from "@/lib/types/validation"
+import type { ColumnMapping } from "@/lib/parsing/types"
+
+const SpatialQCMap = dynamic(
+  () => import("@/components/spatial-qc/spatial-qc-map").then((m) => ({ default: m.SpatialQCMap })),
+  { ssr: false, loading: () => <Skeleton className="h-[500px] w-full rounded-2xl" /> }
+)
 
 interface ResultsDashboardProps {
   datasetId: string
   currentUserId?: string
+  columnMappings?: ColumnMapping[]
+  parsedData?: string[][]
 }
 
-export function ResultsDashboard({ datasetId, currentUserId }: ResultsDashboardProps) {
+export function ResultsDashboard({ datasetId, currentUserId, columnMappings, parsedData }: ResultsDashboardProps) {
   const [runs, setRuns] = useState<ValidationRun[]>([])
   const [selectedRunId, setSelectedRunId] = useState<string>("")
   const [issues, setIssues] = useState<ValidationIssue[]>([])
   const [clusters, setClusters] = useState<IssueCluster[]>([])
-  const [viewMode, setViewMode] = useState<"clustered" | "individual">("clustered")
+  const [viewMode, setViewMode] = useState<"clustered" | "individual" | "map">("clustered")
   const [loadingRuns, setLoadingRuns] = useState(true)
   const [loadingIssues, setLoadingIssues] = useState(false)
   const [activeSeverity, setActiveSeverity] = useState<ValidationSeverity | "all">("all")
+
+  const hasSpatial = useMemo(
+    () => hasSpatialColumns(columnMappings ?? null),
+    [columnMappings]
+  )
+
+  const spatialIssues = useMemo(() => {
+    if (!hasSpatial || !parsedData || !columnMappings) return []
+    return extractSpatialIssues(issues, parsedData, columnMappings)
+  }, [issues, parsedData, columnMappings, hasSpatial])
+
+  const heatmapPoints = useMemo(
+    () =>
+      spatialIssues.map(
+        (si) =>
+          [si.lat, si.lng, SEVERITY_HEAT_INTENSITY[si.issue.severity]] as [number, number, number]
+      ),
+    [spatialIssues]
+  )
 
   // Fetch runs on mount
   useEffect(() => {
@@ -165,10 +195,35 @@ export function ResultsDashboard({ datasetId, currentUserId }: ResultsDashboardP
                 <List className="size-3" />
                 Individual
               </button>
+              <div className="relative group">
+                <button
+                  onClick={() => hasSpatial && setViewMode("map")}
+                  disabled={!hasSpatial}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                    viewMode === "map"
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Globe className="size-3" />
+                  Map
+                </button>
+                {!hasSpatial && (
+                  <div className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                    No spatial columns detected
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {viewMode === "clustered" && clusters.length > 0 ? (
+          {viewMode === "map" && hasSpatial ? (
+            <SpatialQCMap
+              issues={spatialIssues}
+              heatmapPoints={heatmapPoints}
+              activeSeverity={activeSeverity}
+            />
+          ) : viewMode === "clustered" && clusters.length > 0 ? (
             <div className="space-y-2">
               {(activeSeverity === "all"
                 ? clusters

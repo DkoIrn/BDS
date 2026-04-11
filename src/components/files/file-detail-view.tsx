@@ -650,7 +650,7 @@ export function FileDetailView({
         <div className="space-y-6 pt-4">
           {datasetStatus === "validated" || validationRun ? (
             <>
-              <ResultsDashboard datasetId={dataset.id} currentUserId={currentUserId} />
+              <ResultsDashboard datasetId={dataset.id} currentUserId={currentUserId} columnMappings={mappings} parsedData={preview} />
               <div className="flex justify-end gap-2">
                 {validationRun?.config_snapshot && (
                   <Button
