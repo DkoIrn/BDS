@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import type { DatasetStatus } from "@/lib/types/files"
+import type { JobRunRow, JobStatus } from "@/lib/types/jobs"
 
 interface RealtimePayload {
   new: {
@@ -17,9 +18,9 @@ interface RealtimePayload {
 }
 
 /**
- * RealtimeProvider subscribes to dataset status changes.
+ * RealtimeProvider subscribes to dataset status changes and job_runs events.
  * Since RLS on the Realtime side handles org-scoped visibility,
- * we subscribe without a user_id filter — RLS ensures users only
+ * we subscribe without a user_id filter -- RLS ensures users only
  * see updates for datasets in their org's projects.
  */
 export function RealtimeProvider({
@@ -34,7 +35,8 @@ export function RealtimeProvider({
   useEffect(() => {
     const supabase = createClient()
 
-    const channel = supabase
+    // Channel 1: Dataset status changes (backward-compat for USE_JOB_QUEUE=false)
+    const datasetChannel = supabase
       .channel("dataset-status")
       .on(
         "postgres_changes",
@@ -104,12 +106,74 @@ export function RealtimeProvider({
                 : undefined,
             })
           }
+          // Note: validation_progress changes are NOT toasted -- the JobProgressBar handles those
+        }
+      )
+      .subscribe()
+
+    // Channel 2: Job runs events (for job queue mode)
+    const jobRunsChannel = supabase
+      .channel("job-runs-status")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "job_runs",
+        },
+        async (payload: { new: JobRunRow }) => {
+          const row = payload.new
+          if (row.status === "running") {
+            // Fetch dataset name for the toast
+            const { data: dataset } = await supabase
+              .from("datasets")
+              .select("file_name")
+              .eq("id", row.dataset_id)
+              .single()
+            const name = dataset?.file_name ?? "dataset"
+            toast.info(`Validation started for ${name}`)
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "job_runs",
+        },
+        async (payload: { new: JobRunRow }) => {
+          const row = payload.new
+          const status = row.status as JobStatus
+
+          // Fetch dataset name for the toast
+          const { data: dataset } = await supabase
+            .from("datasets")
+            .select("file_name")
+            .eq("id", row.dataset_id)
+            .single()
+          const name = dataset?.file_name ?? "dataset"
+
+          if (status === "succeeded") {
+            const issueCount = (row.result_summary as Record<string, number> | null)?.total_issues
+            const description = issueCount != null
+              ? `${issueCount} issues found`
+              : "Validation complete"
+            toast.success(`Validation complete for ${name}`, { description })
+          } else if (status === "failed") {
+            toast.error(`Validation failed for ${name}`, {
+              description: row.error_summary ?? "An error occurred",
+            })
+          } else if (status === "cancelled") {
+            toast.warning(`Validation cancelled for ${name}`)
+          }
         }
       )
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      supabase.removeChannel(datasetChannel)
+      supabase.removeChannel(jobRunsChannel)
     }
   }, [userId, router])
 

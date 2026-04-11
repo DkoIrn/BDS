@@ -15,8 +15,10 @@ import {
   GitCompareArrows,
   BarChart3,
   Upload,
+  History,
 } from "lucide-react"
 import { DashboardWelcome } from "./dashboard-welcome"
+import { RecentJobsSection } from "./recent-jobs-section"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -138,6 +140,19 @@ export default async function DashboardPage() {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Recent Jobs */}
+      <div className="animate-fade-up [animation-delay:240ms] [animation-fill-mode:backwards]">
+        <div className="rounded-2xl border bg-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <History className="size-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Recent Jobs</h2>
+            </div>
+          </div>
+          <RecentJobsSection />
         </div>
       </div>
 
