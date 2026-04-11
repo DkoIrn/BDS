@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { tiers, formatPrice, type CurrencyConfig } from "@/lib/pricing-tiers"
 import { UsageSection } from "@/components/usage/usage-section"
 import { TeamManagement } from "@/components/team/team-management"
+import { ApiKeysSection } from "@/components/settings/api-keys-section"
 
 const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
 
@@ -344,6 +345,9 @@ export default function SettingsPage() {
 
       {/* Team Section */}
       <TeamManagement />
+
+      {/* API Keys Section (Enterprise) */}
+      <ApiKeysSection plan={currentPlan} />
 
       {/* Plan & Billing Section */}
       <Card className="rounded-2xl">
