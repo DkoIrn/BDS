@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { tiers, formatPrice, type CurrencyConfig } from "@/lib/pricing-tiers"
 import { UsageSection } from "@/components/usage/usage-section"
+import { TeamManagement } from "@/components/team/team-management"
 
 const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
 
@@ -340,6 +341,9 @@ export default function SettingsPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Team Section */}
+      <TeamManagement />
 
       {/* Plan & Billing Section */}
       <Card className="rounded-2xl">
