@@ -5,6 +5,7 @@ import uuid
 import pandas as pd
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
+from app.config import settings
 from app.dependencies import get_supabase_client
 from app.models.schemas import ProfileConfig, ValidateRequest
 from app.services.templates import resolve_config
@@ -17,9 +18,10 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation"])
 
 
-def run_validation_background(dataset_id: str, config: ProfileConfig | None) -> None:
-    """Run full validation pipeline in the background.
+def _legacy_validation_background(dataset_id: str, config: ProfileConfig | None) -> None:
+    """Legacy: Run full validation pipeline via BackgroundTasks.
 
+    Used when USE_JOB_QUEUE=false (default during transition).
     Always updates dataset status on completion or failure -- never leaves
     a dataset stuck in 'validating' state.
     """
@@ -171,13 +173,13 @@ def run_validation_background(dataset_id: str, config: ProfileConfig | None) -> 
 
 
 @router.post("/validate", status_code=202)
-def validate_dataset(request: ValidateRequest, background_tasks: BackgroundTasks):
+async def validate_dataset(request: ValidateRequest, background_tasks: BackgroundTasks):
     """Accept validation request and process in background.
 
-    Returns 202 Accepted immediately. The actual validation runs as a
-    BackgroundTask that updates dataset status via Supabase directly.
-    Does NOT set status to 'validating' -- the Next.js route handles that
-    to avoid race conditions.
+    When USE_JOB_QUEUE=true: enqueues via procrastinate for persistent,
+    retry-capable processing. Returns job_id for tracking.
+
+    When USE_JOB_QUEUE=false (default): uses legacy BackgroundTasks path.
     """
     supabase = get_supabase_client()
 
@@ -186,7 +188,45 @@ def validate_dataset(request: ValidateRequest, background_tasks: BackgroundTasks
     if not result.data:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
-    # Schedule background validation
-    background_tasks.add_task(run_validation_background, request.dataset_id, request.config)
+    if settings.use_job_queue:
+        # Queue-based path: persistent job with retry
+        from app.queue.tasks import validate_dataset as validate_task
+        from app.queue.tasks import record_job_run
 
-    return {"status": "accepted", "dataset_id": request.dataset_id}
+        # Insert a job_runs record with status "queued"
+        job_run_id = record_job_run(
+            supabase, request.dataset_id,
+            job_id=None,
+            status="queued",
+            config_snapshot=request.config.model_dump() if request.config else None,
+        )
+
+        # Defer the job to procrastinate
+        config_json = request.config.model_dump() if request.config else None
+        job_id = await validate_task.defer_async(
+            dataset_id=request.dataset_id,
+            config_json=config_json,
+        )
+
+        # Update job_runs record with the procrastinate job_id
+        supabase.table("job_runs").update(
+            {"procrastinate_job_id": job_id}
+        ).eq("id", job_run_id).execute()
+
+        logger.info(
+            "Validation job enqueued for dataset %s (job_id=%s, run_id=%s)",
+            request.dataset_id, job_id, job_run_id,
+        )
+
+        return {
+            "status": "accepted",
+            "dataset_id": request.dataset_id,
+            "job_id": job_id,
+            "job_run_id": job_run_id,
+        }
+    else:
+        # Legacy path: fire-and-forget BackgroundTasks
+        background_tasks.add_task(
+            _legacy_validation_background, request.dataset_id, request.config
+        )
+        return {"status": "accepted", "dataset_id": request.dataset_id}
