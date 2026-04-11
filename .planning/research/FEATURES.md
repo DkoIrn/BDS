@@ -1,229 +1,295 @@
-# Feature Research
+# Feature Landscape: v1.1 Production-Grade QC Platform
 
-**Domain:** Pipeline & seabed survey data QA/validation platform (vertical SaaS)
-**Researched:** 2026-03-10
-**Confidence:** MEDIUM-HIGH
+**Domain:** AI Data QA & Validation Platform (pipeline/seabed survey)
+**Researched:** 2026-04-11
+**Mode:** Ecosystem -- how these 7 features work in production data platforms
 
-## Feature Landscape
+---
 
-### Table Stakes (Users Expect These)
+## Table Stakes
 
-Features users assume exist. Missing these = product feels incomplete or untrustworthy.
+Features users expect once a data platform moves past MVP. Missing any of these signals "not production-ready."
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| File upload (CSV, Excel) | Engineers work with tabular exports from survey systems; drag-and-drop upload is baseline UX | LOW | 50MB cap is fine for MVP; most survey exports are 1-20MB. Support .csv, .xlsx, .xls |
-| Column auto-detection & mapping | Survey exports vary by client/instrument; users need the system to recognize KP, DOB, DOC, TOP, easting, northing, etc. | MEDIUM | Use header-name heuristics + let users confirm/override. Critical for first-run experience |
-| Configurable validation rules | Every client has different tolerances and specs; hard-coded rules are useless | MEDIUM | Provide sensible defaults (e.g., DOB range 0-5m, KP monotonically increasing) but let users create/edit profiles |
-| Range & tolerance checks | Most basic QC check -- values outside acceptable bounds | LOW | Min/max, delta between consecutive readings, absolute thresholds |
-| Missing data detection | Gaps in KP coverage, null cells, incomplete rows are the most common data issue | LOW | Flag missing cells, highlight KP gaps, report coverage percentage |
-| Duplicate detection | Duplicate KP entries or repeated rows are common copy-paste/export errors | LOW | Exact and near-duplicate detection on key columns |
-| Anomaly/outlier flagging | Statistical spikes in DOB/DOC/TOP measurements indicate instrument errors or real issues; users need both surfaced | MEDIUM | Z-score, IQR, rolling window deviation. Mark as "statistical outlier" not "error" -- user decides |
-| Results dashboard with issue summary | Engineers need an at-a-glance view: how many issues, what severity, where along the pipeline | MEDIUM | Summary stats + issue list grouped by severity + KP location reference |
-| Downloadable QC report (PDF) | The primary deliverable. Clients expect a formatted document they can hand to their client | MEDIUM | Must include: summary, methodology, issue table, pass/fail status, company branding placeholder |
-| Downloadable cleaned dataset | After reviewing flags, users want to export the corrected/validated data | LOW | Export as CSV/Excel with flagged rows annotated or removed per user choice |
-| Project/job organization | Survey companies run dozens of jobs simultaneously; data must be organized by project and job | LOW | Hierarchical: Client > Project > Survey Job > Datasets > Reports |
-| User authentication & accounts | Multi-user access with secure login | LOW | Supabase Auth handles this. Email/password for MVP |
-| Async processing with status | Large files take time; users must not stare at a spinner | LOW | Upload > "Processing..." > notification/email when done |
+| Feature | Why Expected | Complexity | Dependencies on Existing |
+|---------|-------------|------------|--------------------------|
+| Job queue with retry/recovery | Every production data platform has resilient async processing. Fire-and-forget is acceptable for prototypes but users lose data and trust when jobs silently fail. | **Medium** | Replaces current fire-and-forget pipeline trigger in `pipeline-validation` route |
+| In-app notifications | Users expect to know when their validation run completes, when someone comments, or when something fails -- without refreshing the page. | **Medium** | Extends existing `realtime-provider.tsx`, connects to comments system |
+| Email notifications | Team leads need alerts for failures and completed runs when not actively in the app. Already using Resend for transactional email. | **Low** | Resend SMTP already configured |
+| Comment resolution | Basic comments exist. Production collaboration requires marking issues as resolved, filtering by status, knowing what is still open. | **Low** | Extends existing `issue_comments` table and `comments.ts` actions |
+| Activity feed | Audit trail exists but is for compliance. Activity feed is user-facing: "what happened recently on this project/job." | **Medium** | Reads from existing `audit_logs` table, surfaces as UI component |
 
-### Differentiators (Competitive Advantage)
+## Differentiators
 
-Features that set SurveyQC AI apart from manual spreadsheet QC and from heavyweight desktop tools like EIVA NaviSuite or VisualSoft.
+Features that set TruQC apart from generic data quality tools. Not expected, but create real competitive advantage in the survey/engineering niche.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Explainable flags with plain-English reasoning | Every flagged issue includes WHY it was flagged ("DOB value of 8.3m exceeds project tolerance of 5.0m at KP 12.445"). Competitors show red cells; we show reasoning | MEDIUM | This is the core differentiator per PROJECT.md. Engineers need to trust and understand each flag to sign off on QC |
-| Cross-dataset consistency checks | Compare event listings against pipeline position data, verify DOB matches DOC+TOP geometry, check ROV inspection events align with survey KPs | HIGH | This catches errors that single-file checks miss. E.g., freespan event at KP 4.200 but DOB data shows full burial at that KP |
-| Pre-built survey-type templates | One-click validation profiles for DOB surveys, DOC surveys, pipeline route surveys, ROV inspection data -- not generic "data quality" rules | MEDIUM | Domain expertise baked into templates. Competitors are either generic (Great Expectations) or heavyweight desktop (EIVA). This is the sweet spot |
-| GC (General Condition) report generation | Auto-generate formatted GC reports from validated data with event summaries, burial status tables, freespan listings, anomaly logs | HIGH | This replaces hours of manual report writing. Must match industry-expected format. Huge time-saver and primary sales hook |
-| KP-referenced issue visualization | Show issues plotted along the pipeline chainage (KP axis), not just in a table. Engineers think in KP, not row numbers | MEDIUM | Simple KP-vs-value chart with flagged points highlighted. Does not need to be a full GIS -- a 2D profile plot is sufficient and expected |
-| Validation profile library (shareable) | Teams can create, save, and share validation rule sets across projects. New project? Apply last client's profile | LOW | Profiles stored per organization. Clone and modify. Saves setup time on repeat clients |
-| Monotonicity & sequence validation | KP values must be monotonically increasing, event sequences must follow logical order (e.g., "start burial" before "end burial") | MEDIUM | Domain-specific logic that generic tools don't have. Catches data ordering errors from instrument exports |
-| Batch processing (multiple files per job) | Upload 5 datasets for one survey job, validate all against each other and individually | MEDIUM | Real workflow: DOB file + event listing + pipeline position data all uploaded together and cross-referenced |
-| Tier-gated AI analysis (future) | Professional/Enterprise tiers get AI-powered natural language summaries of QC results, suggested corrections, trend analysis | HIGH | Not MVP. Layer on after rule-based engine is proven. Use OpenAI/Claude API for summarization |
+| Feature | Value Proposition | Complexity | Dependencies on Existing |
+|---------|-------------------|------------|--------------------------|
+| Dataset versioning with diff UI | Engineers re-run QC after fixes. Seeing exactly what changed between Version 1 and Version 2 of a dataset proves the fixes worked. This is rare in vertical QC tools. | **High** | Builds on existing compare tool (`/api/compare`), needs snapshot storage per validation run |
+| Validation certificates with hash | A QC Certificate PDF with a cryptographic hash that proves "this dataset passed these rules at this time" is unique in survey data. Replaces the informal "engineer signs off" workflow with verifiable proof. | **Medium** | Extends existing PDF report generation (fpdf2), needs certificate registry table |
+| Cross-dataset validation rules | Pipeline data comes in multiple files (DOB, DOC, position data) that must agree with each other. No survey QC tool cross-validates between datasets automatically. | **High** | Extends existing compare tool from standalone to pipeline-integrated; needs cross-dataset rule definitions |
+| Custom conditional rule builder | Letting engineers define "IF column A > X AND column B = Y THEN flag" without writing code captures domain knowledge that predefined rules cannot. | **High** | Extends existing validation profiles and threshold editor |
+| Context-aware QC (dynamic thresholds) | A spike in water depth at 500m is normal in a trench; the same spike at 50m is an anomaly. Static thresholds produce false positives. Context-aware thresholds dramatically reduce noise. | **High** | Extends existing statistical validators, needs context metadata schema |
+| @mentions in comments | Tagging a colleague on a specific issue accelerates review workflows. Useful but not critical for solo/small-team usage. | **Low-Medium** | Extends existing comments system, requires user lookup and notification trigger |
 
-### Anti-Features (Commonly Requested, Often Problematic)
+## Anti-Features
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Raw sensor data processing | "Can it read raw multibeam/sonar files?" | Massively complex, requires specialized parsers (Kongsberg .all, Reson .s7k, etc.), and competitors like EIVA/QPS own this space | Stay firmly in the "post-processed deliverables" lane. Accept CSV/Excel exports that survey processors already produce |
-| Real-time vessel data integration | "Can it connect to the survey vessel?" | Requires hardware integration, real-time protocols (SIS, NaviPac), vessel IT infrastructure access. Completely different product | Focus on post-survey QC. Vessel-side QC is done by EIVA/VisualSoft. We validate the deliverables after |
-| GIS/mapping visualization | "Show the pipeline on a map" | Requires coordinate reference system handling, map tiles, GIS libraries. Huge scope creep for limited QC value | Use KP-based profile plots instead. If users need GIS, they already have QGIS/ArcGIS. Export clean data for those tools |
-| Full CAD/GIS export (shapefiles, DXF) | "Export to AutoCAD/ArcGIS" | Multiple complex format specifications, projection handling, attribute mapping | Offer CSV/Excel export with coordinates. Users can import into their existing GIS tools. Add shapefile export in v2+ if demand proves real |
-| Custom ML model training | "Let me train my own anomaly model" | Requires ML ops infrastructure, training data management, model versioning. Solo dev cannot maintain this | Provide configurable statistical thresholds. Future: pre-trained models per survey type that improve over time, but users don't train them |
-| Built-in data editing/correction | "Let me fix the data right in the app" | Turns a QC tool into a spreadsheet. Engineers already have Excel. Editing introduces liability questions | Flag issues clearly with enough context to fix in source. Offer "export with annotations" so fixes happen in the engineer's tool of choice |
-| Real-time collaboration/commenting | "Let users comment on flags like Google Docs" | Complex real-time sync, conflict resolution, significant frontend complexity | Single-user review workflow for MVP. Add simple "resolved/not resolved" status per flag. Multi-user review can come later |
-| Video/image annotation for ROV data | "Tag defects on ROV video frames" | Entirely different product category (VisualSoft territory), massive storage/streaming requirements | Accept ROV inspection data exports (event listings, measurements). Leave video handling to specialized tools |
-| Coordinate transformations (datum/projection) | "Convert between WGS84 and local grid" | Geodetic transformations are complex and error-prone. Many edge cases by geography | Accept data in whatever CRS the user has. If coordinates are present, validate consistency but don't transform. Defer to v2+ |
+Features to explicitly NOT build in v1.1. These are scope traps that look valuable but destroy focus.
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Full scripting engine for custom rules | Already in out-of-scope list. A visual rule builder covers 90% of use cases. A scripting engine invites security issues (sandboxing), support burden, and unbounded complexity. | Simple if/then conditional rule builder UI with predefined operators |
+| Real-time collaborative editing of datasets | Massive engineering effort (CRDT/OT), not the core problem. Survey engineers do not co-edit spreadsheets in real-time. | Sequential workflow: one user cleans, others review via comments |
+| AI-generated validation rules | Tempting but premature. The rule library is not large enough to train on, and "AI suggested this rule" without explainability undermines trust in a QC tool. | Let users build rules manually; gather usage data for future ML |
+| Blockchain-backed certificates | Overkill. A SHA-256 hash stored in the database with a public verification endpoint provides equivalent tamper-evidence without blockchain complexity. | Cryptographic hash + verification URL on certificate PDF |
+| WebSocket-based real-time dashboard | The existing Supabase Realtime subscription pattern is sufficient. Building a custom WebSocket layer for dashboard updates adds infrastructure for marginal UX gain. | Continue using Supabase Realtime for status updates |
+| Notification preference center (granular) | Building per-channel, per-event-type notification preferences is a deep rabbit hole. At v1.1 scale, sensible defaults with a simple on/off toggle per category is enough. | Simple notification settings: on/off for email, always-on for in-app |
+
+---
+
+## Feature Deep Dives
+
+### 1. Job Queue with Retry/Recovery
+
+**How it works in production platforms:**
+- Jobs are enqueued with metadata (dataset ID, user ID, validation profile, priority)
+- Workers pull jobs and process them with heartbeat/progress reporting
+- Failed jobs retry with exponential backoff (1s, 2s, 4s, 8s...) plus jitter to avoid thundering herd
+- After 3-5 retries, jobs move to a dead letter queue (DLQ) for manual investigation
+- All jobs are idempotent: retrying the same job does not create duplicate validation runs
+- Admin UI shows queue depth, active jobs, failed jobs, retry history
+
+**What TruQC needs specifically:**
+- Replace fire-and-forget `fetch()` to FastAPI with a persistent queue
+- Two viable approaches: (a) Supabase Queues (pgmq) with pg_cron polling, or (b) BullMQ + Redis on Railway
+- Progress reporting back to the frontend (percentage, current stage)
+- Failure visibility: users see "Job failed after 3 retries" not just a spinner that never resolves
+
+**Table stakes elements:** Retry with backoff, failure visibility, job status tracking
+**Differentiator elements:** Priority queues (enterprise jobs first), cancel/pause running jobs
+**Complexity:** Medium -- the queue infrastructure is well-documented; the work is in making the existing pipeline idempotent and adding progress reporting
+
+---
+
+### 2. Dataset Versioning
+
+**How it works in production platforms:**
+- Each validation run creates an immutable snapshot of the dataset state
+- Snapshots are stored efficiently (full copy for small datasets, delta/diff for large ones)
+- Users can browse version history: "Version 1 (original) -> Version 2 (after auto-fix) -> Version 3 (after manual review)"
+- Diff UI shows row-by-row and cell-by-cell changes between any two versions
+- Versions link to their validation results, so you can see "in Version 1 there were 47 issues, in Version 2 there are 12"
+
+**What TruQC needs specifically:**
+- Snapshot the dataset content (CSV/parsed data) at each pipeline stage or validation run
+- Store snapshots in Supabase Storage (JSON or compressed CSV)
+- Version metadata in a `dataset_versions` table linking to validation run IDs
+- Diff UI can extend the existing compare tool (currently standalone) to work on versions of the same dataset
+- Version timeline component showing progression
+
+**Table stakes elements:** Version history list, link versions to validation results
+**Differentiator elements:** Visual diff UI with cell-level change highlighting, "regression detection" (new issues introduced between versions)
+**Complexity:** High -- snapshot storage strategy matters at scale; diff computation on large datasets needs to happen server-side (FastAPI)
+
+---
+
+### 3. Validation Certificates
+
+**How it works in production platforms:**
+- After a dataset passes QC, the system generates a certificate PDF
+- Certificate contains: dataset name, validation date, rules applied, pass/fail summary, unique hash
+- The hash is computed from: dataset content + rules applied + timestamp + results
+- A verification endpoint (`/verify/{hash}`) lets anyone confirm the certificate is genuine
+- Some platforms include QR codes linking to the verification URL
+
+**What TruQC needs specifically:**
+- Certificate generation endpoint in FastAPI (extends existing PDF generation with fpdf2)
+- SHA-256 hash of (dataset content hash + validation profile hash + results hash + timestamp)
+- `validation_certificates` table storing hash, metadata, generation date
+- Public verification page (no auth required) at `/verify/{hash}`
+- QR code on the PDF linking to the verification URL
+- SOQ (Seal of Quality) badge integration with existing report system
+
+**Table stakes elements:** Certificate PDF with hash, verification endpoint
+**Differentiator elements:** QR code, public registry, tamper-evident chain (hash includes previous certificate hash for same dataset)
+**Complexity:** Medium -- the PDF generation capability exists; the new work is hash computation, registry table, and public verification page
+
+---
+
+### 4. Collaboration Suite (Notifications, Activity Feed, @Mentions, Comment Resolution)
+
+**How it works in production platforms:**
+
+**In-app notifications:**
+- Notification center (bell icon) with unread count badge
+- Categorized: validation complete, comment added, mention, failure alert
+- Mark as read/unread, mark all as read
+- Stored in a `notifications` table with `user_id`, `type`, `read`, `data` (JSONB)
+- Delivered via Supabase Realtime subscription for instant updates
+
+**Email notifications:**
+- Triggered for: job failures, @mentions, daily/weekly digest
+- Uses existing Resend integration
+- Simple preference: email on/off per category (not granular per-event)
+
+**Activity feed:**
+- Project-scoped or job-scoped timeline of events
+- "Daniel ran validation on Pipeline_DOB.csv" / "Sarah resolved 5 issues" / "Auto-fix applied to 12 rows"
+- Sources from audit trail but presented as a user-friendly feed, not a compliance log
+
+**@mentions:**
+- In comment input, typing `@` triggers user autocomplete from org members
+- Mentioned user receives in-app + email notification
+- Mentions are stored as metadata in the comment (user IDs), rendered as styled chips
+
+**Comment resolution:**
+- Add `resolved` boolean and `resolved_by` to `issue_comments` or a separate resolution status on the issue itself
+- Filter: "Show unresolved only" toggle
+- Resolution count in issue triage view: "3/7 issues resolved"
+
+**Table stakes elements:** In-app notifications with bell icon, email on job failure, comment resolution toggle
+**Differentiator elements:** @mentions with autocomplete, activity feed with rich context, notification batching/digest
+**Complexity:** Medium collectively -- each piece is straightforward, but the integration surface is wide (notifications touch every feature)
+
+---
+
+### 5. Cross-Dataset Validation Rules
+
+**How it works in production platforms:**
+- Define relationships between datasets: "Dataset A (DOB) column 'KP' must match Dataset B (position) column 'KP' within 0.1m tolerance"
+- Cross-dataset rules run after individual dataset validation completes
+- Results surface as a separate validation category: "Cross-Dataset Consistency"
+- Common patterns: referential integrity (every ID in A exists in B), value consistency (same KP in both files should have same coordinates), temporal ordering (DOB date must precede DOC date for same pipeline segment)
+
+**What TruQC needs specifically:**
+- Integrate existing standalone compare tool into the validation pipeline
+- New rule type: `cross_dataset` with source/target dataset references
+- Cross-dataset rule definitions stored in validation profiles
+- UI to select "compare columns" between two datasets in the same job
+- Results appear in the standard issue triage view with a "Cross-Dataset" category
+- Domain-specific presets: DOB vs DOC consistency, position vs event alignment
+
+**Table stakes elements:** Column-to-column matching between datasets, tolerance-based comparison
+**Differentiator elements:** Domain-specific cross-dataset rule packs (pipeline survey presets), automatic relationship detection
+**Complexity:** High -- the compare endpoint exists but is standalone; integrating into the pipeline requires orchestrating multi-dataset validation runs and handling dataset pairing
+
+---
+
+### 6. Custom Conditional Rule Builder
+
+**How it works in production platforms:**
+- Visual UI with condition rows: `IF [column] [operator] [value] THEN [action]`
+- Operators: equals, not equals, greater than, less than, contains, is empty, regex match
+- Compound conditions: AND/OR grouping with nesting (max 2-3 levels deep)
+- Actions: flag as error, flag as warning, set severity, custom message
+- Rules are stored as JSON and evaluated server-side during validation
+- "Test rule" button that runs the rule against current dataset and shows matches
+
+**What TruQC needs specifically:**
+- Rule builder UI component with drag-and-drop or form-based condition rows
+- JSON schema for custom rules: `{ conditions: [...], action: {...}, logic: "AND"|"OR" }`
+- Server-side rule evaluator in FastAPI that runs custom rules alongside built-in validators
+- Integration with validation profiles: custom rules are part of a profile
+- Column-aware: rule builder knows the columns in the dataset and offers autocomplete
+- "Preview matches" feature to test before saving
+
+**Table stakes elements:** IF/THEN with basic operators, AND/OR logic, save rules to profile
+**Differentiator elements:** Column autocomplete from actual dataset, "preview matches" testing, rule templates library
+**Complexity:** High -- the UI is the hardest part (building a good rule builder is notoriously tricky); the evaluation engine is relatively straightforward with a JSON rule schema
+
+---
+
+### 7. Context-Aware QC (Dynamic Thresholds)
+
+**How it works in production platforms:**
+- Instead of "flag if water depth change > 5m between rows," use "flag if water depth change > 2 standard deviations from the local rolling average"
+- Context can be: geographic zone, data segment, time period, associated metadata
+- Thresholds adapt based on the context: tighter in stable zones, looser in transition zones
+- Event-conditional rules: "IF event type = 'trench crossing' THEN relax depth change thresholds"
+- User-configurable: engineers define context boundaries and threshold modifiers
+
+**What TruQC needs specifically:**
+- Context metadata schema: define "zones" or "segments" with associated threshold modifiers
+- Extend existing statistical validators to accept context-dependent thresholds
+- Event-conditional rules: lookup event type for current row, apply matching threshold set
+- UI for defining context rules: "When [context field] = [value], use [threshold set]"
+- Fallback to default thresholds when no context match
+- Integration with domain QC packs: pipeline-specific contexts pre-configured
+
+**Table stakes elements:** Configurable thresholds per data segment/zone
+**Differentiator elements:** Event-conditional rules (unique to survey domain), automatic context detection from data patterns
+**Complexity:** High -- the statistical validators exist but need refactoring to accept dynamic thresholds; the context metadata schema needs careful design to be flexible without being overwhelming
+
+---
 
 ## Feature Dependencies
 
 ```
-[User Auth]
-    |
-    v
-[Project/Job Structure]
-    |
-    v
-[File Upload & Storage]
-    |
-    +-----> [Column Auto-Detection]
-    |           |
-    |           v
-    |       [Validation Rule Engine] <--- [Validation Profile Templates]
-    |           |
-    |           +-----> [Range/Tolerance Checks]
-    |           +-----> [Missing Data Detection]
-    |           +-----> [Duplicate Detection]
-    |           +-----> [Monotonicity/Sequence Checks]
-    |           +-----> [Anomaly/Outlier Detection]
-    |           |
-    |           v
-    |       [Explainable Flag Generation]
-    |           |
-    |           v
-    +-----> [Results Dashboard]
-    |           |
-    |           +-----> [KP-Referenced Visualization]
-    |           +-----> [Issue Summary & Statistics]
-    |           |
-    |           v
-    |       [QC Report Generation (PDF)]
-    |       [GC Report Generation]
-    |       [Cleaned Dataset Export]
-    |
-    v
-[Batch Processing] ----requires----> [Cross-Dataset Consistency Checks]
-
-[Validation Profile Library] ----enhances----> [Validation Rule Engine]
-
-[Subscription Tiers] ----gates----> [Batch Processing (Professional+)]
-                     ----gates----> [GC Report Generation (Professional+)]
-                     ----gates----> [AI Analysis (Enterprise)]
+Job Queue ──────────────────────┐
+                                v
+Dataset Versioning ───> Needs reliable job tracking (queue provides run IDs)
+                                │
+Validation Certificates ───> Needs versioned results (version provides snapshot hash)
+                                │
+Cross-Dataset Validation ───> Needs job queue for multi-dataset orchestration
+                                │
+Context-Aware QC ───> Needs custom rule builder foundation (shared rule schema)
+                                │
+Custom Rule Builder ───> Independent, but benefits from cross-dataset awareness
+                                │
+Collaboration Suite ───> Independent, but notifications wire into everything above
 ```
 
-### Dependency Notes
+**Critical path:** Job Queue must come first. Dataset Versioning builds on it. Collaboration Suite is independently buildable but must wire into all other features for notifications.
 
-- **Validation Rule Engine requires Column Auto-Detection:** Rules reference column names/types. The system must know which column is KP, which is DOB, etc. before rules can execute.
-- **Explainable Flags require Validation Rule Engine:** Each rule produces a flag with context. The flag text is generated during rule execution, not after.
-- **Cross-Dataset Consistency requires Batch Processing:** You can only cross-reference datasets if multiple files are uploaded to the same job.
-- **GC Report Generation requires Results Dashboard:** The GC report is essentially a formatted export of the dashboard data plus additional summaries. Build the dashboard data model first.
-- **KP Visualization enhances Results Dashboard:** Optional but high-value addition to the dashboard. Can be added after initial dashboard ships.
-- **Profile Library enhances Rule Engine:** Not required for rules to work (defaults suffice), but dramatically improves repeat-use experience.
+## MVP Recommendation for v1.1
 
-## MVP Definition
+**Layer A -- Build First (reliability foundation):**
+1. **Job queue with retry/recovery** -- Everything else depends on reliable processing
+2. **Dataset versioning** -- Enables certificates and proves fixes work
+3. **Comment resolution + in-app notifications** -- Quick wins from existing infrastructure
 
-### Launch With (v1)
+**Layer B -- Build Second (workflow depth):**
+4. **Validation certificates** -- Requires versioning; high customer value, medium effort
+5. **Cross-dataset validation** -- Requires job queue orchestration; high differentiation
+6. **Activity feed + email notifications + @mentions** -- Completes collaboration suite
 
-Minimum viable product -- what's needed for a small survey company to upload a dataset and get value.
+**Layer C -- Build Third (differentiation):**
+7. **Custom conditional rule builder** -- High effort but unique value
+8. **Context-aware QC** -- Highest complexity; benefits from rule builder foundation
 
-- [ ] User auth (email/password via Supabase) -- gate access, track usage
-- [ ] Project/job hierarchy -- organize datasets logically
-- [ ] CSV/Excel upload (max 50MB) to Supabase Storage -- get data in
-- [ ] Column auto-detection with manual override -- map columns to survey data types
-- [ ] Default validation profiles for DOB, DOC, TOP surveys -- out-of-box value
-- [ ] Core validation checks: range, missing data, duplicates, monotonicity -- catch the most common issues
-- [ ] Statistical anomaly detection (z-score, IQR) -- catch spikes and outliers
-- [ ] Explainable flags on every issue -- the core differentiator
-- [ ] Results dashboard with issue list and summary stats -- view and review results
-- [ ] Downloadable QC report (PDF) -- the primary deliverable
-- [ ] Downloadable cleaned/annotated dataset (CSV/Excel) -- take corrected data downstream
-- [ ] Async processing with status indicator -- handle large files gracefully
-- [ ] Starter tier (free or low-cost, limited uploads) -- get users in the door
+**Defer to v1.2:** Automatic context detection (ML-based), notification digest emails, rule templates marketplace
 
-### Add After Validation (v1.x)
+## Complexity Budget (Solo Developer Estimate)
 
-Features to add once core QC workflow is proven and users are giving feedback.
+| Feature | Estimated Effort | Risk |
+|---------|-----------------|------|
+| Job queue with retry/recovery | 1-2 weeks | Low -- well-documented patterns |
+| Dataset versioning with diff UI | 2-3 weeks | Medium -- storage strategy decisions |
+| Validation certificates | 1 week | Low -- extends existing PDF generation |
+| Comment resolution | 2-3 days | Low -- extends existing comments |
+| In-app notifications | 1 week | Low -- Supabase Realtime exists |
+| Email notifications | 3-5 days | Low -- Resend already configured |
+| Activity feed | 3-5 days | Low -- reads from audit trail |
+| @mentions | 3-5 days | Low -- autocomplete + notification trigger |
+| Cross-dataset validation | 2-3 weeks | High -- orchestration complexity |
+| Custom rule builder | 2-3 weeks | High -- UI complexity |
+| Context-aware QC | 2-3 weeks | High -- validator refactoring |
 
-- [ ] Custom validation rule creation (user-defined) -- when users outgrow defaults
-- [ ] Validation profile library (save, clone, share) -- when users have repeat projects
-- [ ] KP-referenced profile visualization -- when users request visual QC review
-- [ ] Cross-dataset consistency checks -- when users upload multiple related files
-- [ ] GC report generation (formatted industry-standard) -- when users ask to replace their manual report writing
-- [ ] Batch file upload per job -- when users want full job processing
-- [ ] Professional tier with expanded limits -- when conversion/retention metrics support it
-- [ ] Email notifications on processing completion -- when async jobs are common
-
-### Future Consideration (v2+)
-
-Features to defer until product-market fit is established.
-
-- [ ] AI-powered natural language QC summaries -- requires API cost management, tier gating
-- [ ] AI-suggested data corrections -- needs confidence in rule engine first
-- [ ] API access for pipeline integration (Enterprise tier) -- when enterprise customers request it
-- [ ] Team management and role-based access -- when multi-user orgs adopt
-- [ ] Coordinate validation and basic CRS checks -- when geo-awareness adds value
-- [ ] Advanced file format support (LAS, shapefiles) -- when market demands it
-- [ ] Audit trail / version history for QC runs -- when compliance-focused clients appear
-- [ ] White-label reporting (client branding on reports) -- Enterprise tier perk
-
-## Feature Prioritization Matrix
-
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| File upload (CSV/Excel) | HIGH | LOW | P1 |
-| Column auto-detection | HIGH | MEDIUM | P1 |
-| Default validation profiles (DOB/DOC/TOP) | HIGH | MEDIUM | P1 |
-| Range/tolerance checks | HIGH | LOW | P1 |
-| Missing data detection | HIGH | LOW | P1 |
-| Duplicate detection | MEDIUM | LOW | P1 |
-| Anomaly/outlier detection | HIGH | MEDIUM | P1 |
-| Explainable flags | HIGH | MEDIUM | P1 |
-| Results dashboard | HIGH | MEDIUM | P1 |
-| QC report (PDF) | HIGH | MEDIUM | P1 |
-| Cleaned dataset export | MEDIUM | LOW | P1 |
-| Project/job organization | MEDIUM | LOW | P1 |
-| Auth & accounts | HIGH | LOW | P1 |
-| Async processing | HIGH | LOW | P1 |
-| Monotonicity/sequence checks | MEDIUM | LOW | P1 |
-| Custom validation rules | MEDIUM | MEDIUM | P2 |
-| Validation profile library | MEDIUM | LOW | P2 |
-| KP-referenced visualization | MEDIUM | MEDIUM | P2 |
-| Cross-dataset consistency | HIGH | HIGH | P2 |
-| GC report generation | HIGH | HIGH | P2 |
-| Batch processing | MEDIUM | MEDIUM | P2 |
-| AI analysis summaries | MEDIUM | HIGH | P3 |
-| API access | LOW | MEDIUM | P3 |
-| Team management / RBAC | LOW | MEDIUM | P3 |
-| White-label reporting | LOW | MEDIUM | P3 |
-
-**Priority key:**
-- P1: Must have for launch
-- P2: Should have, add when possible (v1.x)
-- P3: Nice to have, future consideration (v2+)
-
-## Competitor Feature Analysis
-
-| Feature | EIVA NaviSuite | VisualSoft | Coda Octopus Survey Engine | Manual (Excel) | SurveyQC AI (Our Approach) |
-|---------|---------------|------------|---------------------------|----------------|---------------------------|
-| Target user | Survey vessel operators, large contractors | ROV/inspection teams on vessel | Geophysicists interpreting sonar data | Anyone | Small survey companies doing post-survey QC |
-| Deployment | Desktop (vessel-installed) | Desktop (vessel-installed) | Desktop | Desktop | Web SaaS (browser-based) |
-| Price point | $10K-50K+ licenses | $10K-50K+ licenses | $10K-30K+ licenses | Free (but hours of labor) | $49-499/mo SaaS tiers |
-| Data input | Raw sensor data + processed | Raw video + sensor | Raw sidescan sonar | Any CSV/Excel | CSV/Excel deliverables |
-| Real-time acquisition | Yes | Yes | Yes | No | No (post-survey) |
-| Automated QC checks | Some (positioning QC) | Limited (data consistency) | Limited (interpretation tools) | Manual formulas | Yes -- core product |
-| Explainable flags | No | No | No | N/A (manual review) | Yes -- every flag explained |
-| GC reporting | Integrated | Integrated | Export-based | Manual writing | Auto-generated |
-| Anomaly detection | Basic | Basic | Basic | Manual (conditional formatting) | Statistical + configurable |
-| Cross-dataset validation | Within suite only | Within suite only | No | Manual cross-reference | Automated (v1.x) |
-| Accessibility | Vessel/office desktop | Vessel/office desktop | Office desktop | Anywhere | Anywhere (browser) |
-
-### Competitive Positioning
-
-The existing tools (EIVA, VisualSoft, Coda Octopus) are **acquisition and processing** platforms -- they run on survey vessels and process raw sensor data. They cost $10K-50K+ and require training. They are NOT competitors; they are **upstream tools** whose outputs become our inputs.
-
-Our real competitor is **Excel + manual checking** -- the current workflow for small companies that receive processed survey deliverables and must QC them before client delivery. We replace that manual process with automated, explainable validation at a SaaS price point.
+**Total estimated: 10-14 weeks** for a solo developer across all features.
 
 ## Sources
 
-- [EIVA NaviSuite QC Toolbox -- BP Case Study](https://www.eiva.com/about/case-studies/cable-pipe-and-asset-inspections/navisuite-qc-toolbox-bp) -- NaviSuite QC capabilities
-- [VisualSoft Subsea Survey Software](https://f-e-t.com/subsea/software-and-control-system-solutions/visualsoft/) -- VisualSoft feature overview
-- [Coda Octopus Survey Engine Pipeline+](https://www.codaoctopus.com/products/geo/survey-engine-pipeline) -- Pipeline interpretation features
-- [EIVA NaviSuite Deep Learning Pipeline Inspection](https://www.eiva.com/products/navisuite/navisuite-processing-software/navisuite-deep-learning-pipeline-inspection) -- AI inspection features
-- [Hydro International -- Quality Control of Survey Data](https://www.hydro-international.com/content/article/quality-control-of-survey-data) -- Survey QC pain points
-- [Anomalo -- Data Validation Platform](https://www.anomalo.com/) -- General data quality platform patterns
-- [QPS Fledermaus Pipeline Visualization](https://confluence.qps.nl/fledermaus7/reference-manual/scientific-data-sd-types/pipeline-visualization-classes) -- Pipeline data types and KP conventions
-
----
-*Feature research for: Pipeline & seabed survey data QA/validation platform*
-*Researched: 2026-03-10*
+- [Retry Patterns: Exponential Backoff, Jitter, and DLQs](https://dev.to/young_gao/retry-patterns-that-actually-work-exponential-backoff-jitter-and-dead-letter-queues-75)
+- [BullMQ: Production-Grade Job Queues for Node.js](https://dev.to/whoffagents/bullmq-production-grade-job-queues-for-nodejs-1bhk)
+- [Supabase Queues Documentation](https://supabase.com/docs/guides/queues)
+- [Supabase Edge Functions: Background Tasks](https://supabase.com/docs/guides/functions/background-tasks)
+- [Adaptive Data Quality Thresholds](https://www.acceldata.io/blog/adaptive-data-quality-thresholds-moving-beyond-static-rules)
+- [Microsoft Purview Data Quality Thresholds](https://techcommunity.microsoft.com/blog/microsoft-security-blog/microsoft-purview-data-quality-thresholds-more-control-more-trust/4506546)
+- [Data Quality Rules for 2026](https://atlan.com/know/data-quality-rules/)
+- [SaaS In-App Notification Feeds](https://www.suprsend.com/post/what-are-in-app-notification-feeds-for-saas-products)
+- [Building Collaborative SaaS Apps with Notifications](https://www.magicbell.com/blog/building-collaborative-and-productive-saas-applications-with-notifications)
+- [Visual Rule Builder (Feathery)](https://docs.feathery.io/platform/build-forms/advanced-logic/visual-rule-builder)
+- [DataFlowMapper Logic Builder](https://dataflowmapper.com/blog/dataflowmapper-logic-builder-guide)
+- [CDQ Data Quality Rules](https://www.cdq.com/platform/data-quality-rules)
+- [Certificate Generator with QR Verification](https://github.com/Saqib-Hussain-07/Certificate-Generator)
+- [Best Data Versioning Tools 2025](https://www.secoda.co/blog/best-data-versioning-tools-2025)

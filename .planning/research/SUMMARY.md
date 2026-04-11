@@ -1,199 +1,195 @@
 # Project Research Summary
 
-**Project:** SurveyQC AI -- Pipeline & Seabed Survey Data QA Platform
-**Domain:** Vertical SaaS -- Survey Data Quality Assurance (Pipeline/Seabed Engineering)
-**Researched:** 2026-03-10
+**Project:** TruQC v1.1 Production-Grade QC Platform
+**Domain:** Survey Data QA & Validation Platform (pipeline/seabed)
+**Researched:** 2026-04-11
 **Confidence:** HIGH
 
 ## Executive Summary
 
-SurveyQC AI is a vertical SaaS platform that replaces the manual Excel-based QC workflow used by small survey companies to validate post-processed pipeline and seabed survey data. The real competitor is not EIVA or VisualSoft (those are $10K-50K+ desktop tools for vessel-side acquisition); the real competitor is an engineer spending hours checking spreadsheets with conditional formatting. The product accepts CSV/Excel deliverables, runs configurable validation rules and statistical anomaly detection, produces explainable flags with plain-English reasoning, and generates downloadable QC and GC reports. The core differentiator is explainability -- every flag tells the engineer exactly what failed, where, and why.
+TruQC v1.1 evolves a working MVP into a production-grade, team-capable QC platform for small survey and engineering companies. The existing stack (Next.js/FastAPI/Supabase/Railway) is well-validated and requires no core changes -- all v1.1 work is additive. Research confirms that five new dependencies cover the full feature set: procrastinate for job queuing, datacompy for dataset diffing, qrcode for certificates, react-querybuilder for the custom rule builder UI, and hmac (stdlib) for tamper-evident certificates. Infrastructure cost increase is minimal to zero: the PostgreSQL-backed procrastinate queue uses the existing Supabase DB with no new services required.
 
-The recommended architecture is a two-service split: Next.js on Vercel for the frontend (UI, auth flows, Supabase client calls) and FastAPI on Railway for compute-heavy processing (parsing, validation, anomaly detection, report generation). Supabase serves as the communication bus between them -- the frontend never calls FastAPI directly. Files upload from the browser straight to Supabase Storage, a database webhook triggers FastAPI, and results flow back through Supabase with real-time status updates via Postgres Changes subscriptions. This eliminates CORS complexity, centralizes auth, and lets both services scale independently.
+The recommended build order is layered: reliability infrastructure (job queue, dataset versioning) must come before workflow features (certificates, collaboration, cross-dataset validation), which must come before differentiation features (custom rule builder, context-aware QC). This order is driven by hard dependency chains -- certificates require versioning snapshots, notifications require a stable job completion event, and the custom rule builder condition schema is shared by context-aware QC. Skipping ahead in this sequence creates rework.
 
-The primary risks are: (1) routing file uploads through Vercel serverless (hard 4.5MB body limit, strict timeouts -- must upload directly to Supabase Storage from day one), (2) pandas memory blowup on large files (50MB CSV can expand to 500MB in RAM -- must use chunked processing from the start), and (3) building a rigid validation engine with hardcoded rules (every new client would require code changes -- rules must be data-driven and configurable from Phase 3). A lesser but real risk is using `getSession()` instead of `getUser()` for server-side auth checks, which creates a security hole. All of these are avoidable with correct initial design decisions.
+The highest-risk area is the job queue migration from BackgroundTasks. This change touches the core validation pipeline and must be done with a feature flag and parallel code paths to avoid downtime. The second critical risk is cryptographic correctness of validation certificates -- a bare SHA-256 hash is forgeable; HMAC-SHA256 with a server-side secret is required from the first certificate issued. Both risks are well-mitigated by the pitfalls research and are solvable within the v1.1 timeline with a solo developer.
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack splits cleanly into a TypeScript frontend and Python backend, connected through Supabase as the shared data layer. All recommended versions are verified against current releases and confirmed compatible.
+The existing v1.0 stack requires no changes. V1.1 adds five targeted dependencies with no architectural overhaul. The key infrastructure decision is job queue technology: the architecture research recommends procrastinate (PostgreSQL-backed, zero new infrastructure) while the stack research recommends arq + Railway Redis. The pitfalls research decisively tips the balance toward procrastinate -- Redis adds $15-30/month, ops burden, and OOM risk that are disproportionate for a solo developer at current scale. Graduate to Redis only when PostgreSQL polling creates measurable latency.
 
-**Core technologies:**
-- **Next.js 16.x** (Vercel): App Router with Server Components for data-heavy pages, Turbopack dev server, native Tailwind CSS v4 support
-- **FastAPI 0.135.x** (Railway): Async-native Python API with auto-generated OpenAPI docs, Pydantic v2 validation
-- **Supabase** (managed): Auth + PostgreSQL + Object Storage + Realtime in one platform; Row-Level Security for multi-tenant isolation
-- **pandas 3.x + numpy + scipy**: Core data processing and statistical analysis for validation and anomaly detection
-- **Celery 5.6.x + Redis 7.x**: Task queue for async file processing (defer to later -- start with synchronous processing or DB-based queue for MVP)
-- **shadcn/ui + TanStack Table + Recharts**: UI components, data grid for results, charts for QC dashboards
-- **WeasyPrint 63.x**: HTML/CSS-to-PDF for GC report generation
+**Core technology additions:**
+- `procrastinate ^1.x`: Async PostgreSQL job queue -- no new infrastructure, uses existing Supabase DB, built-in retry/backoff, job visibility via standard SQL
+- `datacompy ^0.14`: DataFrame comparison for version diffing -- pandas-native, handles schema changes and type mismatches, Capital One maintained
+- `qrcode ^8.0`: QR code generation for certificate PDFs -- lightweight, SVG output requires no Pillow dependency
+- `react-querybuilder ^7.x`: Custom rule builder UI -- nested AND/OR groups, JSON export, shadcn/ui compatible with custom renderers
+- `hashlib` + `hmac` (stdlib): Certificate hash generation -- HMAC-SHA256 with server secret, zero external dependency
 
-**Critical version notes:** pandas 3.x requires Python >=3.11. @supabase/supabase-js requires Node.js >=20. @supabase/auth-helpers is deprecated -- use @supabase/ssr. Tailwind CSS v4 uses CSS-first config (no tailwind.config.js).
+**What NOT to add:** Redis/ARQ, Celery, DVC/lakeFS, Novu/Knock, X.509 digital signatures, py-rules-engine, react-awesome-query-builder. All are over-engineering relative to actual requirements.
 
 ### Expected Features
 
-**Must have (table stakes -- P1):**
-- File upload (CSV/Excel, 50MB cap) with async processing and status updates
-- Column auto-detection and mapping (KP, DOB, DOC, TOP, easting, northing)
-- Configurable validation rules with default profiles per survey type (DOB, DOC, TOP)
-- Core checks: range/tolerance, missing data, duplicates, monotonicity/sequence
-- Statistical anomaly detection (z-score, IQR, rolling window)
-- Explainable flags with plain-English reasoning on every issue
-- Results dashboard with issue summary grouped by severity
-- Downloadable QC report (PDF) and cleaned/annotated dataset (CSV/Excel)
-- Project/job hierarchy for organizing datasets
-- User authentication (email/password via Supabase Auth)
+**Must have (table stakes):**
+- Job queue with retry/recovery -- production data platforms require resilient async processing; fire-and-forget is a prototype pattern
+- In-app notifications (bell icon, unread count) -- users expect to know when validation completes without refreshing
+- Email notifications on failures and @mentions -- Resend already configured, low-complexity addition
+- Comment resolution (resolved/unresolved toggle, filter) -- basic comments exist; production requires closure tracking
 
-**Should have (differentiators -- P2, add after validation):**
-- Cross-dataset consistency checks (e.g., DOB vs event listings)
-- GC report auto-generation (replaces hours of manual report writing -- primary sales hook)
-- KP-referenced profile visualization (engineers think in KP, not row numbers)
-- Validation profile library (save, clone, share across projects)
-- Batch file upload per job
-- Custom user-defined validation rules
+**Should have (differentiators):**
+- Dataset versioning with diff UI -- unique in vertical QC tools; proves fixes worked between validation runs
+- Validation certificates with cryptographic hash -- replaces informal sign-off workflows with verifiable proof; no survey QC tool offers this
+- Cross-dataset validation rules -- pipeline data (DOB, DOC, position) must cross-validate; no competitor does this automatically
+- Custom conditional rule builder -- captures domain knowledge beyond predefined rules; IF/THEN with 3 rule types, hard-capped complexity
+- Context-aware QC with dynamic thresholds -- event-conditional rules that reduce false positives in complex pipeline environments
 
-**Defer (v2+):**
-- AI-powered natural language QC summaries and suggested corrections
-- API access for pipeline integration
-- Team management and RBAC
-- Advanced format support (LAS, shapefiles), coordinate transformations
-
-**Anti-features (do not build):**
-- Raw sensor data processing (stay in "post-processed deliverables" lane)
-- GIS/mapping visualization (use KP profile plots instead)
-- Built-in data editing (flag issues, don't become a spreadsheet)
-- Real-time vessel integration (completely different product)
+**Defer to v1.2:**
+- AI-generated validation rules (no training data yet)
+- Notification digest emails and granular per-event preferences
+- Automatic context detection from data patterns (ML-based)
+- Rule templates marketplace
+- Blockchain-backed certificates (HMAC-SHA256 is sufficient)
 
 ### Architecture Approach
 
-Two-service architecture with Supabase as the communication bus. The frontend (Next.js on Vercel) handles UI and auth; the backend (FastAPI on Railway) handles all data processing. They communicate exclusively through Supabase -- never directly. File processing follows a layered pipeline pattern: ingest -> validate -> detect anomalies -> generate report, with status updates at each stage boundary. Validation rules are stored as configurable JSON in the database, not hardcoded.
+All seven features integrate with the existing architecture rather than replacing it. The central change is swapping BackgroundTasks for a procrastinate job queue, which unlocks reliable execution for all downstream features. Dataset versioning hooks into job completion. Certificates extend fpdf2 report generation with a new template and a validation_certificates registry table. Collaboration wires into existing Supabase Realtime and Resend infrastructure with three new tables (notifications, activity_feed, and issue_comments columns). Cross-dataset validation extends run_validation_pipeline() with an optional reference_df parameter. Custom rules and context-aware QC run as final pipeline stages with self-contained evaluators.
 
-**Major components:**
-1. **Next.js App** (Vercel) -- Auth pages, dashboard, upload/results UI, Supabase client SDK for all data operations
-2. **Supabase Platform** (managed) -- Auth, PostgreSQL (projects, jobs, profiles, results), Object Storage (uploaded files, generated reports), Realtime (job status push), Database Webhooks (trigger processing)
-3. **FastAPI Processing Service** (Railway) -- Ingest pipeline (parse CSV/Excel, normalize), validation engine (configurable rules), anomaly detector (statistical methods), report generator (QC/GC PDF reports)
+**Major new components:**
+1. `backend/app/tasks.py` -- procrastinate app, task definitions; replaces inline BackgroundTasks
+2. `backend/app/validators/cross_dataset.py` -- cross-dataset validation checks (KP continuity, column matching, alignment)
+3. `backend/app/validators/custom_rules.py` -- custom rule interpreter/engine (evaluates JSON rule definitions against DataFrames)
+4. `backend/app/services/notifications.py` -- notification dispatch (in-app + email, with priority queuing)
+5. `backend/app/services/certificates.py` -- HMAC-SHA256 hash generation, certificate PDF template
 
-**Key architectural decisions:**
-- Upload files directly from browser to Supabase Storage (never through Vercel)
-- Frontend inserts job row in DB; webhook triggers FastAPI; results written back to DB
-- FastAPI uses Supabase service role key (bypasses RLS) for backend operations
-- Start with synchronous processing in webhook handler for MVP; add task queue when concurrency demands it
+**New database tables (6):** dataset_versions, validation_certificates, notifications, activity_feed, custom_rules, context_rules. Plus procrastinate auto-managed tables. Five existing columns added across validation_runs and issue_comments.
 
 ### Critical Pitfalls
 
-1. **Vercel serverless cannot process files** -- 4.5MB body limit, 10s timeout on free tier. Upload directly to Supabase Storage from the browser. Must be correct from day one.
-2. **Pandas memory explosion on real files** -- 50MB CSV expands to 200-500MB in RAM. Use `chunksize`, `usecols`, explicit `dtype` from the start. Never rely on pandas auto-inference for survey data.
-3. **Real-world survey data is messy** -- mixed encodings, inconsistent delimiters, BOM characters, text in numeric fields, varying column names across clients. Build a robust ingestion/normalization layer before validation rules.
-4. **Validation rules must be data-driven, not hardcoded** -- hardcoded rules mean every new client requires code changes. Design configurable rule profiles as database records from Phase 3. Recovery cost is HIGH if done wrong.
-5. **`getSession()` vs `getUser()` security hole** -- `getSession()` does not revalidate tokens server-side. Use `getUser()` in all middleware and server-side auth checks. Low recovery cost but must be correct from initial auth setup.
-6. **RLS performance on high-volume tables** -- validation results tables can have thousands of rows per job. Index all RLS columns, wrap `auth.uid()` in subselect, use service role for writes.
+1. **Redis adds disproportionate ops burden for solo dev** -- Use PostgreSQL-backed procrastinate queue instead of ARQ + Redis. No new infrastructure, zero cost increase, handles 100+ users without modification.
+2. **Certificate hash is forgeable without HMAC** -- Use HMAC-SHA256(server_secret, payload) not SHA256(payload). A bare hash lets anyone with the same file forge a certificate. Cannot be patched retroactively.
+3. **Dataset versioning storage costs explode silently** -- Enforce retention policy (max 5-10 versions per dataset) from day one. Create synthetic v0 for existing datasets without copying files. Compute diffs server-side, never send full dataset to browser.
+4. **Custom rule builder scope-creeps into a DSL** -- Hard cap: 3 rule types (threshold, column comparison, null check), no nested AND/OR, no arithmetic expressions, max 20 rules per profile. Never eval() user input.
+5. **Notification spam kills collaboration adoption** -- Default all notifications to OFF except direct @mentions. Batch email sends (5-minute window), rate limit to 10 emails/user/hour. Resend quota contention can delay transactional emails (OTP, password reset).
+
+---
 
 ## Implications for Roadmap
 
-Based on combined research, the project breaks naturally into 6 phases following the dependency chain identified in ARCHITECTURE.md and FEATURES.md.
+Based on combined research, the v1.1 feature set maps cleanly to three sequential layers with seven phases.
 
-### Phase 1: Foundation (Supabase + Auth + Next.js Shell)
-**Rationale:** Everything depends on the database schema, auth, and storage configuration. The architecture research is clear: Supabase is the shared backbone. Get this right first.
-**Delivers:** Working auth flow (register, login, password reset), database schema with RLS policies, storage buckets, protected route layout with navigation shell.
-**Addresses:** User authentication, project/job hierarchy (DB schema)
-**Avoids:** Pitfall 3 (getSession vs getUser -- set auth pattern correctly from day one), Pitfall 7 (RLS performance -- design indexes into initial schema)
-**Stack elements:** Next.js 16.x, @supabase/ssr, Supabase Auth/DB/Storage, shadcn/ui, Tailwind CSS v4
+### Phase 1: Job Queue Infrastructure
+**Rationale:** The single highest-risk change in v1.1 (replaces core processing mechanism) and the dependency for everything else. Do it first, use a feature flag, keep BackgroundTasks as fallback for two weeks post-launch.
+**Delivers:** Reliable async processing with retry/backoff, job status visibility, idempotent validation runs
+**Addresses:** Table stakes -- production data platforms require resilient processing
+**Avoids:** Railway worker OOM (procrastinate/PostgreSQL, not Redis), duplicate execution during deploys (idempotency keys), big-bang migration risk (feature flag + parallel code paths)
 
-### Phase 2: File Upload and Processing Pipeline
-**Rationale:** The upload-to-results pipeline is the core product loop. Architecture research shows frontend and backend can be developed in parallel since they communicate only through Supabase, but the integration (webhook) must work before building features on top.
-**Delivers:** File upload from browser to Supabase Storage, FastAPI processing service with ingest pipeline, column auto-detection, webhook trigger on job creation, basic processing status updates via Realtime.
-**Addresses:** File upload, column auto-detection, async processing with status
-**Avoids:** Pitfall 1 (Vercel upload routing), Pitfall 2 (BackgroundTasks -- use synchronous processing or DB queue for MVP), Pitfall 4 (pandas memory -- implement chunked processing from start), Pitfall 5 (data messiness -- build robust ingestion layer)
-**Stack elements:** FastAPI, pandas 3.x, openpyxl, Supabase Storage/Webhooks/Realtime, chardet/charset-normalizer
+### Phase 2: Dataset Versioning
+**Rationale:** Unlocks certificates (requires content hash + version_id) and the diff UI. Storage strategy is a write-once architectural decision that must be made before any versioned data is written.
+**Delivers:** Immutable snapshot per validation run, version timeline UI, server-side diff computation via datacompy
+**Addresses:** Differentiator -- unique in vertical QC tools; proves fixes worked between runs
+**Avoids:** Storage cost explosion (retention policy + diffs-not-full-copies from day one), existing data migration trap (synthetic v0, no file copying), browser freeze on large diffs (server-side pandas)
 
-### Phase 3: Validation Engine and Anomaly Detection
-**Rationale:** This is the core product value. The validation engine architecture (configurable rules as data, explainable flags) is the single most important design decision. PITFALLS.md rates hardcoded rules as HIGH recovery cost if done wrong.
-**Delivers:** Configurable validation rule engine, default profiles for DOB/DOC/TOP surveys, core checks (range, missing data, duplicates, monotonicity), statistical anomaly detection (z-score, IQR), explainable flag generation with full context.
-**Addresses:** Validation rules, range/tolerance checks, missing data detection, duplicate detection, monotonicity/sequence checks, anomaly detection, explainable flags
-**Avoids:** Pitfall 6 (rigid/opaque rules -- data-driven from the start, every flag must include row, column, expected, actual, explanation)
-**Stack elements:** pandas, numpy, scipy, Pydantic v2 (rule schemas)
+### Phase 3: Validation Certificates
+**Rationale:** Contained addition once versioning is live. Focused scope: hash generation + PDF template + registry table + public verification page. High customer value, medium effort.
+**Delivers:** Tamper-evident QC certificate PDF with QR code, public /verify/{hash} endpoint, certificate registry
+**Addresses:** Differentiator -- no survey QC tool offers verifiable certificates
+**Avoids:** Forgeable certificates (HMAC-SHA256 with server secret), PDF digital signatures (QR code + verification endpoint is the correct approach for this scale)
 
-### Phase 4: Results Dashboard and QC Reports
-**Rationale:** With processing and validation working end-to-end, build the user-facing results experience. The dashboard data model must exist before GC reports (per FEATURES.md dependency analysis).
-**Delivers:** Results dashboard with issue list grouped by severity, summary statistics, downloadable QC report (PDF), downloadable cleaned/annotated dataset (CSV/Excel).
-**Addresses:** Results dashboard, QC report generation, cleaned dataset export
-**Avoids:** Pitfall 7 (RLS performance on results tables -- verify query performance with realistic data volumes)
-**Stack elements:** TanStack Table, Recharts, WeasyPrint, xlsxwriter
+### Phase 4: Collaboration Suite
+**Rationale:** Independently buildable -- no dependency on versioning or certificates. Benefits from stable job queue for completion events. Wires into existing Supabase Realtime and Resend.
+**Delivers:** Notification bell with unread count, email notifications, comment resolution, activity feed, @mentions
+**Addresses:** Table stakes -- users expect async status updates and team communication
+**Avoids:** Notification spam (defaults OFF, 5-min batch window, rate limiting), Resend quota contention (separate transactional vs informational queues), activity feed bloat (90-day retention, cursor pagination)
 
-### Phase 5: Profiles, Visualization, and Polish
-**Rationale:** These are high-value differentiators that layer on top of the working core. Validation profile library and KP visualization are P2 features that dramatically improve repeat-use experience and engineer workflow.
-**Delivers:** Validation profile library (save, clone, share), KP-referenced profile visualization, custom validation rule creation, file preview before processing, false positive acknowledgment.
-**Addresses:** Validation profile library, KP visualization, custom rules, UX improvements from PITFALLS.md
-**Stack elements:** Recharts (KP plots), React Hook Form + Zod (rule builder UI)
+### Phase 5: Cross-Dataset Validation
+**Rationale:** Extends validation pipeline with multi-dataset context. Requires job queue stability (multi-dataset jobs are more complex) and careful changes to run_validation_pipeline() signature.
+**Delivers:** KP continuity checks, column value matching, spatial alignment between paired datasets; results in dedicated results table
+**Addresses:** Differentiator -- no competitor cross-validates pipeline datasets automatically
+**Avoids:** Memory explosion (pair-only comparison, 80MB combined limit), O(n^2) complexity (explicit pairs only), issue attribution ambiguity (separate cross_validation_results table)
 
-### Phase 6: Advanced Features (Cross-Dataset, GC Reports, Batch)
-**Rationale:** Cross-dataset checks and GC report generation are the highest-value P2 features but also the highest complexity. They require batch file upload (multiple files per job) which changes the processing model. GC report generation is the primary sales hook but requires all prior phases to be solid.
-**Delivers:** Batch file upload, cross-dataset consistency checks, GC report auto-generation, subscription tier gating.
-**Addresses:** Cross-dataset consistency, GC reports, batch processing, subscription tiers
-**Stack elements:** Celery + Redis (likely needed for batch processing complexity), WeasyPrint (GC report templates)
+### Phase 6: Custom Rule Builder
+**Rationale:** New subsystem (custom_rules table + JSON evaluator + react-querybuilder UI). Self-contained except for hooking into end of run_validation_pipeline(). The UI is the most complex frontend work in v1.1.
+**Delivers:** Visual IF/THEN rule builder, 3 rule types, JSON-backed evaluator, per-org rule library, preview matches testing
+**Addresses:** Differentiator -- captures domain knowledge that predefined rules cannot
+**Avoids:** DSL scope creep (3 types max, no nesting, no arithmetic, max 20 rules), eval() on user input (JSON schema evaluated by custom Python), UI complexity (react-querybuilder handles nested groups; shadcn integration needs custom renderers)
+
+### Phase 7: Context-Aware QC
+**Rationale:** Most architecturally invasive change to the validation pipeline (modifies config resolution for every validator). Benefits from custom rule builder completion (shared conditional logic patterns). Build last.
+**Delivers:** KP-range and event-type threshold overrides, segment-based evaluation (not per-row), context rule editor UI
+**Addresses:** Differentiator -- reduces false positives in complex pipeline environments
+**Avoids:** Combinatorial config explosion (ONE context mechanism: column value only, max 3 groups), per-row O(n) overhead (pre-segment DataFrame), context conflicts (multi-match = explicit error, always default fallback)
 
 ### Phase Ordering Rationale
 
-- **Phase 1 before everything:** Auth and database schema are foundational. Every subsequent phase reads/writes Supabase.
-- **Phase 2 before Phase 3:** The validation engine needs the ingestion pipeline to provide normalized DataFrames. Building validation rules without a working file parser is building on air.
-- **Phase 3 before Phase 4:** The dashboard displays validation results. The results must exist before the display layer.
-- **Phase 4 before Phase 5:** Profile management and KP visualization enhance the core experience. The core must work first.
-- **Phase 6 last:** Cross-dataset checks and GC reports are the most complex features and depend on everything before them. They also have the highest business value -- ship them when the foundation is proven.
-- **Parallel opportunity:** Within Phase 2, the Next.js upload UI and FastAPI processing service can be developed in parallel since they communicate only through Supabase.
+- Phase 1 to Phase 2 to Phase 3 is a hard dependency chain that cannot be reordered.
+- Phases 4-7 are independently buildable after Phase 1 but the research-suggested order puts low-risk/high-visibility collaboration before high-complexity differentiation work.
+- The two highest-risk items (queue migration, HMAC certificate design) appear in Phases 1 and 3 -- early enough to have recovery time before complex differentiation work.
+- Each phase adds one clearly bounded subsystem. No phase composes across multiple new subsystems simultaneously (critical for solo developer at 46,700 LOC).
+- Total estimated effort: 12-18 weeks solo developer across all phases.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 2 (File Processing):** The ingestion layer for handling real-world survey data messiness (encoding detection, delimiter detection, column mapping heuristics) is domain-specific and sparsely documented. Needs sample data from real survey companies to validate approach.
-- **Phase 3 (Validation Engine):** The rule engine architecture (data-driven, configurable, explainable) is the core product. Worth researching existing validation framework patterns (Great Expectations, Pandera) for inspiration, though they are too generic to use directly.
-- **Phase 6 (GC Reports):** Industry-standard GC report format is domain knowledge not well documented publicly. May need reference reports from actual survey companies to replicate expected layout.
+Phases needing deeper research during planning:
+- **Phase 5 (Cross-Dataset Validation):** Multi-dataset job orchestration with procrastinate; validate that multi-step jobs (download primary + download reference + run combined pipeline) are handled cleanly before writing the full plan.
+- **Phase 6 (Custom Rule Builder):** react-querybuilder + shadcn/ui integration requires a 1-2 hour prototype spike before committing to the approach. Custom renderers are required but are manual work.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (Foundation):** Supabase + Next.js auth is extremely well documented. Follow official @supabase/ssr guide.
-- **Phase 4 (Dashboard/Reports):** Standard data display patterns with TanStack Table and Recharts. WeasyPrint HTML-to-PDF is well documented.
-- **Phase 5 (Profiles/Visualization):** Standard CRUD + charting. No novel patterns needed.
+- **Phase 1:** procrastinate + FastAPI documentation is comprehensive, pattern is well-documented
+- **Phase 2:** Snapshot + datacompy pattern is clear; storage strategy is decided
+- **Phase 3:** hashlib/hmac are stdlib; fpdf2 extension follows existing report builder pattern
+- **Phase 4:** Supabase Realtime + Resend pattern is documented and partially in use already
+- **Phase 7:** Segment-based threshold override is a straightforward extension of existing validator config resolution
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All versions verified against current releases. Compatibility matrix confirmed. Well-established ecosystem. |
-| Features | MEDIUM-HIGH | Feature landscape based on domain analysis and competitor research. Anti-features clearly identified. MVP scope is well-defined. Gap: no direct user validation yet. |
-| Architecture | HIGH | Two-service split with Supabase as communication bus is a well-documented pattern. Build order aligns with component dependencies. Scaling path is clear. |
-| Pitfalls | HIGH (stack), MEDIUM (domain) | Stack-level pitfalls (Vercel limits, pandas memory, auth) are well-documented with clear prevention. Domain-specific pitfalls (survey data messiness, rule engine design) need validation with real data. |
+| Stack | HIGH | All additions use official documentation or stdlib. react-querybuilder shadcn/ui custom renderer work is MEDIUM for that specific piece. |
+| Features | HIGH | Scope and complexity estimates grounded in production data platform patterns. 10-14 week total effort estimate is realistic for solo developer. |
+| Architecture | HIGH | Integration points map to specific existing codebase files with function signatures. procrastinate vs ARQ divergence between STACK and ARCHITECTURE is resolved by PITFALLS in favour of procrastinate. |
+| Pitfalls | HIGH | Infrastructure pitfalls backed by Railway/Supabase official pricing docs. Certificate security pitfall is standard cryptographic principle. Custom rule builder scope creep is a well-documented anti-pattern. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Real survey data samples:** All file processing and validation logic should be tested against actual survey data exports, not synthetic data. Obtain sample files from at least 2-3 different survey software packages (EIVA, QPS, Trimble exports) during Phase 2 development.
-- **GC report format specification:** The industry-standard GC report layout is not well documented publicly. Need a reference GC report from a real survey company to replicate expected format in Phase 6.
-- **Task queue timing:** The architecture research recommends starting with synchronous processing and adding a queue later, while the stack research recommends Celery from the start. Recommendation: start synchronous for MVP simplicity (Architecture's anti-pattern 3 is correct), add ARQ or Celery in Phase 6 when batch processing demands it.
-- **Subscription tier pricing/limits:** Feature research identifies tier gating but no pricing research was done. Defer pricing decisions until after MVP user feedback.
-- **WeasyPrint on Railway:** WeasyPrint has system-level dependencies (Cairo, Pango, GDK-Pixbuf) that need to be available in the Docker image. Verify Railway Docker deployment handles these during Phase 4.
+- **procrastinate vs ARQ final decision:** STACK.md recommends ARQ; ARCHITECTURE.md recommends procrastinate; PITFALLS.md resolves in favour of procrastinate. Document this decision explicitly in Phase 1 plan so it is not revisited mid-implementation.
+- **react-querybuilder + shadcn/ui styling:** Run a 1-2 hour prototype spike before Phase 6 planning to confirm the custom renderer approach is feasible within the effort estimate.
+- **Existing dataset migration for versioning:** Creating synthetic v0 records for all existing datasets requires a migration script. Quantify the number of active datasets before writing the Phase 2 plan.
+- **Resend plan limits:** Verify current Resend tier against projected notification volume before Phase 4 build. Resend rate limits affect transactional email (OTP, password reset) if informational emails saturate the quota.
+
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Next.js 16.x release notes -- version and feature verification
-- FastAPI 0.135.x PyPI -- version and Pydantic v2 compatibility
-- Supabase official docs -- Auth SSR, Storage, Realtime, Webhooks, RLS
-- pandas 3.0 release notes -- Python version requirements, PyArrow default
-- Celery 5.6.x PyPI -- version and Redis compatibility
-- Supabase RLS performance guide -- optimization patterns
+- [procrastinate documentation](https://procrastinate.readthedocs.io/) -- job queue, PostgreSQL-backed tasks, retry configuration
+- [ARQ documentation](https://arq-docs.helpmanual.io/) -- async task queue, v0.27 features
+- [Railway Redis docs](https://docs.railway.com/guides/redis) -- one-click deployment, pricing model
+- [Railway SaaS backend guide](https://docs.railway.com/guides/saas-backend) -- worker service deployment pattern
+- [Railway pricing](https://docs.railway.com/pricing) -- per-service cost model
+- [datacompy PyPI](https://pypi.org/project/datacompy/) -- v0.14, DataFrame comparison
+- [Python hashlib docs](https://docs.python.org/3/library/hashlib.html) -- SHA-256, HMAC
+- [react-querybuilder docs](https://react-querybuilder.js.org/) -- v7.x, custom renderers
+- [Supabase Realtime with Next.js](https://supabase.com/docs/guides/realtime/realtime-with-nextjs) -- notification subscription pattern
+- [qrcode PyPI](https://pypi.org/project/qrcode/) -- v8.0, SVG/PNG output
+- [Supabase Storage pricing](https://supabase.com/docs/guides/storage/pricing) -- egress cost model
 
 ### Secondary (MEDIUM confidence)
-- Railway FastAPI deployment guide -- hosting pattern
-- WeasyPrint documentation -- HTML-to-PDF approach
-- React Hook Form + Zod integration guide -- version compatibility
-- EIVA/VisualSoft/Coda Octopus product pages -- competitor analysis
-- Hydro International survey QC article -- domain pain points
+- [FastAPI BackgroundTasks vs ARQ vs Celery](https://davidmuraya.com/blog/fastapi-background-tasks-arq-vs-built-in/) -- production comparison, integration patterns
+- [Retry patterns: exponential backoff, DLQ](https://dev.to/young_gao/retry-patterns-that-actually-work-exponential-backoff-jitter-and-dead-letter-queues-75) -- job queue design
+- [Adaptive data quality thresholds (Acceldata)](https://www.acceldata.io/blog/adaptive-data-quality-thresholds-moving-beyond-static-rules) -- context-aware QC patterns
+- [SaaS in-app notification feeds (SuprSend)](https://www.suprsend.com/post/what-are-in-app-notification-feeds-for-saas-products) -- notification UX
+- [Best data versioning tools 2025 (Secoda)](https://www.secoda.co/blog/best-data-versioning-tools-2025) -- versioning strategy comparison
+- [UI design for rule builders (Hagan Rivers)](https://medium.com/@hagan.rivers/ui-design-for-rule-builders-e3f218461954) -- rule builder UX patterns
 
-### Tertiary (needs validation)
-- GC report format expectations -- based on domain inference, not verified samples
-- Survey data file format variations -- based on general knowledge, needs real data validation
-- Concurrent processing thresholds -- performance claims need load testing
+### Tertiary (LOW confidence)
+- Community blog posts on Railway worker graceful shutdown during deploys -- specific deploy overlap behaviour; validate during Phase 1 implementation
 
 ---
-*Research completed: 2026-03-10*
+*Research completed: 2026-04-11*
 *Ready for roadmap: yes*
