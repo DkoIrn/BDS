@@ -82,34 +82,43 @@ export function GuidedOnboarding({ user, onComplete }: GuidedOnboardingProps) {
 
   const handleStartTour = useCallback(() => {
     setTourPhase("touring")
-    // Pre-load demo: import the file
-    dispatch({ type: "IMPORT_FILE", fileName: DEMO_DATASET.fileName })
+    // Stay on import stage — don't dispatch IMPORT_FILE yet
+    // Step 0 tooltip will highlight the import card
   }, [])
 
   const handleNextStep = useCallback(() => {
-    // Advance pipeline state for the CURRENT step, then move to next
+    // Advance pipeline to the NEXT step's stage, then move tooltip forward
+    const nextIndex = stepIndex + 1
+
     switch (stepIndex) {
       case 0:
-        // Import step done, advance to inspect
+        // Leaving import → show inspect with demo data loaded
+        dispatch({ type: "IMPORT_FILE", fileName: DEMO_DATASET.fileName })
+        // Immediately provide parsed data so inspect preview renders
         dispatch({
           type: "INSPECT_COMPLETE",
           parsedData: DEMO_DATASET.parsedData,
           columnCount: DEMO_DATASET.columnCount,
           rowCount: DEMO_DATASET.rowCount,
         })
+        // Stay on inspect stage (INSPECT_COMPLETE advances to validate, so go back)
+        dispatch({ type: "GO_TO_STAGE", stage: "inspect" })
         break
       case 1:
-        // Inspect done, advance to validate
+        // Leaving inspect → show validate with results
         dispatch({
           type: "VALIDATE_COMPLETE",
           runId: DEMO_VALIDATION.runId,
           issueCount: DEMO_VALIDATION.issueCount,
         })
-        // Also advance to review stage
-        dispatch({ type: "GO_TO_STAGE", stage: "review" })
+        dispatch({ type: "GO_TO_STAGE", stage: "validate" })
         break
       case 2:
-        // Validate done, pre-fill triage and advance to review complete
+        // Leaving validate → show review with issues
+        dispatch({ type: "GO_TO_STAGE", stage: "review" })
+        break
+      case 3:
+        // Leaving review → advance to clean
         for (const [issueId, entry] of Object.entries(DEMO_TRIAGE)) {
           dispatch({
             type: "TRIAGE_ISSUE",
@@ -120,8 +129,8 @@ export function GuidedOnboarding({ user, onComplete }: GuidedOnboardingProps) {
         }
         dispatch({ type: "REVIEW_COMPLETE" })
         break
-      case 3:
-        // Review done, advance to clean
+      case 4:
+        // Leaving clean → advance to export
         dispatch({
           type: "CLEAN_COMPLETE",
           cleanedData: DEMO_CLEAN_RESULT,
@@ -129,17 +138,13 @@ export function GuidedOnboarding({ user, onComplete }: GuidedOnboardingProps) {
           summary: { interpolated: 2, smoothed: 1 },
         })
         break
-      case 4:
-        // Clean done, advance to export
-        dispatch({ type: "SET_EXPORT_FORMAT", format: "csv" })
-        break
       case 5:
-        // Export step -- show celebration
+        // Leaving export → show celebration
         setTourPhase("celebration")
         return
     }
 
-    setStepIndex((prev) => prev + 1)
+    setStepIndex(nextIndex)
   }, [stepIndex])
 
   if (tourPhase === "welcome") {
