@@ -44,7 +44,7 @@ CREATE POLICY "Users can view job_runs for their org datasets"
   USING (
     dataset_id IN (
       SELECT d.id FROM datasets d
-      JOIN survey_jobs sj ON sj.id = d.job_id
+      JOIN jobs sj ON sj.id = d.job_id
       JOIN projects p ON p.id = sj.project_id
       JOIN profiles pr ON pr.organisation_id = p.organisation_id
       WHERE pr.id = auth.uid()
