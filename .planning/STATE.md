@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 24-02-PLAN.md
-last_updated: "2026-04-11T00:04:13.111Z"
-last_activity: 2026-04-10 -- Plan 24-02 complete (frontend branding settings and pre-generation dialog)
+status: executing
+stopped_at: Completed 25-01-PLAN.md
+last_updated: "2026-04-11T11:36:54.179Z"
+last_activity: 2026-04-11 -- Plan 25-01 complete (multi-tenant org tables, RLS rewrite, permissions)
 progress:
   total_phases: 27
-  completed_phases: 24
-  total_plans: 54
-  completed_plans: 54
-  percent: 100
+  completed_phases: 23
+  total_plans: 57
+  completed_plans: 55
+  percent: 96
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 24 - Branded Client Reports (Complete)
+**Current focus:** Phase 25 - Multi-User & Roles (In Progress)
 
 ## Current Position
 
-Phase: 24 of 27 (24-branded-client-reports)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-04-10 -- Plan 24-02 complete (frontend branding settings and pre-generation dialog)
+Phase: 25 of 27 (25-multi-user-roles)
+Plan: 1 of 3
+Status: In Progress
+Last activity: 2026-04-11 -- Plan 25-01 complete (multi-tenant org tables, RLS rewrite, permissions)
 
-Progress: [██████████] 100%
+Progress: [█████████░] 96%
 
 ## Performance Metrics
 
@@ -85,6 +85,7 @@ Progress: [██████████] 100%
 | Phase 23 P02 | 5min | 2 tasks | 2 files |
 | Phase 24 P01 | 6min | 2 tasks | 4 files |
 | Phase 24 P02 | 8min | 3 tasks | 4 files |
+| Phase 25 P01 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -194,6 +195,8 @@ Recent decisions affecting current work:
 - [Phase 24]: ReportRequest Pydantic model with logo_base64 for base64 logo transmission from frontend
 - [Phase 24]: Extracted _fetch_report_data/_build_triage_counts helpers to deduplicate GET/POST report endpoints
 - [Phase 24]: Pre-generation dialog uses custom overlay for consistent modal pattern
+- [Phase 25]: SECURITY DEFINER function get_user_org_role() for all RLS policies to avoid recursive policy references
+- [Phase 25]: Personal orgs use profile.id as org.id for simple backfill; storage keeps user-folder paths with cross-org RLS check
 
 ### Roadmap Evolution
 
@@ -220,6 +223,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T00:04:13.103Z
-Stopped at: Completed 24-02-PLAN.md
+Last session: 2026-04-11T11:36:54.169Z
+Stopped at: Completed 25-01-PLAN.md
 Resume file: None

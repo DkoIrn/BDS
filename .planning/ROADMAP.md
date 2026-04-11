@@ -446,7 +446,7 @@ Plans:
   4. Team members share projects and datasets within the organisation
   5. Users can comment on individual validation issues
   6. Approval workflow: datasets can be marked as Reviewed → Approved → Issued
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
