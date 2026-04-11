@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { PipelineWorkflow } from "./pipeline-workflow"
@@ -18,8 +19,10 @@ export default async function PipelinePage() {
   }
 
   return (
-    <PipelineWorkflow
-      user={{ id: user.id, email: user.email ?? "" }}
-    />
+    <Suspense fallback={null}>
+      <PipelineWorkflow
+        user={{ id: user.id, email: user.email ?? "" }}
+      />
+    </Suspense>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useReducer, useEffect, useCallback, useRef, useState, useMemo } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import {
   pipelineReducer,
   initialState,
@@ -23,6 +24,7 @@ import { toast } from "sonner"
 import { StageExport } from "./components/stage-export"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
+import { GuidedOnboarding } from "./components/guided-onboarding"
 
 interface PipelineWorkflowProps {
   user: { id: string; email: string }
@@ -49,6 +51,10 @@ function initializeState(): PipelineState {
 }
 
 export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const isDemoMode = searchParams.get("demo") === "true"
+
   const [state, dispatch] = useReducer(pipelineReducer, initialState, initializeState)
   const fileRef = useRef<File | null>(null)
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
@@ -93,6 +99,20 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
       return !entry || entry.decision === "accept"
     })
   }, [validationIssues, state.triageDecisions])
+
+  // Demo mode: render guided onboarding instead of normal workflow
+  if (isDemoMode) {
+    return (
+      <GuidedOnboarding
+        user={user}
+        onComplete={() => {
+          // Clear demo sessionStorage and redirect to normal pipeline
+          sessionStorage.removeItem("truqc-pipeline-demo")
+          router.replace("/pipeline")
+        }}
+      />
+    )
+  }
 
   return (
     <div className="space-y-6">

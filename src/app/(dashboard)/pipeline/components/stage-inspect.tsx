@@ -185,7 +185,7 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
     const rows = state.parsedData.slice(1, MAX_PREVIEW_ROWS + 1)
 
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl" data-onboarding="data-preview">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="size-5" />

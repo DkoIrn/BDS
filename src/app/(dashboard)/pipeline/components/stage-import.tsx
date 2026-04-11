@@ -90,7 +90,7 @@ export function StageImport({ state, dispatch, fileRef }: StageImportProps) {
   }
 
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl" data-onboarding="stage-import">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="size-5" />

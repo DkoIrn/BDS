@@ -659,7 +659,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
   return (
     <>
     {fixPreviewModalEl}
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl" data-onboarding="fix-actions">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="size-5" />

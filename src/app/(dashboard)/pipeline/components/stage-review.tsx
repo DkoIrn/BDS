@@ -277,7 +277,7 @@ export function StageReview({ state, dispatch, validationIssues }: StageReviewPr
   // --- Active review state ---
   return (
     <>
-      <Card className="rounded-2xl animate-fade-up">
+      <Card className="rounded-2xl animate-fade-up" data-onboarding="issue-triage">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ClipboardCheck className="size-5" />

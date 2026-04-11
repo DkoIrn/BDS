@@ -415,7 +415,7 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           </Button>
         </div>
       )}
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl" data-onboarding="run-qc">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShieldCheck className="size-5" />

@@ -286,7 +286,7 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
 
   // Export form
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl" data-onboarding="export-panel">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Download className="size-5" />
