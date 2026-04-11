@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 26-01-PLAN.md
+stopped_at: Completed 26-02-PLAN.md
 last_updated: "2026-04-11T12:44:09.000Z"
-last_activity: 2026-04-11 -- Plan 26-01 complete (API key auth foundation + settings UI)
+last_activity: 2026-04-11 -- Plan 26-02 complete (Enterprise API core endpoints)
 progress:
   total_phases: 27
   completed_phases: 24
   total_plans: 57
-  completed_plans: 58
+  completed_plans: 59
   percent: 98
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 26 of 27 (26-enterprise-api)
-Plan: 1 of 2
-Status: In Progress
-Last activity: 2026-04-11 -- Plan 26-01 complete (API key auth foundation + settings UI)
+Plan: 2 of 2
+Status: Complete
+Last activity: 2026-04-11 -- Plan 26-02 complete (Enterprise API core endpoints)
 
 Progress: [██████████] 98%
 
@@ -89,6 +89,7 @@ Progress: [██████████] 98%
 | Phase 25 P03 | 6min | 2 tasks | 8 files |
 | Phase 25 P02 | 9min | 2 tasks | 19 files |
 | Phase 26 P01 | 4min | 2 tasks | 7 files |
+| Phase 26 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -206,6 +207,9 @@ Recent decisions affecting current work:
 - [Phase 25]: Org-level usage counting via getOrgUsage replaces per-user getUserUsage for team tier enforcement
 - [Phase 26]: Server actions over API route for key CRUD -- consistent with project pattern
 - [Phase 26]: API key format: tk_ prefix + 64 hex chars, stored as SHA-256 hash, shown once on creation
+- [Phase 26]: Service role Supabase client for v1 API endpoints (API key auth bypasses cookie-based RLS)
+- [Phase 26]: Join chain ownership (datasets->jobs->projects->org_id) for org scoping without RLS
+- [Phase 26]: Return 404 (not 403) for org mismatch to prevent information leakage
 
 ### Roadmap Evolution
 
@@ -232,6 +236,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T12:44:09.000Z
-Stopped at: Completed 26-01-PLAN.md
+Last session: 2026-04-11T12:51:12Z
+Stopped at: Completed 26-02-PLAN.md
 Resume file: None

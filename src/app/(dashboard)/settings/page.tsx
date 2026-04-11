@@ -19,6 +19,7 @@ import { tiers, formatPrice, type CurrencyConfig } from "@/lib/pricing-tiers"
 import { UsageSection } from "@/components/usage/usage-section"
 import { TeamManagement } from "@/components/team/team-management"
 import { ApiKeysSection } from "@/components/settings/api-keys-section"
+import { WebhookSettings } from "@/components/settings/webhook-settings"
 
 const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
 
@@ -348,6 +349,9 @@ export default function SettingsPage() {
 
       {/* API Keys Section (Enterprise) */}
       <ApiKeysSection plan={currentPlan} />
+
+      {/* Webhooks Section (Enterprise) */}
+      <WebhookSettings plan={currentPlan} />
 
       {/* Plan & Billing Section */}
       <Card className="rounded-2xl">
