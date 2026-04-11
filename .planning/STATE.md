@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 27-02-PLAN.md
-last_updated: "2026-04-11T16:33:54.733Z"
+status: in-progress
+stopped_at: Completed 28-01-PLAN.md
+last_updated: "2026-04-11T17:14:22.629Z"
 last_activity: 2026-04-11 -- Plan 27-02 complete (Spatial QC map components)
 progress:
-  total_phases: 27
-  completed_phases: 27
-  total_plans: 62
-  completed_plans: 62
+  total_phases: 30
+  completed_phases: 26
+  total_plans: 64
+  completed_plans: 63
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** All phases complete -- v1.0 milestone reached
+**Current focus:** Phase 28 -- Guided onboarding flow
 
 ## Current Position
 
-Phase: 27 of 27 (27-spatial-qc-map-overlay)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-04-11 -- Plan 27-02 complete (Spatial QC map components)
+Phase: 28 of 28 (28-guided-onboarding-flow)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-04-11 -- Plan 28-01 complete (Onboarding data foundation)
 
-Progress: [██████████] 100%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -93,6 +93,7 @@ Progress: [██████████] 100%
 | Phase 26 P03 | 6min | 2 tasks | 5 files |
 | Phase 27 P01 | 4min | 2 tasks | 8 files |
 | Phase 27 P02 | 8min | 3 tasks | 8 files |
+| Phase 28 P01 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -219,6 +220,7 @@ Recent decisions affecting current work:
 - [Phase 27]: Canvas renderer (preferCanvas: true) for performance with 500+ markers
 - [Phase 27]: Pipeline adapter constructs ColumnMapping[] from header name heuristics for spatial detection
 - [Phase 27]: Stopped auto-advance to Review stage so users see validation results, map, and AI summary first
+- [Phase 28]: Demo dataset uses 22 rows with 7 distinct issue types; data-onboarding attribute selectors for tooltip targeting
 
 ### Roadmap Evolution
 
@@ -245,6 +247,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T16:33:54.727Z
-Stopped at: Completed 27-02-PLAN.md
+Last session: 2026-04-11T17:14:22.623Z
+Stopped at: Completed 28-01-PLAN.md
 Resume file: None

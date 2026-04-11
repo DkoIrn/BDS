@@ -499,7 +499,7 @@ Plans:
   5. Tour completion is tracked per user so it only shows once
   6. Time from login to first value demonstration is under 3 minutes
   7. Users can replay the tour from settings or a help menu
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 28-01-PLAN.md -- DB migration, server actions, demo dataset constants, onboarding step definitions with tests
@@ -516,11 +516,7 @@ Plans:
   4. Trial expiry countdown visible in dashboard header during final 3 days
   5. Expired trials show read-only mode with clear upgrade CTA
   6. Usage forecasting: "At current rate, you'll exceed plan in X days"
-**Plans:** 2 plans
-
-Plans:
-- [ ] 28-01-PLAN.md -- DB migration, server actions, demo dataset constants, onboarding step definitions with tests
-- [ ] 28-02-PLAN.md -- Onboarding UI components (welcome, tooltips, celebration, orchestrator), dashboard/settings/navbar integration, human verification
+**Plans:** 0 plans
 
 ### Phase 30: Landing Page Conversion Optimisation
 **Goal:** The landing page is optimised to convert visitors into trial signups with social proof, interactive demo preview, clear value proposition, and conversion-focused copy
@@ -532,8 +528,4 @@ Plans:
   3. Clear "before vs after" comparison showing manual QC vs TruQC
   4. Conversion-focused CTA copy tested and refined
   5. Mobile-responsive landing page with fast load times
-**Plans:** 2 plans
-
-Plans:
-- [ ] 28-01-PLAN.md -- DB migration, server actions, demo dataset constants, onboarding step definitions with tests
-- [ ] 28-02-PLAN.md -- Onboarding UI components (welcome, tooltips, celebration, orchestrator), dashboard/settings/navbar integration, human verification
+**Plans:** 0 plans
