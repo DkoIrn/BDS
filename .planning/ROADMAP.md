@@ -464,7 +464,7 @@ Plans:
   4. API can generate and download PDF reports
   5. Webhooks notify external systems when validation completes or fails
   6. API is rate-limited and scoped to the user's organisation
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 26-01-PLAN.md -- Database migration (api_keys, webhooks tables), API auth/rate-limit libraries, API key CRUD and settings UI
