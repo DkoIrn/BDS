@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 25-01-PLAN.md
-last_updated: "2026-04-11T11:36:54.179Z"
+stopped_at: Completed 25-03-PLAN.md
+last_updated: "2026-04-11T11:44:28.200Z"
 last_activity: 2026-04-11 -- Plan 25-01 complete (multi-tenant org tables, RLS rewrite, permissions)
 progress:
   total_phases: 27
   completed_phases: 23
   total_plans: 57
-  completed_plans: 55
+  completed_plans: 56
   percent: 96
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 ## Current Position
 
 Phase: 25 of 27 (25-multi-user-roles)
-Plan: 1 of 3
+Plan: 3 of 3
 Status: In Progress
-Last activity: 2026-04-11 -- Plan 25-01 complete (multi-tenant org tables, RLS rewrite, permissions)
+Last activity: 2026-04-11 -- Plan 25-03 complete (issue commenting and approval workflow)
 
-Progress: [█████████░] 96%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Progress: [█████████░] 96%
 | Phase 24 P01 | 6min | 2 tasks | 4 files |
 | Phase 24 P02 | 8min | 3 tasks | 4 files |
 | Phase 25 P01 | 3min | 2 tasks | 5 files |
+| Phase 25 P03 | 6min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -197,6 +198,8 @@ Recent decisions affecting current work:
 - [Phase 24]: Pre-generation dialog uses custom overlay for consistent modal pattern
 - [Phase 25]: SECURITY DEFINER function get_user_org_role() for all RLS policies to avoid recursive policy references
 - [Phase 25]: Personal orgs use profile.id as org.id for simple backfill; storage keeps user-folder paths with cross-org RLS check
+- [Phase 25]: Optimistic UI for comments: add to local state immediately, reconcile on server response
+- [Phase 25]: Comments section is collapsible disclosure inside expanded issue rows to avoid clutter
 
 ### Roadmap Evolution
 
@@ -223,6 +226,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T11:36:54.169Z
-Stopped at: Completed 25-01-PLAN.md
+Last session: 2026-04-11T11:44:28.195Z
+Stopped at: Completed 25-03-PLAN.md
 Resume file: None
