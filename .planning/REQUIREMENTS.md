@@ -37,9 +37,9 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 
 ### Collaboration (Core)
 
-- [ ] **COLB-01**: User receives in-app notifications (bell icon with unread count) for validation completions, comments, and @mentions
-- [ ] **COLB-03**: User can mark comments as resolved, and filter to show unresolved only
-- [ ] **COLB-04**: User can @mention org members in comments with autocomplete, triggering a notification
+- [x] **COLB-01**: User receives in-app notifications (bell icon with unread count) for validation completions, comments, and @mentions
+- [x] **COLB-03**: User can mark comments as resolved, and filter to show unresolved only
+- [x] **COLB-04**: User can @mention org members in comments with autocomplete, triggering a notification
 
 ### Collaboration (Extended)
 
@@ -126,10 +126,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CERT-03 | Phase 33 | Pending |
 | CERT-04 | Phase 33 | Pending |
 | CERT-05 | Phase 33 | Pending |
-| COLB-01 | Phase 32 | Pending |
+| COLB-01 | Phase 32 | Complete |
 | COLB-02 | Phase 34 | Pending |
-| COLB-03 | Phase 32 | Pending |
-| COLB-04 | Phase 32 | Pending |
+| COLB-03 | Phase 32 | Complete |
+| COLB-04 | Phase 32 | Complete |
 | COLB-05 | Phase 34 | Pending |
 | XVAL-01 | Phase 35 | Pending |
 | XVAL-02 | Phase 35 | Pending |

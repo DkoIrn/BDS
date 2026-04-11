@@ -166,7 +166,7 @@ Plans:
 | 29. Job Queue Infrastructure | 2/2 | Complete    | 2026-04-11 | - |
 | 30. Dataset Versioning | v1.1 | 0/2 | Planned | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
-| 32. Collaboration (Core) | v1.1 | 0/2 | Planned | - |
+| 32. Collaboration (Core) | 1/2 | In Progress|  | - |
 | 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
 | 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
