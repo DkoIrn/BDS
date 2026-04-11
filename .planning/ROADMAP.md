@@ -272,7 +272,12 @@ Plans:
 **Goal:** Users can compare two datasets (e.g. as-built vs as-designed) and see a visual diff of differences, deviations, and mismatches
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Plans:** 3 plans
+
+Plans:
+- [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
+- [ ] 25-02-PLAN.md -- Server action/API route org-scoping, team management UI (invite, members, roles)
+- [ ] 25-03-PLAN.md -- Issue comments and dataset approval workflow
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 15 to break down)
@@ -441,7 +446,12 @@ Plans:
   4. Team members share projects and datasets within the organisation
   5. Users can comment on individual validation issues
   6. Approval workflow: datasets can be marked as Reviewed → Approved → Issued
-**Plans:** 0 plans
+**Plans:** 3 plans
+
+Plans:
+- [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
+- [ ] 25-02-PLAN.md -- Server action/API route org-scoping, team management UI (invite, members, roles)
+- [ ] 25-03-PLAN.md -- Issue comments and dataset approval workflow
 
 ### Phase 26: Enterprise API
 **Goal:** Enterprise tier users can integrate TruQC into their pipeline programmatically — upload files, trigger validation, fetch results and reports via REST API — with API key management and webhook notifications
@@ -454,7 +464,12 @@ Plans:
   4. API can generate and download PDF reports
   5. Webhooks notify external systems when validation completes or fails
   6. API is rate-limited and scoped to the user's organisation
-**Plans:** 0 plans
+**Plans:** 3 plans
+
+Plans:
+- [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
+- [ ] 25-02-PLAN.md -- Server action/API route org-scoping, team management UI (invite, members, roles)
+- [ ] 25-03-PLAN.md -- Issue comments and dataset approval workflow
 
 ### Phase 27: Spatial QC Map Overlay
 **Goal:** Users can visualise validation issues geographically — flagged data points plotted on the interactive map with error density heatmaps and spatial dataset comparison — making spatial QC intuitive and visual
@@ -466,4 +481,9 @@ Plans:
   3. Users can compare two datasets spatially on the map with deviation highlights
   4. Map view is accessible from both the results dashboard and the pipeline
   5. Issue markers are clickable with popup showing issue details
-**Plans:** 0 plans
+**Plans:** 3 plans
+
+Plans:
+- [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
+- [ ] 25-02-PLAN.md -- Server action/API route org-scoping, team management UI (invite, members, roles)
+- [ ] 25-03-PLAN.md -- Issue comments and dataset approval workflow
