@@ -99,7 +99,10 @@ Plans:
   1. User sees a bell icon with unread count that updates when validations complete, comments are posted, or they are @mentioned
   2. User can @mention org members in comments with autocomplete, and the mentioned user receives a notification
   3. User can mark comments as resolved and filter to show only unresolved comments
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 32-01-PLAN.md — Database migrations, types, server actions, and @mention utilities
+- [ ] 32-02-PLAN.md — Notification bell UI, comment resolution UI, @mention input, Realtime integration
 
 ### Phase 33: Validation Certificates (Verification)
 **Goal**: Anyone can independently verify the authenticity of a QC certificate without needing a TruQC account
@@ -160,7 +163,7 @@ Plans:
 | 29. Job Queue Infrastructure | 2/2 | Complete    | 2026-04-11 | - |
 | 30. Dataset Versioning | v1.1 | 0/TBD | Not started | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
-| 32. Collaboration (Core) | v1.1 | 0/TBD | Not started | - |
+| 32. Collaboration (Core) | v1.1 | 0/2 | Planned | - |
 | 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
 | 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
