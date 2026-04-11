@@ -5,19 +5,17 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
 
-// Build chainable query mock
+// Build chainable query mock -- every method returns the chain itself
 function createChainMock(finalData: unknown = null, finalError: unknown = null) {
   const chain: Record<string, unknown> = {}
   const methods = ['select', 'insert', 'update', 'delete', 'eq', 'is', 'order', 'single', 'limit', 'maybeSingle']
   for (const m of methods) {
-    chain[m] = vi.fn().mockReturnValue({
-      ...chain,
-      data: finalData,
-      error: finalError,
-    })
+    chain[m] = vi.fn(() => chain)
   }
   chain.data = finalData
   chain.error = finalError
+  // Make it thenable for await support
+  chain.then = (resolve: (v: unknown) => void) => resolve({ data: finalData, error: finalError })
   return chain
 }
 
