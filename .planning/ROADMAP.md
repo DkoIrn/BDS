@@ -66,7 +66,10 @@
   2. User sees a progress bar with percentage during validation (not just a spinner)
   3. When a job fails, user sees a clear error message and can click "Retry" to resubmit without duplicating results
   4. User can view a history of recent jobs with their outcomes (success/failed/retrying)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 29-01-PLAN.md — Procrastinate queue backend: infrastructure, migrations, task definitions, jobs API
+- [ ] 29-02-PLAN.md — Frontend job queue UI: progress bar, error/retry display, job history, Realtime integration
 
 ### Phase 30: Dataset Versioning
 **Goal**: Every validation run creates a traceable snapshot so users can see how their data changed over time
@@ -154,7 +157,7 @@
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 29. Job Queue Infrastructure | v1.1 | 0/TBD | Not started | - |
+| 29. Job Queue Infrastructure | v1.1 | 0/2 | Planning | - |
 | 30. Dataset Versioning | v1.1 | 0/TBD | Not started | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
 | 32. Collaboration (Core) | v1.1 | 0/TBD | Not started | - |
