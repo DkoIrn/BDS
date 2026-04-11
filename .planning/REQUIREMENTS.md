@@ -110,46 +110,46 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| JOBQ-01 | TBD | Pending |
-| JOBQ-02 | TBD | Pending |
-| JOBQ-03 | TBD | Pending |
-| JOBQ-04 | TBD | Pending |
-| JOBQ-05 | TBD | Pending |
-| JOBQ-06 | TBD | Pending |
-| DVER-01 | TBD | Pending |
-| DVER-02 | TBD | Pending |
-| DVER-03 | TBD | Pending |
-| DVER-04 | TBD | Pending |
-| DVER-05 | TBD | Pending |
-| CERT-01 | TBD | Pending |
-| CERT-02 | TBD | Pending |
-| CERT-03 | TBD | Pending |
-| CERT-04 | TBD | Pending |
-| CERT-05 | TBD | Pending |
-| COLB-01 | TBD | Pending |
-| COLB-02 | TBD | Pending |
-| COLB-03 | TBD | Pending |
-| COLB-04 | TBD | Pending |
-| COLB-05 | TBD | Pending |
-| XVAL-01 | TBD | Pending |
-| XVAL-02 | TBD | Pending |
-| XVAL-03 | TBD | Pending |
-| XVAL-04 | TBD | Pending |
-| RULE-01 | TBD | Pending |
-| RULE-02 | TBD | Pending |
-| RULE-03 | TBD | Pending |
-| RULE-04 | TBD | Pending |
-| RULE-05 | TBD | Pending |
-| CTXQ-01 | TBD | Pending |
-| CTXQ-02 | TBD | Pending |
-| CTXQ-03 | TBD | Pending |
-| CTXQ-04 | TBD | Pending |
+| JOBQ-01 | Phase 29 | Pending |
+| JOBQ-02 | Phase 29 | Pending |
+| JOBQ-03 | Phase 29 | Pending |
+| JOBQ-04 | Phase 29 | Pending |
+| JOBQ-05 | Phase 29 | Pending |
+| JOBQ-06 | Phase 29 | Pending |
+| DVER-01 | Phase 30 | Pending |
+| DVER-02 | Phase 30 | Pending |
+| DVER-03 | Phase 30 | Pending |
+| DVER-04 | Phase 30 | Pending |
+| DVER-05 | Phase 30 | Pending |
+| CERT-01 | Phase 31 | Pending |
+| CERT-02 | Phase 31 | Pending |
+| CERT-03 | Phase 33 | Pending |
+| CERT-04 | Phase 33 | Pending |
+| CERT-05 | Phase 33 | Pending |
+| COLB-01 | Phase 32 | Pending |
+| COLB-02 | Phase 34 | Pending |
+| COLB-03 | Phase 32 | Pending |
+| COLB-04 | Phase 32 | Pending |
+| COLB-05 | Phase 34 | Pending |
+| XVAL-01 | Phase 35 | Pending |
+| XVAL-02 | Phase 35 | Pending |
+| XVAL-03 | Phase 35 | Pending |
+| XVAL-04 | Phase 35 | Pending |
+| RULE-01 | Phase 36 | Pending |
+| RULE-02 | Phase 36 | Pending |
+| RULE-03 | Phase 36 | Pending |
+| RULE-04 | Phase 36 | Pending |
+| RULE-05 | Phase 36 | Pending |
+| CTXQ-01 | Phase 37 | Pending |
+| CTXQ-02 | Phase 37 | Pending |
+| CTXQ-03 | Phase 37 | Pending |
+| CTXQ-04 | Phase 37 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 34 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 34
+- Mapped to phases: 34/34
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-11 after v1.1 milestone definition*
+*Last updated: 2026-04-11 after roadmap creation*

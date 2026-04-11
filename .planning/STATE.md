@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
-status: not-started
-stopped_at: null
-last_updated: "2026-04-11T19:00:00.000Z"
-last_activity: 2026-04-11 -- Completed v1.0 MVP milestone (28 phases, 64 plans)
+status: ready-to-plan
+stopped_at: roadmap-created
+last_updated: "2026-04-11T20:00:00.000Z"
+last_activity: 2026-04-11 -- v1.1 roadmap created (9 phases, 34 requirements mapped)
 progress:
-  total_phases: 0
+  total_phases: 9
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Planning v1.1 -- Production-Grade QC Platform
+**Current focus:** Phase 29 -- Job Queue Infrastructure
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-11 — Milestone v1.1 started
+Phase: 29 of 37 (Job Queue Infrastructure)
+Plan: --
+Status: Ready to plan
+Last activity: 2026-04-11 -- v1.1 roadmap created
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Accumulated Context
 
@@ -36,9 +38,13 @@ Last activity: 2026-04-11 — Milestone v1.1 started
 
 See PROJECT.md Key Decisions table for full history.
 
+- v1.1 roadmap: Use procrastinate (PostgreSQL-backed) for job queue, not Redis/ARQ
+- v1.1 roadmap: Certificates split into basic (Phase 31) and verification (Phase 33) with versioning in between
+- v1.1 roadmap: Custom rule builder before context-aware QC (shared conditional logic patterns)
+
 ### Roadmap Evolution
 
-v1.0 shipped 28 phases covering auth, data pipeline, validation engine, domain QC packs, AI prioritisation, one-click fixes, branded reports, multi-user roles, enterprise API, spatial QC, onboarding, and tools suite.
+v1.0 shipped 28 phases. v1.1 adds 9 phases (29-37) covering reliability, workflow depth, and differentiation layers.
 
 ### Pending Todos
 
@@ -51,5 +57,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-11
-Stopped at: v1.0 milestone complete
+Stopped at: v1.1 roadmap created, ready to plan Phase 29
 Resume file: None
