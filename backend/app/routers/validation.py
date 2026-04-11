@@ -9,6 +9,7 @@ from app.dependencies import get_supabase_client
 from app.models.schemas import ProfileConfig, ValidateRequest
 from app.services.templates import resolve_config
 from app.services.validation import run_validation_pipeline
+from app.services.webhooks import dispatch_webhooks
 from app.validators.base import Severity
 
 logger = logging.getLogger(__name__)
@@ -135,6 +136,18 @@ def run_validation_background(dataset_id: str, config: ProfileConfig | None) -> 
         supabase.table("datasets").update({"status": "validated"}).eq("id", dataset_id).execute()
         logger.info("Background validation completed for dataset %s", dataset_id)
 
+        # Dispatch webhooks on successful validation
+        try:
+            dispatch_webhooks(dataset_id, "validation.completed", {
+                "dataset_id": dataset_id,
+                "run_id": run_id,
+                "total_issues": total_issues,
+                "critical_count": critical_count,
+                "pass_rate": pass_rate,
+            })
+        except Exception as wh_err:
+            logger.error("Webhook dispatch failed for dataset %s: %s", dataset_id, str(wh_err))
+
     except Exception as e:
         # Always update status on failure -- never leave dataset stuck in 'validating'
         import traceback
@@ -146,6 +159,15 @@ def run_validation_background(dataset_id: str, config: ProfileConfig | None) -> 
             ).eq("id", dataset_id).execute()
         except Exception as update_err:
             logger.error("Failed to update error status for dataset %s: %s", dataset_id, str(update_err))
+
+        # Dispatch webhooks on validation failure
+        try:
+            dispatch_webhooks(dataset_id, "validation.failed", {
+                "dataset_id": dataset_id,
+                "error": str(e),
+            })
+        except Exception as wh_err:
+            logger.error("Webhook dispatch (failure) failed for dataset %s: %s", dataset_id, str(wh_err))
 
 
 @router.post("/validate", status_code=202)
