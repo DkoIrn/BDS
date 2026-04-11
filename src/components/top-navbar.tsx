@@ -19,8 +19,10 @@ import {
   ChevronDown,
   User,
   Menu,
+  PlayCircle,
 } from "lucide-react"
 import { logout } from "@/lib/actions/auth"
+import { resetOnboarding } from "@/lib/actions/onboarding"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -176,6 +178,17 @@ export function TopNavbar({ user }: TopNavbarProps) {
               <DropdownMenuItem render={<Link href="/settings" />}>
                 <Settings className="size-4" />
                 Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={async () => {
+                  await resetOnboarding()
+                  localStorage.removeItem("truqc-onboarding-completed")
+                  window.location.href = "/pipeline?demo=true"
+                }}
+              >
+                <PlayCircle className="size-4" />
+                Replay Tour
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

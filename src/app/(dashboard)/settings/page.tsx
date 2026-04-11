@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState, useTransition } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { createBrowserClient } from "@supabase/ssr"
 import { toast } from "sonner"
 import { updateUserProfile } from "@/lib/actions/user-profile"
 import { updatePassword } from "@/lib/actions/auth"
 import { uploadBrandingLogo, saveBrandColor, getBrandingSettings } from "@/lib/actions/branding"
-import { Check, Crown, FileText, Shield, ExternalLink, Loader2, Upload, Palette } from "lucide-react"
+import { Check, Crown, FileText, Shield, ExternalLink, Loader2, Upload, Palette, PlayCircle } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,7 @@ import { UsageSection } from "@/components/usage/usage-section"
 import { TeamManagement } from "@/components/team/team-management"
 import { ApiKeysSection } from "@/components/settings/api-keys-section"
 import { WebhookSettings } from "@/components/settings/webhook-settings"
+import { resetOnboarding } from "@/lib/actions/onboarding"
 
 const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
 
@@ -67,6 +68,8 @@ export default function SettingsPage() {
   const [profilePending, startProfileTransition] = useTransition()
   const [passwordPending, startPasswordTransition] = useTransition()
   const [brandingPending, startBrandingTransition] = useTransition()
+  const [replayPending, startReplayTransition] = useTransition()
+  const router = useRouter()
 
   const currentTierName = planToTierName[currentPlan] || 'Free Trial'
 
@@ -341,6 +344,36 @@ export default function SettingsPage() {
           <p className="text-xs text-muted-foreground">
             Your logo and colour will appear on all generated PDF reports.
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Guided Tour Section */}
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-50">
+              <PlayCircle className="size-4 text-emerald-600" />
+            </div>
+            Guided Tour
+          </CardTitle>
+          <CardDescription>Re-experience the guided walkthrough of TruQC's pipeline features.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            className="rounded-xl"
+            variant="outline"
+            disabled={replayPending}
+            onClick={() => {
+              startReplayTransition(async () => {
+                await resetOnboarding()
+                localStorage.removeItem("truqc-onboarding-completed")
+                router.push("/pipeline?demo=true")
+              })
+            }}
+          >
+            <PlayCircle className="size-4" />
+            {replayPending ? "Loading..." : "Replay Tour"}
+          </Button>
         </CardContent>
       </Card>
 

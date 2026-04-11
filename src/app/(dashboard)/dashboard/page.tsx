@@ -16,6 +16,7 @@ import {
   BarChart3,
   Upload,
 } from "lucide-react"
+import { DashboardWelcome } from "./dashboard-welcome"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, onboarding_completed")
     .eq("id", user!.id)
     .single()
 
@@ -68,8 +69,13 @@ export default async function DashboardPage() {
   const issues = totalIssues ?? 0
   const passRate = total > 0 ? Math.round((validated / total) * 100) : 0
 
+  const onboardingCompleted = profile?.onboarding_completed ?? false
+
   return (
     <div className="space-y-6">
+      {/* Welcome overlay for first-time users */}
+      {!onboardingCompleted && <DashboardWelcome />}
+
       {/* Greeting + primary CTA */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-up">
         <div>
