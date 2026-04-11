@@ -481,7 +481,7 @@ Plans:
   3. Users can compare two datasets spatially on the map with deviation highlights
   4. Map view is accessible from both the results dashboard and the pipeline
   5. Issue markers are clickable with popup showing issue details
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 27-01-PLAN.md -- TDD library: types, coordinate extractor, severity colors, dataset comparison, leaflet.heat
