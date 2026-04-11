@@ -3,11 +3,12 @@
 import { createClient } from '@/lib/supabase/server'
 import {
   TIER_LIMITS,
-  getUserUsage,
+  getOrgUsage,
   getCurrentBillingPeriodStart,
   type TierLimits,
   type UsageData,
 } from '@/lib/usage'
+import { requireOrgRole } from '@/lib/permissions'
 
 export interface UsageResponse {
   data?: UsageData & { plan: string; limits: TierLimits }
@@ -25,6 +26,10 @@ export async function getUsageData(): Promise<UsageResponse> {
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+  const { orgId } = orgResult
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('plan, billing_cycle_start')
@@ -38,7 +43,7 @@ export async function getUsageData(): Promise<UsageResponse> {
     ? getCurrentBillingPeriodStart(profile.billing_cycle_start)
     : getCurrentBillingPeriodStart(new Date().toISOString())
 
-  const usage = await getUserUsage(supabase, user.id, billingCycleStart)
+  const usage = await getOrgUsage(supabase, orgId, billingCycleStart)
 
   return {
     data: {

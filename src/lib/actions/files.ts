@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { Dataset, DatasetStatus } from '@/lib/types/files'
 import type { ColumnMapping } from '@/lib/parsing/types'
 import { TIER_LIMITS, checkUsageLimit } from '@/lib/usage'
+import { requireOrgRole } from '@/lib/permissions'
 
 export async function createFileRecord(data: {
   jobId: string
@@ -23,19 +24,22 @@ export async function createFileRecord(data: {
     return { error: 'Not authenticated' }
   }
 
-  // Verify user owns the job
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+  const { orgId } = orgResult
+
+  // Verify user has access to the job (RLS handles org scoping)
   const { data: job, error: jobError } = await supabase
     .from('jobs')
     .select('id, project_id')
     .eq('id', data.jobId)
-    .eq('user_id', user.id)
     .single()
 
   if (jobError || !job) {
     return { error: 'Job not found or access denied' }
   }
 
-  // Tier enforcement: check storage limit
+  // Tier enforcement: check storage limit (org-scoped)
   const { data: profile } = await supabase
     .from('profiles')
     .select('plan, billing_cycle_start')
@@ -45,10 +49,18 @@ export async function createFileRecord(data: {
   const plan = profile?.plan ?? 'free'
   const limits = TIER_LIMITS[plan] ?? TIER_LIMITS['free']
 
+  // Count storage across all org members' datasets
+  const { data: orgMembers } = await supabase
+    .from('org_members')
+    .select('user_id')
+    .eq('org_id', orgId)
+
+  const memberIds = (orgMembers ?? []).map((m: { user_id: string }) => m.user_id)
+
   const { data: storageRows } = await supabase
     .from('datasets')
     .select('file_size')
-    .eq('user_id', user.id)
+    .in('user_id', memberIds)
 
   const currentStorageBytes = (storageRows ?? []).reduce(
     (sum: number, row: { file_size: number }) => sum + (row.file_size || 0),
@@ -99,12 +111,14 @@ export async function deleteFile(
     return { error: 'Not authenticated' }
   }
 
-  // Get file record (RLS ensures ownership)
+  const orgResult = await requireOrgRole(supabase, user.id, 'admin')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // Get file record (RLS ensures org access)
   const { data: file, error: fetchError } = await supabase
     .from('datasets')
     .select('id, job_id, storage_path')
     .eq('id', fileId)
-    .eq('user_id', user.id)
     .single()
 
   if (fetchError || !file) {
@@ -147,12 +161,14 @@ export async function getDownloadUrl(
     return { error: 'Not authenticated' }
   }
 
-  // Get file record with ownership check
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // Get file record (RLS ensures org access)
   const { data: file, error: fetchError } = await supabase
     .from('datasets')
     .select('storage_path')
     .eq('id', fileId)
-    .eq('user_id', user.id)
     .single()
 
   if (fetchError || !file) {
@@ -183,12 +199,14 @@ export async function getJobFiles(
     return { error: 'Not authenticated' }
   }
 
-  // Verify user owns the job
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures job belongs to the user's org
   const { data: job, error: jobError } = await supabase
     .from('jobs')
     .select('id')
     .eq('id', jobId)
-    .eq('user_id', user.id)
     .single()
 
   if (jobError || !job) {
@@ -223,11 +241,14 @@ export async function updateDatasetStatus(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures dataset belongs to the user's org
   const { error } = await supabase
     .from('datasets')
     .update({ status, ...extra })
     .eq('id', datasetId)
-    .eq('user_id', user.id)
 
   if (error) {
     return { error: error.message }
@@ -251,10 +272,14 @@ export async function getAllUserDatasets(): Promise<
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+  const { orgId } = orgResult
+
+  // Get all datasets for projects in this org
   const { data: datasets, error } = await supabase
     .from('datasets')
-    .select('id, file_name, file_size, storage_path, job_id, jobs(name, project_id, projects(name))')
-    .eq('user_id', user.id)
+    .select('id, file_name, file_size, storage_path, job_id, jobs(name, project_id, projects(name, org_id))')
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -262,18 +287,25 @@ export async function getAllUserDatasets(): Promise<
     return { error: error.message }
   }
 
-  const result = (datasets || []).map((d: Record<string, unknown>) => {
-    const job = d.jobs as Record<string, unknown> | null
-    const project = job?.projects as Record<string, unknown> | null
-    return {
-      id: d.id as string,
-      file_name: d.file_name as string,
-      file_size: d.file_size as number,
-      storage_path: d.storage_path as string,
-      job_name: (job?.name as string) || 'Unknown Job',
-      project_name: (project?.name as string) || 'Unknown Project',
-    }
-  })
+  // Filter to org datasets (RLS handles this, but filter client-side for safety)
+  const result = (datasets || [])
+    .filter((d: Record<string, unknown>) => {
+      const job = d.jobs as Record<string, unknown> | null
+      const project = job?.projects as Record<string, unknown> | null
+      return project?.org_id === orgId
+    })
+    .map((d: Record<string, unknown>) => {
+      const job = d.jobs as Record<string, unknown> | null
+      const project = job?.projects as Record<string, unknown> | null
+      return {
+        id: d.id as string,
+        file_name: d.file_name as string,
+        file_size: d.file_size as number,
+        storage_path: d.storage_path as string,
+        job_name: (job?.name as string) || 'Unknown Job',
+        project_name: (project?.name as string) || 'Unknown Project',
+      }
+    })
 
   return { data: result }
 }
@@ -291,11 +323,14 @@ export async function getDatasetSignedUrl(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures dataset belongs to the user's org
   const { data: file, error: fetchError } = await supabase
     .from('datasets')
     .select('storage_path, file_name')
     .eq('id', datasetId)
-    .eq('user_id', user.id)
     .single()
 
   if (fetchError || !file) {
@@ -327,6 +362,10 @@ export async function saveColumnMappings(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures dataset belongs to the user's org
   const { error } = await supabase
     .from('datasets')
     .update({
@@ -334,7 +373,6 @@ export async function saveColumnMappings(
       status: 'mapped' as DatasetStatus,
     })
     .eq('id', datasetId)
-    .eq('user_id', user.id)
 
   if (error) {
     return { error: error.message }

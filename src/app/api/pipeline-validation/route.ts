@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { requireOrgRole } from "@/lib/permissions"
 
 interface PipelineValidationRequest {
   datasetId: string
@@ -29,16 +30,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, "reviewer")
+  if ("error" in orgResult) {
+    return NextResponse.json({ error: orgResult.error }, { status: 403 })
+  }
+
   try {
     const body: PipelineValidationRequest = await request.json()
     const { datasetId, issues, totalRows } = body
 
-    // Verify dataset ownership
+    // RLS ensures dataset belongs to the user's org
     const { data: dataset } = await supabase
       .from("datasets")
-      .select("id, user_id")
+      .select("id")
       .eq("id", datasetId)
-      .eq("user_id", user.id)
       .single()
 
     if (!dataset) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { requireOrgRole } from "@/lib/permissions"
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -9,6 +10,11 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const orgResult = await requireOrgRole(supabase, user.id, "viewer")
+  if ("error" in orgResult) {
+    return NextResponse.json({ ok: true }) // Silent fail for audit
   }
 
   try {

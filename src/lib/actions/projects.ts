@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { SURVEY_TYPES } from '@/lib/types/projects'
 import { TIER_LIMITS, checkUsageLimit } from '@/lib/usage'
+import { requireOrgRole } from '@/lib/permissions'
 
 export async function createProject(
   prevState: { error?: string; success?: boolean } | null,
@@ -19,6 +20,10 @@ export async function createProject(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+  const { orgId } = orgResult
+
   const name = (formData.get('name') as string)?.trim()
   const description = (formData.get('description') as string)?.trim() || null
 
@@ -26,7 +31,7 @@ export async function createProject(
     return { error: 'Project name must be between 3 and 100 characters' }
   }
 
-  // Tier enforcement: check project limit
+  // Tier enforcement: check project limit (org-scoped)
   const { data: profile } = await supabase
     .from('profiles')
     .select('plan, billing_cycle_start')
@@ -39,7 +44,7 @@ export async function createProject(
   const { count: projectCount } = await supabase
     .from('projects')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('org_id', orgId)
 
   const limitResult = checkUsageLimit(projectCount ?? 0, limits.maxProjects, 'projects', plan)
   if (!limitResult.allowed) {
@@ -48,6 +53,7 @@ export async function createProject(
 
   const { error } = await supabase.from('projects').insert({
     user_id: user.id,
+    org_id: orgId,
     name,
     description,
   })
@@ -74,6 +80,9 @@ export async function createJob(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
   const name = (formData.get('name') as string)?.trim()
   const surveyType = formData.get('survey_type') as string
   const description = (formData.get('description') as string)?.trim() || null
@@ -91,6 +100,7 @@ export async function createJob(
     return { error: 'Project ID is required' }
   }
 
+  // RLS ensures project belongs to the user's org
   const { error } = await supabase.from('jobs').insert({
     user_id: user.id,
     project_id: projectId,
@@ -119,14 +129,17 @@ export async function deleteProject(projectId: string) {
     return { error: 'Not authenticated' }
   }
 
-  // Verify ownership
+  const orgResult = await requireOrgRole(supabase, user.id, 'admin')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures project belongs to the user's org
   const { data: project } = await supabase
     .from('projects')
-    .select('id, user_id')
+    .select('id')
     .eq('id', projectId)
     .single()
 
-  if (!project || project.user_id !== user.id) {
+  if (!project) {
     return { error: 'Project not found' }
   }
 

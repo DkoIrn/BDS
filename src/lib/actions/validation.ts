@@ -4,10 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 import { parseCSV } from '@/lib/parsing/csv-parser'
 import { parseExcel } from '@/lib/parsing/excel-parser'
 import type { ValidationRun, ValidationIssue, JobDatasetSummary } from '@/lib/types/validation'
+import { requireOrgRole } from '@/lib/permissions'
 
 /**
  * Fetch all validation runs for a dataset, ordered by most recent first.
- * Verifies dataset ownership through the datasets table join.
+ * Uses org-scoped access via RLS.
  */
 export async function getValidationRuns(
   datasetId: string
@@ -22,12 +23,14 @@ export async function getValidationRuns(
     return { error: 'Not authenticated' }
   }
 
-  // Verify ownership
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures dataset belongs to the user's org
   const { data: dataset, error: datasetError } = await supabase
     .from('datasets')
     .select('id')
     .eq('id', datasetId)
-    .eq('user_id', user.id)
     .single()
 
   if (datasetError || !dataset) {
@@ -50,7 +53,7 @@ export async function getValidationRuns(
 /**
  * Fetch all validation issues for a specific run, ordered by severity
  * (critical first) then row number.
- * Verifies ownership through the dataset associated with the run.
+ * Uses org-scoped access via RLS.
  */
 export async function getValidationIssues(
   runId: string
@@ -65,7 +68,10 @@ export async function getValidationIssues(
     return { error: 'Not authenticated' }
   }
 
-  // Fetch the run to get dataset_id, then verify ownership
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // Fetch the run to get dataset_id, then verify access via RLS
   const { data: run, error: runError } = await supabase
     .from('validation_runs')
     .select('dataset_id')
@@ -76,11 +82,11 @@ export async function getValidationIssues(
     return { error: 'Validation run not found' }
   }
 
+  // RLS ensures dataset belongs to the user's org
   const { data: dataset, error: datasetError } = await supabase
     .from('datasets')
     .select('id')
     .eq('id', run.dataset_id)
-    .eq('user_id', user.id)
     .single()
 
   if (datasetError || !dataset) {
@@ -137,11 +143,14 @@ export async function getIssueContext(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures dataset belongs to the user's org
   const { data: dataset, error: datasetError } = await supabase
     .from('datasets')
-    .select('id, storage_path, file_name, mime_type, header_row_index, user_id')
+    .select('id, storage_path, file_name, mime_type, header_row_index')
     .eq('id', datasetId)
-    .eq('user_id', user.id)
     .single()
 
   if (datasetError || !dataset) {
@@ -210,11 +219,14 @@ export async function getJobValidationSummary(
     return { error: 'Not authenticated' }
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS ensures job belongs to the user's org
   const { data: datasets, error: datasetsError } = await supabase
     .from('datasets')
     .select('id, file_name, status, validation_runs(id, total_issues, critical_count, pass_rate, run_at)')
     .eq('job_id', jobId)
-    .eq('user_id', user.id)
     .order('created_at', { ascending: true })
 
   if (datasetsError) {

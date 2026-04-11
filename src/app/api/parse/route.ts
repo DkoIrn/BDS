@@ -8,6 +8,7 @@ import type { SurveyType } from '@/lib/types/projects'
 import type { ParsedMetadata } from '@/lib/types/files'
 import type { ColumnMapping } from '@/lib/parsing/types'
 import { logAudit } from '@/lib/actions/audit'
+import { requireOrgRole } from '@/lib/permissions'
 
 export const maxDuration = 60
 
@@ -23,6 +24,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) {
+    return NextResponse.json({ error: orgResult.error }, { status: 403 })
+  }
+
   // Parse request body
   const body = await request.json() as { datasetId?: string }
   const { datasetId } = body
@@ -31,12 +37,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'datasetId is required' }, { status: 400 })
   }
 
-  // Fetch dataset with ownership check
+  // Fetch dataset (RLS ensures org-scoped access)
   const { data: dataset, error: datasetError } = await supabase
     .from('datasets')
     .select('*')
     .eq('id', datasetId)
-    .eq('user_id', user.id)
     .single()
 
   if (datasetError || !dataset) {

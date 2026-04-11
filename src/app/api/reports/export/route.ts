@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireOrgRole } from '@/lib/permissions'
 
 const CONTENT_TYPES: Record<string, string> = {
   csv: 'text/csv',
@@ -40,12 +41,16 @@ export async function GET(request: Request) {
     )
   }
 
-  // Ownership check
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) {
+    return NextResponse.json({ error: orgResult.error }, { status: 403 })
+  }
+
+  // RLS ensures dataset belongs to the user's org
   const { data: dataset, error: datasetError } = await supabase
     .from('datasets')
     .select('id')
     .eq('id', datasetId)
-    .eq('user_id', user.id)
     .single()
 
   if (datasetError || !dataset) {

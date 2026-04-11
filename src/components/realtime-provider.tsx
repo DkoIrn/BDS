@@ -16,6 +16,12 @@ interface RealtimePayload {
   }
 }
 
+/**
+ * RealtimeProvider subscribes to dataset status changes.
+ * Since RLS on the Realtime side handles org-scoped visibility,
+ * we subscribe without a user_id filter — RLS ensures users only
+ * see updates for datasets in their org's projects.
+ */
 export function RealtimeProvider({
   userId,
   children,
@@ -36,7 +42,6 @@ export function RealtimeProvider({
           event: "UPDATE",
           schema: "public",
           table: "datasets",
-          filter: `user_id=eq.${userId}`,
         },
         async (payload: { new: RealtimePayload["new"] }) => {
           const { id: datasetId, job_id: jobId, file_name: fileName, status } = payload.new

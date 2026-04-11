@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { logAudit } from '@/lib/actions/audit'
 import type { ProfileConfig } from '@/lib/types/validation'
 import { TIER_LIMITS, checkUsageLimit, getCurrentBillingPeriodStart } from '@/lib/usage'
+import { requireOrgRole } from '@/lib/permissions'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'reviewer')
+  if ('error' in orgResult) {
+    return NextResponse.json({ error: orgResult.error }, { status: 403 })
+  }
+
   // Parse request body
   const body = (await request.json()) as { datasetId?: string; config?: ProfileConfig }
   const { datasetId, config } = body
@@ -24,12 +30,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'datasetId is required' }, { status: 400 })
   }
 
-  // Fetch dataset with ownership check
+  // Fetch dataset (RLS ensures org-scoped access)
   const { data: dataset, error: datasetError } = await supabase
     .from('datasets')
-    .select('id, status, user_id')
+    .select('id, status')
     .eq('id', datasetId)
-    .eq('user_id', user.id)
     .single()
 
   if (datasetError || !dataset) {

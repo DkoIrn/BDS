@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { requireOrgRole } from '@/lib/permissions'
 
 export interface AuditLogEntry {
   id: string
@@ -13,6 +14,7 @@ export interface AuditLogEntry {
 
 /**
  * Fetch audit logs for a specific entity (e.g., a dataset).
+ * Uses org-scoped access via RLS.
  */
 export async function getAuditLogs(
   entityType: string,
@@ -25,12 +27,15 @@ export async function getAuditLogs(
 
   if (!user) return { error: 'Not authenticated' }
 
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // RLS handles org-scoped visibility via entity chain
   const { data, error } = await supabase
     .from('audit_logs')
     .select('id, action, entity_type, entity_id, metadata, created_at')
     .eq('entity_type', entityType)
     .eq('entity_id', entityId)
-    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -55,13 +60,12 @@ export async function getCleaningAuditForIssue(
 
   if (!user) return null
 
-  // Query audit logs for clean.auto and clean.ai_fix entries for this dataset
+  // RLS handles org-scoped access
   const { data: logs } = await supabase
     .from('audit_logs')
     .select('action, metadata')
     .eq('entity_type', 'dataset')
     .eq('entity_id', datasetId)
-    .eq('user_id', user.id)
     .in('action', ['clean.auto', 'clean.ai_fix'])
     .order('created_at', { ascending: false })
     .limit(20)
@@ -103,6 +107,7 @@ export async function getCleaningAuditForIssue(
 
 /**
  * Fetch all audit logs for a project (across all datasets/entities).
+ * Uses org-scoped access via RLS.
  */
 export async function getProjectAuditLogs(
   projectId: string
@@ -114,12 +119,14 @@ export async function getProjectAuditLogs(
 
   if (!user) return { error: 'Not authenticated' }
 
-  // Get all dataset IDs in this project
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  // Get all dataset IDs in this project (RLS scopes to org)
   const { data: datasets } = await supabase
     .from('datasets')
     .select('id, jobs!inner(project_id)')
     .eq('jobs.project_id', projectId)
-    .eq('user_id', user.id)
 
   const datasetIds = (datasets ?? []).map((d: { id: string }) => d.id)
 
@@ -128,7 +135,6 @@ export async function getProjectAuditLogs(
   const { data, error } = await supabase
     .from('audit_logs')
     .select('id, action, entity_type, entity_id, metadata, created_at')
-    .eq('user_id', user.id)
     .in('entity_id', datasetIds)
     .order('created_at', { ascending: false })
     .limit(200)

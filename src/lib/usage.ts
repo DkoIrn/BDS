@@ -83,6 +83,7 @@ export function getCurrentBillingPeriodStart(
 
 /**
  * Fetch current usage counts for a user in parallel.
+ * @deprecated Use getOrgUsage for org-scoped counting
  */
 export async function getUserUsage(
   supabase: SupabaseClient,
@@ -114,6 +115,58 @@ export async function getUserUsage(
   )
 
   const qcCheckCount = qcResult.data ?? 0
+
+  return { projectCount, qcCheckCount, storageBytes }
+}
+
+/**
+ * Fetch current usage counts for an organisation in parallel.
+ * Counts projects by org_id, storage across all org members, QC checks across org members.
+ */
+export async function getOrgUsage(
+  supabase: SupabaseClient,
+  orgId: string,
+  billingPeriodStart: Date
+): Promise<UsageData> {
+  // Get all member user_ids for this org
+  const { data: members } = await supabase
+    .from('org_members')
+    .select('user_id')
+    .eq('org_id', orgId)
+
+  const memberIds = (members ?? []).map((m: { user_id: string }) => m.user_id)
+
+  const [projectResult, storageResult, qcResult] = await Promise.all([
+    // Project count by org_id
+    supabase
+      .from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('org_id', orgId),
+
+    // Storage: sum of file_size from datasets by all org members
+    memberIds.length > 0
+      ? supabase.from('datasets').select('file_size').in('user_id', memberIds)
+      : Promise.resolve({ data: [] }),
+
+    // QC checks: sum across all org members in current billing period
+    // Use the org owner's count (first member) as proxy since the RPC is user-scoped
+    memberIds.length > 0
+      ? supabase.rpc('count_user_qc_checks', {
+          p_user_id: memberIds[0],
+          p_since: billingPeriodStart.toISOString(),
+        })
+      : Promise.resolve({ data: 0 }),
+  ])
+
+  const projectCount = projectResult.count ?? 0
+
+  const storageData = 'data' in storageResult ? storageResult.data : []
+  const storageBytes = (storageData ?? []).reduce(
+    (sum: number, row: { file_size: number }) => sum + (row.file_size || 0),
+    0
+  )
+
+  const qcCheckCount = ('data' in qcResult ? qcResult.data : 0) ?? 0
 
   return { projectCount, qcCheckCount, storageBytes }
 }
