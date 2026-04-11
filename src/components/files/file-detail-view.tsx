@@ -63,6 +63,7 @@ interface FileDetailViewProps {
   jobSurveyType: SurveyType
   projectId: string
   jobId: string
+  currentUserId?: string
 }
 
 export function FileDetailView({
@@ -70,6 +71,7 @@ export function FileDetailView({
   jobSurveyType,
   projectId,
   jobId,
+  currentUserId,
 }: FileDetailViewProps) {
   const [columns, setColumns] = useState<DetectedColumn[]>([])
   const [mappings, setMappings] = useState<ColumnMapping[]>(
@@ -648,7 +650,7 @@ export function FileDetailView({
         <div className="space-y-6 pt-4">
           {datasetStatus === "validated" || validationRun ? (
             <>
-              <ResultsDashboard datasetId={dataset.id} />
+              <ResultsDashboard datasetId={dataset.id} currentUserId={currentUserId} />
               <div className="flex justify-end gap-2">
                 {validationRun?.config_snapshot && (
                   <Button

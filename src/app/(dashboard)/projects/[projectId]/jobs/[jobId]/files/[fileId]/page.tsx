@@ -12,8 +12,11 @@ import {
 } from "@/components/ui/breadcrumb"
 import { FileDetailView } from "@/components/files/file-detail-view"
 import { HealthScoreCard } from "@/components/files/health-badge"
+import { ApprovalWorkflow } from "@/components/approval/approval-workflow"
+import { requireOrgRole } from "@/lib/permissions"
 import type { Dataset, DatasetStatus } from "@/lib/types/files"
 import type { SurveyType } from "@/lib/types/projects"
+import type { ApprovalStatus, OrgRole } from "@/lib/types/organisations"
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -111,6 +114,11 @@ export default async function FileDetailPage({
     .limit(1)
     .single()
 
+  // Fetch user org role for approval workflow
+  const roleResult = await requireOrgRole(supabase, user.id, 'viewer')
+  const userRole: OrgRole = 'error' in roleResult ? 'viewer' : roleResult.role
+  const approvalStatus = ((typedDataset as unknown as Record<string, unknown>).approval_status as ApprovalStatus) ?? 'draft'
+
   return (
     <div className="space-y-6">
       <Breadcrumb>
@@ -165,6 +173,14 @@ export default async function FileDetailPage({
         </div>
       </div>
 
+      {/* Approval workflow */}
+      <ApprovalWorkflow
+        datasetId={fileId}
+        currentStatus={approvalStatus}
+        userRole={userRole}
+        revalidatePath={`/projects/${projectId}/jobs/${jobId}/files/${fileId}`}
+      />
+
       {/* Health score card */}
       {latestRun && (
         <HealthScoreCard
@@ -183,6 +199,7 @@ export default async function FileDetailPage({
         jobSurveyType={surveyType}
         projectId={projectId}
         jobId={jobId}
+        currentUserId={user.id}
       />
     </div>
   )

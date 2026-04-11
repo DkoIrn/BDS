@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, Fragment, useMemo } from "react"
-import { ChevronDown, ChevronRight, Layers } from "lucide-react"
+import { ChevronDown, ChevronRight, Layers, MessageSquare } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { getSeverityColor, getSeverityIcon } from "@/lib/utils/severity"
 import { IssueRowDetail } from "@/components/files/issue-row-detail"
+import { IssueComments } from "@/components/comments/issue-comments"
 import type { ValidationIssue, ValidationSeverity } from "@/lib/types/validation"
 
 const RULE_LABELS: Record<string, string> = {
@@ -50,6 +51,7 @@ interface IssuesTableProps {
   datasetId: string
   activeSeverity: ValidationSeverity | "all"
   onSeverityChange: (severity: ValidationSeverity | "all") => void
+  currentUserId?: string
 }
 
 export function IssuesTable({
@@ -57,6 +59,7 @@ export function IssuesTable({
   datasetId,
   activeSeverity,
   onSeverityChange,
+  currentUserId,
 }: IssuesTableProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grouped")
   const [expandedIssues, setExpandedIssues] = useState<Set<string>>(new Set())
@@ -200,6 +203,7 @@ export function IssuesTable({
                           datasetId={datasetId}
                           isExpanded={expandedIssues.has(issue.id)}
                           onToggle={() => toggleIssue(issue.id)}
+                          currentUserId={currentUserId}
                         />
                       ))}
                   </div>
@@ -221,6 +225,7 @@ export function IssuesTable({
                 isExpanded={expandedIssues.has(issue.id)}
                 onToggle={() => toggleIssue(issue.id)}
                 showRule
+                currentUserId={currentUserId}
               />
             ))}
         </div>
@@ -235,13 +240,16 @@ function IssueItem({
   isExpanded,
   onToggle,
   showRule,
+  currentUserId,
 }: {
   issue: ValidationIssue
   datasetId: string
   isExpanded: boolean
   onToggle: () => void
   showRule?: boolean
+  currentUserId?: string
 }) {
+  const [showComments, setShowComments] = useState(false)
   const colors = getSeverityColor(issue.severity)
   const Icon = getSeverityIcon(issue.severity)
 
@@ -292,6 +300,30 @@ function IssueItem({
       {isExpanded && (
         <div className="border-t bg-muted/20">
           <IssueRowDetail issue={issue} datasetId={datasetId} />
+
+          {/* Collapsible comments section */}
+          {currentUserId && (
+            <div className="border-t">
+              <button
+                onClick={() => setShowComments((prev) => !prev)}
+                className="flex w-full items-center gap-2 px-4 py-2 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/40"
+              >
+                <MessageSquare className="size-3" />
+                Comments
+                {showComments ? (
+                  <ChevronDown className="ml-auto size-3" />
+                ) : (
+                  <ChevronRight className="ml-auto size-3" />
+                )}
+              </button>
+              {showComments && (
+                <IssueComments
+                  issueId={issue.id}
+                  currentUserId={currentUserId}
+                />
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

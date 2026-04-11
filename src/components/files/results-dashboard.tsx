@@ -16,9 +16,10 @@ import type { ValidationRun, ValidationIssue, ValidationSeverity } from "@/lib/t
 
 interface ResultsDashboardProps {
   datasetId: string
+  currentUserId?: string
 }
 
-export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
+export function ResultsDashboard({ datasetId, currentUserId }: ResultsDashboardProps) {
   const [runs, setRuns] = useState<ValidationRun[]>([])
   const [selectedRunId, setSelectedRunId] = useState<string>("")
   const [issues, setIssues] = useState<ValidationIssue[]>([])
@@ -182,6 +183,7 @@ export function ResultsDashboard({ datasetId }: ResultsDashboardProps) {
               datasetId={datasetId}
               activeSeverity={activeSeverity}
               onSeverityChange={setActiveSeverity}
+              currentUserId={currentUserId}
             />
           )}
         </>
