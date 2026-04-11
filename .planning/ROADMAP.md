@@ -45,7 +45,7 @@
 
 **Milestone Goal:** Transform TruQC from a technical MVP into a production-ready platform that survey companies can trust for daily use -- reliable processing, dataset auditability, and deeper workflow integration.
 
-- [ ] **Phase 29: Job Queue Infrastructure** - Replace fire-and-forget processing with persistent, retry-capable job queue
+- [x] **Phase 29: Job Queue Infrastructure** - Replace fire-and-forget processing with persistent, retry-capable job queue
 - [ ] **Phase 30: Dataset Versioning** - Immutable snapshots per validation run with version comparison UI
 - [ ] **Phase 31: Validation Certificates (Basic)** - QC Certificate PDF generation with cryptographic hash
 - [ ] **Phase 32: Collaboration (Core)** - In-app notifications, comment resolution, and @mentions
@@ -68,8 +68,8 @@
   4. User can view a history of recent jobs with their outcomes (success/failed/retrying)
 **Plans**: 2 plans
 Plans:
-- [ ] 29-01-PLAN.md — Procrastinate queue backend: infrastructure, migrations, task definitions, jobs API
-- [ ] 29-02-PLAN.md — Frontend job queue UI: progress bar, error/retry display, job history, Realtime integration
+- [x] 29-01-PLAN.md — Procrastinate queue backend: infrastructure, migrations, task definitions, jobs API
+- [x] 29-02-PLAN.md — Frontend job queue UI: progress bar, error/retry display, job history, Realtime integration
 
 ### Phase 30: Dataset Versioning
 **Goal**: Every validation run creates a traceable snapshot so users can see how their data changed over time
@@ -157,7 +157,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 29. Job Queue Infrastructure | 1/2 | In Progress|  | - |
+| 29. Job Queue Infrastructure | 2/2 | Complete | 2026-04-11 | - |
 | 30. Dataset Versioning | v1.1 | 0/TBD | Not started | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
 | 32. Collaboration (Core) | v1.1 | 0/TBD | Not started | - |

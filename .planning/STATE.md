@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
-status: planning
-stopped_at: Phase 29 context gathered
-last_updated: "2026-04-11T21:28:47Z"
-last_activity: 2026-04-11 -- Completed 29-01 job queue infrastructure
+status: executing
+stopped_at: Completed 29-02-PLAN.md
+last_updated: "2026-04-11T22:15:00Z"
+last_activity: 2026-04-11 -- Completed 29-02 job queue frontend UI
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 0
-  completed_plans: 1
-  percent: 6
+  completed_plans: 2
+  percent: 11
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-11)
 
 ## Current Position
 
-Phase: 29 of 37 (Job Queue Infrastructure)
-Plan: 1 of 2 complete
-Status: Executing
-Last activity: 2026-04-11 -- Completed 29-01 job queue infrastructure
+Phase: 29 of 37 (Job Queue Infrastructure) -- COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 29 complete, ready for Phase 30
+Last activity: 2026-04-11 -- Completed 29-02 job queue frontend UI
 
-Progress: [█░░░░░░░░░] 6%
+Progress: [██░░░░░░░░] 11%
 
 ## Accumulated Context
 
@@ -44,6 +44,9 @@ See PROJECT.md Key Decisions table for full history.
 - 29-01: Use InMemoryConnector fallback when DATABASE_URL not set (dev/test safety)
 - 29-01: Lazy imports in task body for heavy deps (pandas/validators) to keep module import fast
 - 29-01: USE_JOB_QUEUE defaults false for safe production transition
+- 29-02: Validate routes set status to "queued" not "validating" -- queue task handles transitions
+- 29-02: Stage-based progress maps discrete stages to percentage ranges for smooth UX
+- 29-02: Realtime provider keeps existing dataset subscription for backward compat with USE_JOB_QUEUE=false
 
 ### Roadmap Evolution
 
@@ -59,6 +62,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-11T21:28:47Z
-Stopped at: Completed 29-01-PLAN.md
-Resume file: .planning/phases/29-job-queue-infrastructure/29-01-SUMMARY.md
+Last session: 2026-04-11T22:15:00Z
+Stopped at: Completed 29-02-PLAN.md (Phase 29 complete)
+Resume file: .planning/phases/29-job-queue-infrastructure/29-02-SUMMARY.md
