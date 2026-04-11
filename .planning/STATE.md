@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 25-02-PLAN.md
-last_updated: "2026-04-11T11:49:08.263Z"
-last_activity: 2026-04-11 -- Plan 25-02 complete (org-scoped access + team management UI)
+stopped_at: Completed 26-01-PLAN.md
+last_updated: "2026-04-11T12:44:09.000Z"
+last_activity: 2026-04-11 -- Plan 26-01 complete (API key auth foundation + settings UI)
 progress:
   total_phases: 27
   completed_phases: 24
   total_plans: 57
-  completed_plans: 57
+  completed_plans: 58
   percent: 98
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 25 - Multi-User & Roles (In Progress)
+**Current focus:** Phase 26 - Enterprise API (In Progress)
 
 ## Current Position
 
-Phase: 25 of 27 (25-multi-user-roles)
-Plan: 3 of 3
+Phase: 26 of 27 (26-enterprise-api)
+Plan: 1 of 2
 Status: In Progress
-Last activity: 2026-04-11 -- Plan 25-02 complete (org-scoped access + team management UI)
+Last activity: 2026-04-11 -- Plan 26-01 complete (API key auth foundation + settings UI)
 
 Progress: [██████████] 98%
 
@@ -88,6 +88,7 @@ Progress: [██████████] 98%
 | Phase 25 P01 | 3min | 2 tasks | 5 files |
 | Phase 25 P03 | 6min | 2 tasks | 8 files |
 | Phase 25 P02 | 9min | 2 tasks | 19 files |
+| Phase 26 P01 | 4min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -203,6 +204,8 @@ Recent decisions affecting current work:
 - [Phase 25]: Comments section is collapsible disclosure inside expanded issue rows to avoid clutter
 - [Phase 25]: RLS-first access control: remove explicit user_id filters, let RLS handle org-scoped visibility after requireOrgRole
 - [Phase 25]: Org-level usage counting via getOrgUsage replaces per-user getUserUsage for team tier enforcement
+- [Phase 26]: Server actions over API route for key CRUD -- consistent with project pattern
+- [Phase 26]: API key format: tk_ prefix + 64 hex chars, stored as SHA-256 hash, shown once on creation
 
 ### Roadmap Evolution
 
@@ -229,6 +232,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T11:49:08.257Z
-Stopped at: Completed 25-02-PLAN.md
+Last session: 2026-04-11T12:44:09.000Z
+Stopped at: Completed 26-01-PLAN.md
 Resume file: None
