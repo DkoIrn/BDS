@@ -32,18 +32,15 @@ Engineers can upload survey data and receive automated QC reports with every fla
 - Guided onboarding tour with demo dataset — v1.0
 - Landing page with 3-tier pricing — v1.0
 
-### Active
+### Active (v1.1 — Production-Grade QC Platform)
 
-- [ ] Job queue with retry/recovery (replace fire-and-forget with reliable workers)
-- [ ] Dataset versioning (snapshot per validation run, version diff UI)
-- [ ] Validation certificates (QC Certificate PDF with unique hash)
-- [ ] Finish collaboration (notifications, activity feed, resolve comments)
-- [ ] Multi-file cross-dataset validation (as-laid vs as-built comparison)
-- [ ] Custom rule builder (simple UI: column comparisons, thresholds, conditions)
-- [ ] Context-aware QC (water depth thresholds, event-conditional rules)
-- [ ] Trial conversion mechanics (nudges, soft locks, value emails)
-- [ ] Landing page conversion optimisation (demo preview, social proof)
-- [ ] Split tool completion (KP range and column value modes, ZIP download)
+- [ ] Job queue with retry/recovery (persistent workers, exponential backoff, failure visibility)
+- [ ] Dataset versioning (snapshot per validation run, version diff UI, compare changes between runs)
+- [ ] Validation certificates (QC Certificate PDF with unique cryptographic hash, certificate registry)
+- [ ] Finish collaboration (in-app/email notifications, activity feed, comment resolution, @mentions)
+- [ ] Cross-dataset validation (integrate comparison into validation pipeline, cross-dataset QC rules)
+- [ ] Custom rule builder (conditional rules UI: column comparisons, if/then logic, user-defined rules)
+- [ ] Context-aware QC (dynamic thresholds by context, event-conditional rules, user-configurable)
 
 ### Out of Scope
 
@@ -52,6 +49,19 @@ Engineers can upload survey data and receive automated QC reports with every fla
 - Mobile app — web-first, responsive design covers tablet use
 - Video/image annotation for ROV data — different product with massive storage needs
 - Full scripting engine for custom rules — simple UI-based rule builder first
+
+## Current Milestone: v1.1 Production-Grade QC Platform
+
+**Goal:** Transform TruQC from a technical MVP into a production-ready platform that survey companies can trust for daily use — reliable processing, dataset auditability, and deeper workflow integration.
+
+**Target features:**
+- Job queue with retry/recovery (Layer A — reliability)
+- Dataset versioning with diff UI (Layer A — reliability)
+- Validation certificates with unique hash (Layer B — workflow depth)
+- Full collaboration: notifications, activity feed, @mentions (Layer B — workflow depth)
+- Cross-dataset validation integrated into pipeline (Layer B — workflow depth)
+- Custom rule builder with conditional logic (Layer C — differentiation)
+- Context-aware QC with dynamic thresholds (Layer C — differentiation)
 
 ## Context
 
@@ -86,4 +96,4 @@ Engineers can upload survey data and receive automated QC reports with every fla
 - **Timeline**: Continuous development, solo
 
 ---
-*Last updated: 2026-04-11 after v1.0 milestone*
+*Last updated: 2026-04-11 after v1.1 milestone start*
