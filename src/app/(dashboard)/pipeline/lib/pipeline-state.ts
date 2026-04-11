@@ -223,7 +223,7 @@ export function pipelineReducer(
           : `${action.issueCount} issues found`
       return {
         ...state,
-        currentStage: "review",
+        currentStage: "validate",
         stages: {
           ...state.stages,
           validate: {
