@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   // Only mapped/validated datasets can be validated (allow re-runs)
-  const validStatuses = ['parsed', 'mapped', 'validated', 'validation_error']
+  const validStatuses = ['parsed', 'mapped', 'validated', 'validation_error', 'queued']
   if (!validStatuses.includes(dataset.status as string)) {
     return NextResponse.json(
       { error: 'Dataset must be in "mapped" or "validated" status to validate' },
@@ -84,10 +84,10 @@ export async function POST(request: Request) {
     )
   }
 
-  // Update status to validating (Next.js sets this, not FastAPI -- avoids race condition)
+  // Update status to queued (the job queue task will set it to validating when it starts)
   await supabase
     .from('datasets')
-    .update({ status: 'validating' })
+    .update({ status: 'queued' as string })
     .eq('id', datasetId)
 
   try {
@@ -118,20 +118,24 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('[validate] FastAPI accepted, status:', fastApiResponse.status)
+    // Extract job_id from FastAPI response
+    const responseBody = await fastApiResponse.json().catch(() => ({}))
+    const jobId = responseBody.job_id ?? null
+
+    console.log('[validate] FastAPI accepted, status:', fastApiResponse.status, 'job_id:', jobId)
 
     // Log the validation run
     logAudit({
       action: 'validation.run',
       entityType: 'dataset',
       entityId: datasetId,
-      metadata: { source: 'project_backend', hasCustomConfig: !!config },
+      metadata: { source: 'project_backend', hasCustomConfig: !!config, jobId },
     })
 
-    // FastAPI accepted (202) -- return 202 to frontend
+    // FastAPI accepted (202) -- return 202 to frontend with job_id
     // Results will arrive via Supabase Realtime subscription
     return NextResponse.json(
-      { status: 'accepted', datasetId },
+      { status: 'accepted', datasetId, jobId },
       { status: 202 }
     )
   } catch (err) {

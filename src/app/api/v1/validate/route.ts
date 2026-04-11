@@ -91,7 +91,7 @@ export async function POST(request: Request) {
   }
 
   // 5. Check dataset is in a valid status for validation
-  const validStatuses = ['parsed', 'mapped', 'validated', 'validation_error']
+  const validStatuses = ['parsed', 'mapped', 'validated', 'validation_error', 'queued']
   if (!validStatuses.includes(dataset.status as string)) {
     return NextResponse.json(
       { error: 'Dataset must be in parsed, mapped, or validated status to validate' },
@@ -102,10 +102,10 @@ export async function POST(request: Request) {
     )
   }
 
-  // 6. Update status to validating (Next.js sets this, not FastAPI -- avoids race condition)
+  // 6. Update status to queued (the job queue task will set it to validating when it starts)
   await supabaseAdmin
     .from('datasets')
-    .update({ status: 'validating' })
+    .update({ status: 'queued' as string })
     .eq('id', dataset_id)
 
   // 7. Proxy to FastAPI
@@ -148,11 +148,16 @@ export async function POST(request: Request) {
       )
     }
 
+    // Extract job_id from FastAPI response
+    const responseBody = await fastApiResponse.json().catch(() => ({}))
+    const jobId = responseBody.job_id ?? null
+
     return NextResponse.json(
       {
         dataset_id,
-        status: 'validating',
-        message: 'Validation started',
+        job_id: jobId,
+        status: 'queued',
+        message: 'Validation queued',
       },
       {
         status: 202,
