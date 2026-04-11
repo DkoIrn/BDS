@@ -3,18 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { requireOrgRole } from '@/lib/permissions'
-import { APPROVAL_TRANSITIONS } from '@/lib/types/organisations'
+import { canTransition } from '@/lib/types/organisations'
 import type { ApprovalStatus } from '@/lib/types/organisations'
-
-/**
- * Pure function: check if a transition is valid per the state machine.
- */
-export function canTransition(
-  current: ApprovalStatus,
-  next: ApprovalStatus
-): boolean {
-  return APPROVAL_TRANSITIONS[current].includes(next)
-}
 
 export async function getApprovalStatus(
   datasetId: string

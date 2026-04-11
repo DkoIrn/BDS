@@ -17,6 +17,13 @@ export const APPROVAL_TRANSITIONS: Record<ApprovalStatus, ApprovalStatus[]> = {
   issued: [],
 }
 
+export function canTransition(
+  current: ApprovalStatus,
+  next: ApprovalStatus
+): boolean {
+  return APPROVAL_TRANSITIONS[current].includes(next)
+}
+
 export interface Organisation {
   id: string
   name: string
