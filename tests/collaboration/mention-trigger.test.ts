@@ -42,13 +42,13 @@ describe('insertMention', () => {
   it('replaces @filtertext with mention markup', () => {
     const result = insertMention('Hello @dan', 10, 'Daniel', 'uuid-123')
     expect(result.text).toBe('Hello @[Daniel](user:uuid-123) ')
-    expect(result.cursorPos).toBe(32)
+    expect(result.cursorPos).toBe(31)
   })
 
   it('replaces @filtertext at start of string', () => {
     const result = insertMention('@dan hello', 4, 'Daniel', 'uuid-123')
     expect(result.text).toBe('@[Daniel](user:uuid-123)  hello')
-    expect(result.cursorPos).toBe(26)
+    expect(result.cursorPos).toBe(25)
   })
 
   it('replaces empty @ trigger', () => {

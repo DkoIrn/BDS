@@ -61,6 +61,9 @@ export interface IssueComment {
   content: string
   created_at: string
   updated_at: string
+  resolved_at: string | null
+  resolved_by: string | null
   // Joined fields
   profiles?: { full_name: string | null }
+  resolved_by_name?: string | null
 }
