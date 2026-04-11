@@ -157,7 +157,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 29. Job Queue Infrastructure | v1.1 | 0/2 | Planning | - |
+| 29. Job Queue Infrastructure | 1/2 | In Progress|  | - |
 | 30. Dataset Versioning | v1.1 | 0/TBD | Not started | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
 | 32. Collaboration (Core) | v1.1 | 0/TBD | Not started | - |

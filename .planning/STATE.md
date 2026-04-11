@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: planning
 stopped_at: Phase 29 context gathered
-last_updated: "2026-04-11T19:38:02.134Z"
-last_activity: 2026-04-11 -- v1.1 roadmap created
+last_updated: "2026-04-11T21:28:47Z"
+last_activity: 2026-04-11 -- Completed 29-01 job queue infrastructure
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 6
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-11)
 ## Current Position
 
 Phase: 29 of 37 (Job Queue Infrastructure)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-04-11 -- v1.1 roadmap created
+Plan: 1 of 2 complete
+Status: Executing
+Last activity: 2026-04-11 -- Completed 29-01 job queue infrastructure
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 6%
 
 ## Accumulated Context
 
@@ -41,6 +41,9 @@ See PROJECT.md Key Decisions table for full history.
 - v1.1 roadmap: Use procrastinate (PostgreSQL-backed) for job queue, not Redis/ARQ
 - v1.1 roadmap: Certificates split into basic (Phase 31) and verification (Phase 33) with versioning in between
 - v1.1 roadmap: Custom rule builder before context-aware QC (shared conditional logic patterns)
+- 29-01: Use InMemoryConnector fallback when DATABASE_URL not set (dev/test safety)
+- 29-01: Lazy imports in task body for heavy deps (pandas/validators) to keep module import fast
+- 29-01: USE_JOB_QUEUE defaults false for safe production transition
 
 ### Roadmap Evolution
 
@@ -56,6 +59,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-11T19:38:02.120Z
-Stopped at: Phase 29 context gathered
-Resume file: .planning/phases/29-job-queue-infrastructure/29-CONTEXT.md
+Last session: 2026-04-11T21:28:47Z
+Stopped at: Completed 29-01-PLAN.md
+Resume file: .planning/phases/29-job-queue-infrastructure/29-01-SUMMARY.md

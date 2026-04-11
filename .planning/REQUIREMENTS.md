@@ -9,11 +9,11 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 
 ### Job Queue & Processing
 
-- [ ] **JOBQ-01**: Validation jobs are enqueued persistently so no job is lost on server restart or crash
-- [ ] **JOBQ-02**: Failed jobs retry automatically with exponential backoff (up to 3 attempts)
+- [x] **JOBQ-01**: Validation jobs are enqueued persistently so no job is lost on server restart or crash
+- [x] **JOBQ-02**: Failed jobs retry automatically with exponential backoff (up to 3 attempts)
 - [ ] **JOBQ-03**: User can see job status with progress percentage (not just spinning indicator)
-- [ ] **JOBQ-04**: After 3 failed retries, user sees clear failure message with "Retry" button
-- [ ] **JOBQ-05**: Jobs are idempotent — retrying a job does not create duplicate validation runs
+- [x] **JOBQ-04**: After 3 failed retries, user sees clear failure message with "Retry" button
+- [x] **JOBQ-05**: Jobs are idempotent — retrying a job does not create duplicate validation runs
 - [ ] **JOBQ-06**: Job status is persisted and queryable via API and UI (history of recent jobs with outcomes)
 
 ### Dataset Versioning
@@ -110,11 +110,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| JOBQ-01 | Phase 29 | Pending |
-| JOBQ-02 | Phase 29 | Pending |
+| JOBQ-01 | Phase 29 | Complete |
+| JOBQ-02 | Phase 29 | Complete |
 | JOBQ-03 | Phase 29 | Pending |
-| JOBQ-04 | Phase 29 | Pending |
-| JOBQ-05 | Phase 29 | Pending |
+| JOBQ-04 | Phase 29 | Complete |
+| JOBQ-05 | Phase 29 | Complete |
 | JOBQ-06 | Phase 29 | Pending |
 | DVER-01 | Phase 30 | Pending |
 | DVER-02 | Phase 30 | Pending |
