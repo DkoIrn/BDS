@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 27-01-PLAN.md
-last_updated: "2026-04-11T14:33:58.327Z"
-last_activity: 2026-04-11 -- Plan 27-01 complete (Spatial QC library modules)
+status: completed
+stopped_at: Completed 27-02-PLAN.md
+last_updated: "2026-04-11T16:33:54.733Z"
+last_activity: 2026-04-11 -- Plan 27-02 complete (Spatial QC map components)
 progress:
   total_phases: 27
-  completed_phases: 25
+  completed_phases: 27
   total_plans: 62
-  completed_plans: 61
-  percent: 98
+  completed_plans: 62
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-10)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 27 - Spatial QC Map Overlay (In Progress)
+**Current focus:** All phases complete -- v1.0 milestone reached
 
 ## Current Position
 
 Phase: 27 of 27 (27-spatial-qc-map-overlay)
-Plan: 1 of 2
-Status: Executing
-Last activity: 2026-04-11 -- Plan 27-01 complete (Spatial QC library modules)
+Plan: 2 of 2
+Status: Complete
+Last activity: 2026-04-11 -- Plan 27-02 complete (Spatial QC map components)
 
-Progress: [██████████] 98%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -92,6 +92,7 @@ Progress: [██████████] 98%
 | Phase 26 P02 | 3min | 2 tasks | 4 files |
 | Phase 26 P03 | 6min | 2 tasks | 5 files |
 | Phase 27 P01 | 4min | 2 tasks | 8 files |
+| Phase 27 P02 | 8min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -215,6 +216,9 @@ Recent decisions affecting current work:
 - [Phase 26]: Webhook dispatch runs synchronously in background task with time.sleep backoff (acceptable on Railway)
 - [Phase 26]: dispatch_webhooks wrapped in try/except to never crash validation pipeline
 - [Phase 27]: Easting/northing passed as lat/lng directly (caller responsible for CRS conversion)
+- [Phase 27]: Canvas renderer (preferCanvas: true) for performance with 500+ markers
+- [Phase 27]: Pipeline adapter constructs ColumnMapping[] from header name heuristics for spatial detection
+- [Phase 27]: Stopped auto-advance to Review stage so users see validation results, map, and AI summary first
 
 ### Roadmap Evolution
 
@@ -241,6 +245,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T14:33:58.320Z
-Stopped at: Completed 27-01-PLAN.md
+Last session: 2026-04-11T16:33:54.727Z
+Stopped at: Completed 27-02-PLAN.md
 Resume file: None
