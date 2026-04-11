@@ -80,7 +80,10 @@ Plans:
   2. User can select two versions and see a summary of what changed (rows added, removed, modified) with row-level detail
   3. Each version in the history shows the linked issue count from that validation run
   4. When a dataset exceeds 10 versions, the oldest versions are automatically pruned without user intervention
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 30-01-PLAN.md — Backend: migration, versioning service (snapshot + pruning + diff), API endpoints, tests
+- [ ] 30-02-PLAN.md — Frontend: types, API routes, Versions tab with timeline, diff comparison view, Realtime
 
 ### Phase 31: Validation Certificates (Basic)
 **Goal**: Users can generate a tamper-evident QC certificate PDF that proves a dataset passed validation
@@ -161,7 +164,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 29. Job Queue Infrastructure | 2/2 | Complete    | 2026-04-11 | - |
-| 30. Dataset Versioning | v1.1 | 0/TBD | Not started | - |
+| 30. Dataset Versioning | v1.1 | 0/2 | Planned | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
 | 32. Collaboration (Core) | v1.1 | 0/2 | Planned | - |
 | 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
