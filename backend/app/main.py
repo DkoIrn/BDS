@@ -1,7 +1,12 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.queue import USE_JOB_QUEUE
+from app.queue import app as procrastinate_app
 from app.routers.parsing import router as parsing_router
 from app.routers.reports import router as reports_router
 from app.routers.validation import router as validation_router
@@ -9,10 +14,27 @@ from app.routers.conversion import router as conversion_router
 from app.routers.transform import router as transform_router
 from app.routers.compare import router as compare_router
 
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(fastapi_app: FastAPI):
+    """Application lifespan: opens procrastinate connection pool on startup."""
+    if USE_JOB_QUEUE:
+        async with procrastinate_app.open_async():
+            logger.info("Procrastinate app opened (job queue enabled)")
+            yield
+        logger.info("Procrastinate app closed")
+    else:
+        logger.info("Job queue disabled (USE_JOB_QUEUE=false), using legacy BackgroundTasks")
+        yield
+
+
 app = FastAPI(
     title="SurveyQC Validation API",
     description="AI Data QA & Validation Platform for pipeline/seabed survey data",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(

@@ -68,6 +68,9 @@ class TableQuery:
     def update(self, data: dict) -> "UpdateQuery":
         return UpdateQuery(self.client, self.base_url, data, self._filters)
 
+    def delete(self) -> "DeleteQuery":
+        return DeleteQuery(self.client, self.base_url, self._filters)
+
 
 class InsertQuery:
     def __init__(self, client: SupabaseClient, url: str, data: dict | list):
@@ -98,6 +101,24 @@ class UpdateQuery:
         resp = httpx.patch(url, json=self.data, headers=self.client.headers)
         resp.raise_for_status()
         return QueryResult(resp.json())
+
+
+class DeleteQuery:
+    def __init__(self, client: SupabaseClient, url: str, filters: list[str]):
+        self.client = client
+        self.url = url
+        self.filters = list(filters)
+
+    def eq(self, column: str, value: str) -> "DeleteQuery":
+        self.filters.append(f"{column}=eq.{value}")
+        return self
+
+    def execute(self) -> "QueryResult":
+        params = "&".join(self.filters) if self.filters else ""
+        url = f"{self.url}?{params}" if params else self.url
+        resp = httpx.delete(url, headers=self.client.headers)
+        resp.raise_for_status()
+        return QueryResult(resp.json() if resp.content else [])
 
 
 class QueryResult:

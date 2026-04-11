@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     supabase_service_role_key: str = ""
     cors_origins: str = "http://localhost:3000"
     port: int = 8000
+    database_url: str = ""
+    use_job_queue: bool = False
 
     @property
     def cors_origin_list(self) -> list[str]:

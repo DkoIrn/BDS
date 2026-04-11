@@ -23,3 +23,5 @@ ezdxf>=1.4
 python-multipart>=0.0.9
 # Phase 14: CRS coordinate transformations
 pyproj>=3.7
+# Phase 29: Job queue infrastructure (PostgreSQL-backed)
+procrastinate[psycopg]>=3.7,<4
