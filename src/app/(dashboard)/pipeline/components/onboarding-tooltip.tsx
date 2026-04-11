@@ -37,9 +37,10 @@ export function OnboardingTooltip({
   }, [step.selector])
 
   useEffect(() => {
-    // Small delay to let the stage render first
-    const timer = setTimeout(updateHighlight, 100)
-    return () => clearTimeout(timer)
+    // Retry with increasing delays to handle stage render/animation timing
+    const delays = [50, 200, 500]
+    const timers = delays.map((ms) => setTimeout(updateHighlight, ms))
+    return () => timers.forEach(clearTimeout)
   }, [updateHighlight])
 
   useEffect(() => {

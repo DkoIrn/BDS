@@ -60,7 +60,7 @@ export function StageImport({ state, dispatch, fileRef }: StageImportProps) {
   // If revisiting completed import, show summary
   if (state.stages.import.completed) {
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl" data-onboarding="stage-import">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Check className="size-5 text-green-600" />
