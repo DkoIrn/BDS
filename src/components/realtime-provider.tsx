@@ -171,9 +171,33 @@ export function RealtimeProvider({
       )
       .subscribe()
 
+    // Channel 3: User notifications (for bell + toast)
+    const notificationsChannel = supabase
+      .channel("user-notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload: { new: Record<string, unknown> }) => {
+          const notif = payload.new
+          toast.info(notif.title as string, {
+            description: (notif.body as string) || undefined,
+          })
+          window.dispatchEvent(
+            new CustomEvent("truqc:new-notification", { detail: notif })
+          )
+        }
+      )
+      .subscribe()
+
     return () => {
       supabase.removeChannel(datasetChannel)
       supabase.removeChannel(jobRunsChannel)
+      supabase.removeChannel(notificationsChannel)
     }
   }, [userId, router])
 

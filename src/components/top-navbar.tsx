@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { logout } from "@/lib/actions/auth"
 import { resetOnboarding } from "@/lib/actions/onboarding"
+import { NotificationBell } from "@/components/notifications/notification-bell"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -61,6 +62,7 @@ interface TopNavbarProps {
     email: string
     fullName: string | null
   }
+  userId: string
 }
 
 function getInitials(name: string | null, email: string): string {
@@ -75,7 +77,7 @@ function getInitials(name: string | null, email: string): string {
   return email[0].toUpperCase()
 }
 
-export function TopNavbar({ user }: TopNavbarProps) {
+export function TopNavbar({ user, userId }: TopNavbarProps) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -145,10 +147,7 @@ export function TopNavbar({ user }: TopNavbarProps) {
 
         {/* Right side — hidden on mobile */}
         <div className="ml-auto hidden md:flex items-center gap-1.5">
-          <Button variant="ghost" size="icon-sm" disabled className="opacity-40" data-tutorial="notifications">
-            <Bell className="size-4" />
-            <span className="sr-only">Notifications</span>
-          </Button>
+          <NotificationBell userId={userId} />
 
           <Link href="/settings" data-tutorial="settings">
             <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground">
