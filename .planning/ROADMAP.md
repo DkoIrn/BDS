@@ -310,8 +310,8 @@ Plans:
   2. User can view a visual dataset timeline showing the complete processing journey with expandable event details
   3. User can click any validation issue and see original value, detected problem, and final value after cleaning
   4. System stores before/after snapshots for auto-clean and AI fix transformations
-  5. User can re-run a previous validation using the same configuration (profile + thresholds)
-  6. Audit timeline displays rich context per event (issue counts, fix details, config used, export format)
+  5. User can re-run a previous validation using the same configuration for reproducibility
+  6. Audit timeline displays rich context per event (issue counts, fix details, export format, config used)
 **Plans:** 2/2 plans complete
 
 Plans:
@@ -467,9 +467,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
-- [ ] 25-02-PLAN.md -- Server action/API route org-scoping, team management UI (invite, members, roles)
-- [ ] 25-03-PLAN.md -- Issue comments and dataset approval workflow
+- [ ] 26-01-PLAN.md -- Database migration (api_keys, webhooks tables), API auth/rate-limit libraries, API key CRUD and settings UI
+- [ ] 26-02-PLAN.md -- Enterprise API endpoints (upload, validate, results, reports) with API key auth
+- [ ] 26-03-PLAN.md -- Webhook dispatch from validation pipeline, webhook management UI and delivery log
 
 ### Phase 27: Spatial QC Map Overlay
 **Goal:** Users can visualise validation issues geographically — flagged data points plotted on the interactive map with error density heatmaps and spatial dataset comparison — making spatial QC intuitive and visual
@@ -484,6 +484,4 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
-- [ ] 25-02-PLAN.md -- Server action/API route org-scoping, team management UI (invite, members, roles)
-- [ ] 25-03-PLAN.md -- Issue comments and dataset approval workflow
+- [ ] TBD (run /gsd:plan-phase 27 to break down)
