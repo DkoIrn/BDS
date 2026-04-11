@@ -229,7 +229,7 @@ export function StageReview({ state, dispatch, validationIssues }: StageReviewPr
   // --- Completed state ---
   if (state.stages.review.completed) {
     return (
-      <Card className="rounded-2xl animate-fade-up">
+      <Card className="rounded-2xl animate-fade-up" data-onboarding="issue-triage">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="size-5 text-green-600" />

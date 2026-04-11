@@ -371,7 +371,7 @@ export function StageClean({ state, dispatch, validationIssues }: StageCleanProp
   // --- Completed state (revisiting) ---
   if (state.stages.clean.completed) {
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl" data-onboarding="fix-actions">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="size-5 text-green-600" />

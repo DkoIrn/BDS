@@ -259,13 +259,13 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
       ? clusterIssues(adaptPipelineIssues(issuesSource))
       : []
     const rowCount = state.parsedData?.length ? state.parsedData.length - 1 : 0
-    const criticalCount = result?.summary.critical ?? 0
+    const criticalCount = result?.summary?.critical ?? 0
     const computedPassRate = rowCount > 0
       ? ((rowCount - criticalCount) / rowCount) * 100
       : 100
 
     return (
-      <Card className="rounded-2xl">
+      <Card className="rounded-2xl" data-onboarding="run-qc">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {passed ? (
