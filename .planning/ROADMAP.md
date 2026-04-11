@@ -486,3 +486,54 @@ Plans:
 Plans:
 - [ ] 27-01-PLAN.md -- TDD library: types, coordinate extractor, severity colors, dataset comparison, leaflet.heat
 - [ ] 27-02-PLAN.md -- Map components (markers, heatmap, comparison), ResultsDashboard + pipeline integration, human verification
+
+### Phase 28: Guided Onboarding Flow
+**Goal:** New users experience a guided first-run that demonstrates TruQC's value in under 3 minutes — preloaded demo dataset, step-by-step pipeline walkthrough, contextual tooltips — so they understand the product before their own data
+**Requirements**: ONBD-01, ONBD-02, ONBD-03, ONBD-04
+**Depends on:** Phase 27
+**Success Criteria** (what must be TRUE):
+  1. New users see a welcome screen after first login with option to start guided tour or skip
+  2. Guided tour loads a prebuilt demo dataset and walks through all 6 pipeline stages with contextual tooltips
+  3. Each tooltip explains what the stage does and highlights key UI elements (Run QC button, fix buttons, map, etc.)
+  4. User reaches a "Pipeline Complete" celebration screen showing what TruQC found and fixed in the demo data
+  5. Tour completion is tracked per user so it only shows once
+  6. Time from login to first value demonstration is under 3 minutes
+  7. Users can replay the tour from settings or a help menu
+**Plans:** 2 plans
+
+Plans:
+- [ ] 28-01-PLAN.md -- DB migration, server actions, demo dataset constants, onboarding step definitions with tests
+- [ ] 28-02-PLAN.md -- Onboarding UI components (welcome, tooltips, celebration, orchestrator), dashboard/settings/navbar integration, human verification
+
+### Phase 29: Trial Conversion Mechanics
+**Goal:** Free trial users are guided toward conversion through usage-triggered nudges, value reinforcement, and soft locks that let them see results but gate exports when limits are reached
+**Requirements**: ONBD-05, ONBD-06, ONBD-07
+**Depends on:** Phase 28
+**Success Criteria** (what must be TRUE):
+  1. Users see in-app nudges when approaching limits ("4/5 QC checks used this month")
+  2. After hitting limits, users can still view results but cannot export/download until upgraded
+  3. Value reinforcement emails sent at key milestones ("You caught 37 issues this week")
+  4. Trial expiry countdown visible in dashboard header during final 3 days
+  5. Expired trials show read-only mode with clear upgrade CTA
+  6. Usage forecasting: "At current rate, you'll exceed plan in X days"
+**Plans:** 2 plans
+
+Plans:
+- [ ] 28-01-PLAN.md -- DB migration, server actions, demo dataset constants, onboarding step definitions with tests
+- [ ] 28-02-PLAN.md -- Onboarding UI components (welcome, tooltips, celebration, orchestrator), dashboard/settings/navbar integration, human verification
+
+### Phase 30: Landing Page Conversion Optimisation
+**Goal:** The landing page is optimised to convert visitors into trial signups with social proof, interactive demo preview, clear value proposition, and conversion-focused copy
+**Requirements**: ONBD-08, ONBD-09, ONBD-10
+**Depends on:** Phase 29
+**Success Criteria** (what must be TRUE):
+  1. Landing page includes a live interactive demo preview (embedded pipeline walkthrough)
+  2. Social proof section with testimonials or case study metrics
+  3. Clear "before vs after" comparison showing manual QC vs TruQC
+  4. Conversion-focused CTA copy tested and refined
+  5. Mobile-responsive landing page with fast load times
+**Plans:** 2 plans
+
+Plans:
+- [ ] 28-01-PLAN.md -- DB migration, server actions, demo dataset constants, onboarding step definitions with tests
+- [ ] 28-02-PLAN.md -- Onboarding UI components (welcome, tooltips, celebration, orchestrator), dashboard/settings/navbar integration, human verification
