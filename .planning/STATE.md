@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 25-03-PLAN.md
-last_updated: "2026-04-11T11:44:28.200Z"
-last_activity: 2026-04-11 -- Plan 25-01 complete (multi-tenant org tables, RLS rewrite, permissions)
+stopped_at: Completed 25-02-PLAN.md
+last_updated: "2026-04-11T11:49:08.263Z"
+last_activity: 2026-04-11 -- Plan 25-02 complete (org-scoped access + team management UI)
 progress:
   total_phases: 27
-  completed_phases: 23
+  completed_phases: 24
   total_plans: 57
-  completed_plans: 56
-  percent: 96
+  completed_plans: 57
+  percent: 98
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-10)
 Phase: 25 of 27 (25-multi-user-roles)
 Plan: 3 of 3
 Status: In Progress
-Last activity: 2026-04-11 -- Plan 25-03 complete (issue commenting and approval workflow)
+Last activity: 2026-04-11 -- Plan 25-02 complete (org-scoped access + team management UI)
 
 Progress: [██████████] 98%
 
@@ -87,6 +87,7 @@ Progress: [██████████] 98%
 | Phase 24 P02 | 8min | 3 tasks | 4 files |
 | Phase 25 P01 | 3min | 2 tasks | 5 files |
 | Phase 25 P03 | 6min | 2 tasks | 8 files |
+| Phase 25 P02 | 9min | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -200,6 +201,8 @@ Recent decisions affecting current work:
 - [Phase 25]: Personal orgs use profile.id as org.id for simple backfill; storage keeps user-folder paths with cross-org RLS check
 - [Phase 25]: Optimistic UI for comments: add to local state immediately, reconcile on server response
 - [Phase 25]: Comments section is collapsible disclosure inside expanded issue rows to avoid clutter
+- [Phase 25]: RLS-first access control: remove explicit user_id filters, let RLS handle org-scoped visibility after requireOrgRole
+- [Phase 25]: Org-level usage counting via getOrgUsage replaces per-user getUserUsage for team tier enforcement
 
 ### Roadmap Evolution
 
@@ -226,6 +229,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T11:44:28.195Z
-Stopped at: Completed 25-03-PLAN.md
+Last session: 2026-04-11T11:49:08.257Z
+Stopped at: Completed 25-02-PLAN.md
 Resume file: None
