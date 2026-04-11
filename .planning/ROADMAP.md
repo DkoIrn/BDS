@@ -272,7 +272,7 @@ Plans:
 **Goal:** Users can compare two datasets (e.g. as-built vs as-designed) and see a visual diff of differences, deviations, and mismatches
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 3 plans
+**Plans:** 2 plans
 
 Plans:
 - [ ] 25-01-PLAN.md -- Database migration (org tables, RLS rewrite, backfill), TypeScript types, permission library
@@ -481,7 +481,8 @@ Plans:
   3. Users can compare two datasets spatially on the map with deviation highlights
   4. Map view is accessible from both the results dashboard and the pipeline
   5. Issue markers are clickable with popup showing issue details
-**Plans:** 3 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 27 to break down)
+- [ ] 27-01-PLAN.md -- TDD library: types, coordinate extractor, severity colors, dataset comparison, leaflet.heat
+- [ ] 27-02-PLAN.md -- Map components (markers, heatmap, comparison), ResultsDashboard + pipeline integration, human verification
