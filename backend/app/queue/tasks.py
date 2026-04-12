@@ -85,6 +85,26 @@ def record_job_run(
 
 
 # ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _get_org_id_for_dataset(supabase, dataset: dict) -> str | None:
+    """Resolve org_id from dataset via job → project chain."""
+    try:
+        job_id = dataset.get("job_id")
+        if not job_id:
+            return None
+        job = supabase.table("jobs").select("project_id").eq("id", job_id).single().execute()
+        if not job.data:
+            return None
+        project = supabase.table("projects").select("org_id").eq("id", job.data["project_id"]).single().execute()
+        return project.data["org_id"] if project.data else None
+    except Exception:
+        return None
+
+
+# ---------------------------------------------------------------------------
 # Task definition
 # ---------------------------------------------------------------------------
 
@@ -296,6 +316,23 @@ async def validate_dataset(
         except Exception as wh_err:
             logger.error("Webhook dispatch failed for dataset %s: %s", dataset_id, str(wh_err))
 
+        # 11. Create in-app notification for triggering user
+        try:
+            org_id = _get_org_id_for_dataset(supabase, dataset)
+            if org_id:
+                supabase.table("notifications").insert({
+                    "user_id": dataset["user_id"],
+                    "org_id": org_id,
+                    "type": "validation_complete",
+                    "title": f"Validation complete",
+                    "body": f"{dataset['file_name']} — {total_issues} issues found",
+                    "resource_type": "dataset",
+                    "resource_id": dataset_id,
+                    "link_url": f"/pipeline?dataset={dataset_id}",
+                }).execute()
+        except Exception as notif_err:
+            logger.warning("Notification creation failed for dataset %s: %s", dataset_id, str(notif_err))
+
     except Exception as e:
         elapsed_ms = int((time.time() - start_time) * 1000)
         tb = traceback.format_exc()
@@ -337,6 +374,23 @@ async def validate_dataset(
             })
         except Exception as wh_err:
             logger.error("Webhook dispatch (failure) failed for %s: %s", dataset_id, str(wh_err))
+
+        # Create failure notification for triggering user
+        try:
+            org_id = _get_org_id_for_dataset(supabase, dataset)
+            if org_id:
+                supabase.table("notifications").insert({
+                    "user_id": dataset["user_id"],
+                    "org_id": org_id,
+                    "type": "validation_failed",
+                    "title": f"Validation failed",
+                    "body": f"{dataset['file_name']} — {str(e)[:100]}",
+                    "resource_type": "dataset",
+                    "resource_id": dataset_id,
+                    "link_url": f"/pipeline?dataset={dataset_id}",
+                }).execute()
+        except Exception as notif_err:
+            logger.warning("Failure notification failed for %s: %s", dataset_id, str(notif_err))
 
         # Re-raise for procrastinate retry
         raise

@@ -150,6 +150,29 @@ def _legacy_validation_background(dataset_id: str, config: ProfileConfig | None)
         except Exception as wh_err:
             logger.error("Webhook dispatch failed for dataset %s: %s", dataset_id, str(wh_err))
 
+        # Create in-app notification for triggering user
+        try:
+            job_id = dataset.get("job_id")
+            org_id = None
+            if job_id:
+                job = supabase.table("jobs").select("project_id").eq("id", job_id).single().execute()
+                if job.data:
+                    project = supabase.table("projects").select("org_id").eq("id", job.data["project_id"]).single().execute()
+                    org_id = project.data["org_id"] if project.data else None
+            if org_id:
+                supabase.table("notifications").insert({
+                    "user_id": dataset["user_id"],
+                    "org_id": org_id,
+                    "type": "validation_complete",
+                    "title": "Validation complete",
+                    "body": f"{dataset['file_name']} — {total_issues} issues found",
+                    "resource_type": "dataset",
+                    "resource_id": dataset_id,
+                    "link_url": f"/pipeline?dataset={dataset_id}",
+                }).execute()
+        except Exception as notif_err:
+            logger.warning("Notification creation failed for dataset %s: %s", dataset_id, str(notif_err))
+
     except Exception as e:
         # Always update status on failure -- never leave dataset stuck in 'validating'
         import traceback
