@@ -244,6 +244,30 @@ async def validate_dataset(
             "validation_progress": {"stage": "complete", "detail": "Validation finished"},
         }).eq("id", dataset_id).execute()
 
+        # 8.5. Create version snapshot (non-blocking -- failure does not break validation)
+        try:
+            from app.services.versioning import create_version_snapshot
+
+            create_version_snapshot(
+                supabase=supabase,
+                dataset_id=dataset_id,
+                user_id=dataset["user_id"],
+                validation_run_id=run_id,
+                issue_count=total_issues,
+                critical_count=critical_count,
+                warning_count=warning_count,
+                info_count=info_count,
+                row_count=len(df),
+                column_count=len(df.columns),
+                file_size=len(file_bytes),
+                storage_path=dataset["storage_path"],
+            )
+        except Exception as snap_err:
+            logger.warning(
+                "Version snapshot failed for dataset %s: %s",
+                dataset_id, str(snap_err),
+            )
+
         # 9. Record successful job run
         record_job_run(
             supabase, dataset_id,

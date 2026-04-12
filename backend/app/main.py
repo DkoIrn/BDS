@@ -14,6 +14,7 @@ from app.routers.conversion import router as conversion_router
 from app.routers.transform import router as transform_router
 from app.routers.compare import router as compare_router
 from app.routers.jobs import router as jobs_router
+from app.routers.versions import router as versions_router
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,7 @@ app.include_router(conversion_router)
 app.include_router(transform_router)
 app.include_router(compare_router)
 app.include_router(jobs_router)
+app.include_router(versions_router, tags=["versions"])
 
 
 @app.get("/health")
