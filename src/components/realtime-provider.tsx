@@ -171,7 +171,23 @@ export function RealtimeProvider({
       )
       .subscribe()
 
-    // Channel 3: User notifications (for bell + toast)
+    // Channel 3: Dataset versions (new version created after validation)
+    const versionsChannel = supabase
+      .channel("dataset-versions")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "dataset_versions",
+        },
+        () => {
+          window.dispatchEvent(new CustomEvent("truqc:version-created"))
+        }
+      )
+      .subscribe()
+
+    // Channel 4: User notifications (for bell + toast)
     const notificationsChannel = supabase
       .channel("user-notifications")
       .on(
@@ -197,6 +213,7 @@ export function RealtimeProvider({
     return () => {
       supabase.removeChannel(datasetChannel)
       supabase.removeChannel(jobRunsChannel)
+      supabase.removeChannel(versionsChannel)
       supabase.removeChannel(notificationsChannel)
     }
   }, [userId, router])

@@ -12,6 +12,7 @@ import { DataPreviewTable } from "@/components/files/data-preview-table"
 import { ValidationProgress } from "@/components/files/validation-progress"
 import { ResultsDashboard } from "@/components/files/results-dashboard"
 import { AuditTimeline } from "@/components/files/audit-timeline"
+import { VersionTimeline } from "@/components/files/version-timeline"
 import { ProfileSelector } from "@/components/files/profile-selector"
 import { createClient } from "@/lib/supabase/client"
 import { logAuditClient } from "@/lib/audit-client"
@@ -532,6 +533,7 @@ export function FileDetailView({
         <TabsTrigger value="mapping">Mapping</TabsTrigger>
         <TabsTrigger value="results">Results</TabsTrigger>
         <TabsTrigger value="preview">Data Preview</TabsTrigger>
+        <TabsTrigger value="versions">Versions</TabsTrigger>
         <TabsTrigger value="audit">Audit Trail</TabsTrigger>
       </TabsList>
 
@@ -699,6 +701,10 @@ export function FileDetailView({
             </div>
           )}
         </div>
+      </TabsContent>
+
+      <TabsContent value="versions">
+        <VersionTimeline datasetId={dataset.id} />
       </TabsContent>
 
       <TabsContent value="audit">
