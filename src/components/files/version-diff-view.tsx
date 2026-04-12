@@ -94,6 +94,7 @@ export function VersionDiffView({
       <Button
         variant="ghost"
         onClick={onBack}
+        aria-label="Back to version history"
         className="cursor-pointer gap-2 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -278,8 +279,9 @@ function DiffSection({
     <div className={`rounded-2xl border border-l-4 ${accentClass} bg-card`}>
       <button
         onClick={onToggle}
-        className="flex w-full cursor-pointer items-center gap-2 p-4 text-left font-medium"
+        className="flex w-full cursor-pointer items-center gap-2 p-4 text-left font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl"
         aria-expanded={open}
+        aria-label={`Toggle ${title}`}
       >
         {icon}
         <span className="flex-1">{title}</span>
