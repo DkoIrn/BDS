@@ -48,7 +48,7 @@
 - [x] **Phase 29: Job Queue Infrastructure** - Replace fire-and-forget processing with persistent, retry-capable job queue
 - [ ] **Phase 30: Dataset Versioning** - Immutable snapshots per validation run with version comparison UI
 - [ ] **Phase 31: Validation Certificates (Basic)** - QC Certificate PDF generation with cryptographic hash
-- [ ] **Phase 32: Collaboration (Core)** - In-app notifications, comment resolution, and @mentions
+- [x] **Phase 32: Collaboration (Core)** - In-app notifications, comment resolution, and @mentions
 - [ ] **Phase 33: Validation Certificates (Verification)** - QR code verification, public verify endpoint, certificate registry
 - [ ] **Phase 34: Collaboration (Extended)** - Email notifications and project activity feed
 - [ ] **Phase 35: Cross-Dataset Validation** - Multi-dataset comparison integrated into validation pipeline
@@ -104,8 +104,8 @@ Plans:
   3. User can mark comments as resolved and filter to show only unresolved comments
 **Plans**: 2 plans
 Plans:
-- [ ] 32-01-PLAN.md — Database migrations, types, server actions, and @mention utilities
-- [ ] 32-02-PLAN.md — Notification bell UI, comment resolution UI, @mention input, Realtime integration
+- [x] 32-01-PLAN.md — Database migrations, types, server actions, and @mention utilities
+- [x] 32-02-PLAN.md — Notification bell UI, comment resolution UI, @mention input, Realtime integration
 
 ### Phase 33: Validation Certificates (Verification)
 **Goal**: Anyone can independently verify the authenticity of a QC certificate without needing a TruQC account
@@ -166,7 +166,7 @@ Plans:
 | 29. Job Queue Infrastructure | 2/2 | Complete    | 2026-04-11 | - |
 | 30. Dataset Versioning | 1/2 | In Progress|  | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
-| 32. Collaboration (Core) | 1/2 | In Progress|  | - |
+| 32. Collaboration (Core) | 2/2 | Complete | 2026-04-12 | - |
 | 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
 | 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |

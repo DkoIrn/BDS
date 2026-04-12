@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: in_progress
-stopped_at: Completed 30-01-PLAN.md
-last_updated: "2026-04-12T00:08:00.000Z"
-last_activity: 2026-04-12 -- Completed 30-01 dataset versioning backend
+stopped_at: Completed 32-02-PLAN.md
+last_updated: "2026-04-12T00:25:00.000Z"
+last_activity: 2026-04-12 -- Completed 32-02 collaboration UI (notifications, resolution, mentions)
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 30 -- Dataset Versioning
+**Current focus:** Phase 32 -- Collaboration (Core) complete
 
 ## Current Position
 
-Phase: 30 of 37 (Dataset Versioning)
-Plan: 1 of 2 complete
-Status: 30-01 complete, ready for 30-02
-Last activity: 2026-04-12 -- Completed 30-01 dataset versioning backend
+Phase: 32 of 37 (Collaboration Core)
+Plan: 2 of 2 complete
+Status: 32-02 complete, Phase 32 done
+Last activity: 2026-04-12 -- Completed 32-02 collaboration UI (notifications, resolution, mentions)
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 88%
 
 ## Accumulated Context
 
@@ -54,6 +54,9 @@ See PROJECT.md Key Decisions table for full history.
 - 30-01: MAX_VERSIONS = 10 with prune-oldest-first strategy
 - 30-01: Position-based row diff (not key-based) for simplicity with survey data
 - 30-01: Non-blocking snapshot: try/except wrapper so validation never fails due to versioning
+- 32-02: Custom DOM event pattern (truqc:new-notification) for Realtime-to-component communication
+- 32-02: Optimistic UI for comment resolve/reopen with error-based refetch fallback
+- 32-02: Badge shows exact count up to 9 then 9+ for compact visual
 
 ### Roadmap Evolution
 
@@ -69,6 +72,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-12T00:08:00.000Z
-Stopped at: Completed 30-01-PLAN.md
-Resume file: .planning/phases/30-dataset-versioning/30-01-SUMMARY.md
+Last session: 2026-04-12T00:25:00.000Z
+Stopped at: Completed 32-02-PLAN.md
+Resume file: .planning/phases/32-collaboration-core/32-02-SUMMARY.md
