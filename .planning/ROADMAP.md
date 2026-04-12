@@ -164,7 +164,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 29. Job Queue Infrastructure | 2/2 | Complete    | 2026-04-11 | - |
-| 30. Dataset Versioning | 1/2 | In Progress|  | - |
+| 30. Dataset Versioning | 1/2 | Complete    | 2026-04-12 | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
 | 32. Collaboration (Core) | 2/2 | Complete | 2026-04-12 | - |
 | 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
