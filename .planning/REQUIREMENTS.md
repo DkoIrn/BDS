@@ -18,11 +18,11 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 
 ### Dataset Versioning
 
-- [ ] **DVER-01**: Each validation run creates an immutable snapshot of the dataset state
+- [x] **DVER-01**: Each validation run creates an immutable snapshot of the dataset state
 - [ ] **DVER-02**: User can view version history for a dataset showing all snapshots with timestamps
-- [ ] **DVER-03**: User can compare any two versions and see row-level changes with summary stats
-- [ ] **DVER-04**: Version history shows linked validation results (issue count per version)
-- [ ] **DVER-05**: Storage retention limits snapshots to 10 versions per dataset (oldest auto-pruned)
+- [x] **DVER-03**: User can compare any two versions and see row-level changes with summary stats
+- [x] **DVER-04**: Version history shows linked validation results (issue count per version)
+- [x] **DVER-05**: Storage retention limits snapshots to 10 versions per dataset (oldest auto-pruned)
 
 ### Validation Certificates (Basic)
 
@@ -116,11 +116,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | JOBQ-04 | Phase 29 | Complete |
 | JOBQ-05 | Phase 29 | Complete |
 | JOBQ-06 | Phase 29 | Complete |
-| DVER-01 | Phase 30 | Pending |
+| DVER-01 | Phase 30 | Complete |
 | DVER-02 | Phase 30 | Pending |
-| DVER-03 | Phase 30 | Pending |
-| DVER-04 | Phase 30 | Pending |
-| DVER-05 | Phase 30 | Pending |
+| DVER-03 | Phase 30 | Complete |
+| DVER-04 | Phase 30 | Complete |
+| DVER-05 | Phase 30 | Complete |
 | CERT-01 | Phase 31 | Pending |
 | CERT-02 | Phase 31 | Pending |
 | CERT-03 | Phase 33 | Pending |
