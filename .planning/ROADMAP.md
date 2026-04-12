@@ -46,7 +46,7 @@
 **Milestone Goal:** Transform TruQC from a technical MVP into a production-ready platform that survey companies can trust for daily use -- reliable processing, dataset auditability, and deeper workflow integration.
 
 - [x] **Phase 29: Job Queue Infrastructure** - Replace fire-and-forget processing with persistent, retry-capable job queue
-- [ ] **Phase 30: Dataset Versioning** - Immutable snapshots per validation run with version comparison UI
+- [x] **Phase 30: Dataset Versioning** - Immutable snapshots per validation run with version comparison UI
 - [ ] **Phase 31: Validation Certificates (Basic)** - QC Certificate PDF generation with cryptographic hash
 - [x] **Phase 32: Collaboration (Core)** - In-app notifications, comment resolution, and @mentions
 - [ ] **Phase 33: Validation Certificates (Verification)** - QR code verification, public verify endpoint, certificate registry
@@ -82,8 +82,8 @@ Plans:
   4. When a dataset exceeds 10 versions, the oldest versions are automatically pruned without user intervention
 **Plans**: 2 plans
 Plans:
-- [ ] 30-01-PLAN.md — Backend: migration, versioning service (snapshot + pruning + diff), API endpoints, tests
-- [ ] 30-02-PLAN.md — Frontend: types, API routes, Versions tab with timeline, diff comparison view, Realtime
+- [x] 30-01-PLAN.md — Backend: migration, versioning service (snapshot + pruning + diff), API endpoints, tests
+- [x] 30-02-PLAN.md — Frontend: types, API routes, Versions tab with timeline, diff comparison view, Realtime
 
 ### Phase 31: Validation Certificates (Basic)
 **Goal**: Users can generate a tamper-evident QC certificate PDF that proves a dataset passed validation
