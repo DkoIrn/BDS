@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-11)
 
 ## Current Position
 
-Phase: 30 of 37 (Dataset Versioning)
-Plan: 2 of 2 complete
-Status: 30-02 complete, Phase 30 done
-Last activity: 2026-04-12 -- Completed 30-02 dataset versioning frontend UI
+Phase: 33 of 37 (Validation Certificates Verification)
+Plan: 1 of 2 complete
+Status: 33-01 complete, continuing Phase 33
+Last activity: 2026-04-13 -- Completed 33-01 certificate verification backend
 
 Progress: [██████████] 100%
 
@@ -60,6 +60,10 @@ See PROJECT.md Key Decisions table for full history.
 - 30-02: Trend summary compares first vs latest version for issue trend and row count change
 - 30-02: Sticky footer bar appears only when exactly 2 versions selected for comparison
 - 30-02: Position-based inline diff format: column: old_value -> new_value for modified rows
+- 33-01: Verify endpoint returns 200 for all states (active/revoked/not_found) to prevent enumeration timing attacks
+- 33-01: Revoked certificates omit dataset details, showing only ID, status, revoked_at, and reason
+- 33-01: QR code positioned at (175, 15) with 25mm width, ERROR_CORRECT_M for balance of size and resilience
+- 33-01: Cache-Control: no-store on all verify responses to prevent stale verification results
 
 ### Roadmap Evolution
 
@@ -75,6 +79,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-13T13:00:25.139Z
-Stopped at: Phase 33 context gathered
-Resume file: .planning/phases/33-validation-certificates-verification/33-CONTEXT.md
+Last session: 2026-04-13T17:02:20Z
+Stopped at: Completed 33-01-PLAN.md
+Resume file: .planning/phases/33-validation-certificates-verification/33-01-SUMMARY.md
