@@ -118,7 +118,10 @@ Plans:
   1. Certificate PDF includes a QR code that links to a public verification URL
   2. Anyone can visit /verify/{id} without authentication and see whether the certificate is valid, revoked, or unknown
   3. Admin can revoke a certificate from the certificate registry, and subsequent verification shows "revoked" status
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 33-01-PLAN.md — Backend: QR code embedding in PDFs, revocation migration, revocation + lookup API endpoints
+- [ ] 33-02-PLAN.md — Frontend: public verify page, certificate registry table with revocation UI, reports tab navigation
 
 ### Phase 34: Collaboration (Extended)
 **Goal**: Users receive email notifications for critical events and can track project activity in a chronological feed
@@ -170,7 +173,7 @@ Plans:
 | 30. Dataset Versioning | 1/2 | Complete    | 2026-04-12 | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/2 | Planned | - |
 | 32. Collaboration (Core) | 2/2 | Complete    | 2026-04-12 | - |
-| 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
+| 33. Validation Certificates (Verification) | v1.1 | 0/2 | Planned | - |
 | 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
 | 36. Custom Rule Builder | v1.1 | 0/TBD | Not started | - |
