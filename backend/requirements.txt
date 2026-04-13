@@ -25,3 +25,5 @@ python-multipart>=0.0.9
 pyproj>=3.7
 # Phase 29: Job queue infrastructure (PostgreSQL-backed)
 procrastinate[psycopg]>=3.7,<4
+# Phase 33: QR code generation for certificate verification
+qrcode[pil]>=7.4
