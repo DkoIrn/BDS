@@ -15,6 +15,7 @@ async function fetchVerification(id: string): Promise<VerifyResponse> {
   try {
     const res = await fetch(`${backendUrl}/api/v1/certificates/${id}/verify`, {
       cache: "no-store",
+      signal: AbortSignal.timeout(5000),
     })
     if (!res.ok) {
       return { status: "not_found" }
