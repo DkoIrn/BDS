@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: completed
-stopped_at: Phase 33 context gathered
-last_updated: "2026-04-13T13:00:25.156Z"
-last_activity: 2026-04-12 -- Completed 30-02 dataset versioning frontend UI
+stopped_at: Completed 33-02-PLAN.md
+last_updated: "2026-04-13T17:33:00.000Z"
+last_activity: 2026-04-13 -- Completed 33-02 certificate verification frontend
 progress:
   total_phases: 9
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  completed_phases: 4
+  total_plans: 10
+  completed_plans: 8
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 30 -- Dataset Versioning complete
+**Current focus:** Phase 33 -- Validation Certificates Verification complete
 
 ## Current Position
 
 Phase: 33 of 37 (Validation Certificates Verification)
-Plan: 1 of 2 complete
-Status: 33-01 complete, continuing Phase 33
-Last activity: 2026-04-13 -- Completed 33-01 certificate verification backend
+Plan: 2 of 2 complete
+Status: Phase 33 complete
+Last activity: 2026-04-13 -- Completed 33-02 certificate verification frontend
 
-Progress: [██████████] 100%
+Progress: [████████░░] 83%
 
 ## Accumulated Context
 
@@ -64,6 +64,9 @@ See PROJECT.md Key Decisions table for full history.
 - 33-01: Revoked certificates omit dataset details, showing only ID, status, revoked_at, and reason
 - 33-01: QR code positioned at (175, 15) with 25mm width, ERROR_CORRECT_M for balance of size and resilience
 - 33-01: Cache-Control: no-store on all verify responses to prevent stale verification results
+- 33-02: Public verify page uses server component with force-dynamic to ensure revocation is always current
+- 33-02: Copy-to-clipboard button extracted as client component to keep verify page as server component
+- 33-02: Reports tab navigation uses client component with usePathname for active tab detection
 
 ### Roadmap Evolution
 
@@ -79,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-13T17:02:20Z
-Stopped at: Completed 33-01-PLAN.md
-Resume file: .planning/phases/33-validation-certificates-verification/33-01-SUMMARY.md
+Last session: 2026-04-13T17:33:00Z
+Stopped at: Completed 33-02-PLAN.md
+Resume file: .planning/phases/33-validation-certificates-verification/33-02-SUMMARY.md

@@ -32,7 +32,7 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 ### Validation Certificates (Verification)
 
 - [x] **CERT-03**: Certificate PDF includes a QR code linking to a public verification URL
-- [ ] **CERT-04**: Anyone can verify a certificate at /verify/{id} without authentication
+- [x] **CERT-04**: Anyone can verify a certificate at /verify/{id} without authentication
 - [x] **CERT-05**: Certificate records are stored in a registry with revocation support
 
 ### Collaboration (Core)
@@ -124,7 +124,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CERT-01 | Phase 31 | Pending |
 | CERT-02 | Phase 31 | Pending |
 | CERT-03 | Phase 33 | Complete |
-| CERT-04 | Phase 33 | Pending |
+| CERT-04 | Phase 33 | Complete |
 | CERT-05 | Phase 33 | Complete |
 | COLB-01 | Phase 32 | Complete |
 | COLB-02 | Phase 34 | Pending |
