@@ -208,6 +208,75 @@ def generate_certificate(run_id: str, body: CertificateRequest):
     )
 
 
+@router.get("/certificates/{cert_id}/download")
+def download_certificate(cert_id: str):
+    """Download an existing certificate PDF by certificate ID.
+
+    Looks up the certificate record, regenerates the PDF from stored data,
+    and streams it as a download.
+    """
+    supabase = get_supabase_client()
+
+    try:
+        result = (
+            supabase.table("certificates")
+            .select("*")
+            .eq("id", cert_id)
+            .single()
+            .execute()
+        )
+    except Exception:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+
+    cert = result.data
+
+    # Fetch org name
+    org_name = ""
+    try:
+        org_result = (
+            supabase.table("organisations")
+            .select("name")
+            .eq("id", cert.get("org_id", ""))
+            .single()
+            .execute()
+        )
+        if org_result.data:
+            org_name = org_result.data.get("name", "")
+    except Exception:
+        pass
+
+    cert_data = {
+        "certificate_id": cert["id"],
+        "run_id": cert.get("run_id", ""),
+        "dataset_id": cert.get("dataset_id", ""),
+        "dataset_name": cert.get("dataset_name", "Unknown"),
+        "validation_date": cert.get("validation_date", ""),
+        "rules_applied": cert.get("rules_applied", []),
+        "verdict": cert.get("verdict", "PASS"),
+        "pass_rate": cert.get("pass_rate", 0.0),
+        "total_issues": cert.get("total_issues", 0),
+        "critical_count": cert.get("critical_count", 0),
+        "warning_count": cert.get("warning_count", 0),
+        "info_count": cert.get("info_count", 0),
+        "org_name": org_name,
+    }
+
+    pdf_bytes = generate_certificate_pdf(cert_data, cert["hmac_hash"])
+
+    safe_name = cert_data["dataset_name"].replace(" ", "_").replace("/", "_")[:50]
+    date_str = str(cert_data.get("validation_date", ""))[:10]
+    filename = f"TruQC-Certificate-{safe_name}-{date_str}.pdf"
+
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 @router.post("/certificates/{cert_id}/revoke")
 def revoke_certificate(cert_id: str, body: RevokeRequest):
     """Revoke an active certificate.

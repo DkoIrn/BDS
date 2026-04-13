@@ -75,7 +75,7 @@ export function CertificateTable({
       toast.error("PDF download not yet configured")
       return
     }
-    window.open(`${fastApiUrl}/api/v1/certificate/generate/${certId}`, "_blank")
+    window.open(`${fastApiUrl}/api/v1/certificates/${certId}/download`, "_blank")
   }
 
   const formatDate = (dateStr: string) => {
