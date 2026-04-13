@@ -173,7 +173,7 @@ Plans:
 | 30. Dataset Versioning | 1/2 | Complete    | 2026-04-12 | - |
 | 31. Validation Certificates (Basic) | v1.1 | 0/2 | Planned | - |
 | 32. Collaboration (Core) | 2/2 | Complete    | 2026-04-12 | - |
-| 33. Validation Certificates (Verification) | 2/2 | Complete   | 2026-04-13 | - |
+| 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
 | 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
 | 36. Custom Rule Builder | v1.1 | 0/TBD | Not started | - |
