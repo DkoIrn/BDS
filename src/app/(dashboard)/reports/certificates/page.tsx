@@ -36,9 +36,9 @@ export default async function CertificatesPage() {
   const mapped: Certificate[] = (certificates ?? []).map((c) => ({
     id: c.id,
     dataset_name: c.dataset_name ?? "Unknown",
-    validated_at: c.validation_date ?? c.created_at,
+    validation_date: c.validation_date ?? c.created_at,
     rules_applied: c.rules_applied ?? [],
-    issue_count: c.total_issues ?? 0,
+    total_issues: c.total_issues ?? 0,
     pass_rate: c.pass_rate ?? 0,
     hmac_hash: c.hmac_hash ?? "",
     org_name: "", // not needed in registry view

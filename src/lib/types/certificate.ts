@@ -3,9 +3,9 @@ export type CertificateStatus = 'active' | 'revoked'
 export interface Certificate {
   id: string
   dataset_name: string
-  validated_at: string
+  validation_date: string
   rules_applied: string[]
-  issue_count: number
+  total_issues: number
   pass_rate: number
   hmac_hash: string
   org_name: string
@@ -21,9 +21,9 @@ export interface VerifyResponse {
   status: 'active' | 'revoked' | 'not_found'
   id?: string
   dataset_name?: string
-  validated_at?: string
+  validation_date?: string
   rules_applied?: string[]
-  issue_count?: number
+  total_issues?: number
   pass_rate?: number
   hmac_hash?: string
   org_name?: string

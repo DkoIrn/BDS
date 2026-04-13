@@ -51,8 +51,8 @@ export function CertificateTable({
       items = items.filter((c) => c.status === statusFilter)
     }
     return items.sort((a, b) => {
-      const dateA = new Date(a.validated_at).getTime()
-      const dateB = new Date(b.validated_at).getTime()
+      const dateA = new Date(a.validation_date).getTime()
+      const dateB = new Date(b.validation_date).getTime()
       return sortDesc ? dateB - dateA : dateA - dateB
     })
   }, [certificates, statusFilter, sortDesc])
@@ -75,7 +75,7 @@ export function CertificateTable({
       toast.error("PDF download not yet configured")
       return
     }
-    window.open(`${fastApiUrl}/api/v1/certificate/download/${certId}`, "_blank")
+    window.open(`${fastApiUrl}/api/v1/certificate/generate/${certId}`, "_blank")
   }
 
   const formatDate = (dateStr: string) => {
@@ -159,14 +159,14 @@ export function CertificateTable({
                 <tr key={cert.id} className="border-b last:border-0 hover:bg-muted/30">
                   <td className="px-4 py-3 font-medium">{cert.dataset_name}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {formatDate(cert.validated_at)}
+                    {formatDate(cert.validation_date)}
                   </td>
                   <td className="px-4 py-3">
                     <Badge
-                      variant={cert.issue_count === 0 ? "outline" : "destructive"}
+                      variant={cert.total_issues === 0 ? "outline" : "destructive"}
                       className="rounded-md text-[10px]"
                     >
-                      {cert.issue_count === 0 ? "Pass" : `${cert.issue_count} issues`}
+                      {cert.total_issues === 0 ? "Pass" : `${cert.total_issues} issues`}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">

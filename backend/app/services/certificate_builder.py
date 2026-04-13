@@ -241,6 +241,11 @@ def generate_certificate_pdf(
     pdf.alias_nb_pages()
     pdf.add_page()
 
+    # ── QR Code (top-right) ───────────────────────────────
+    cert_id = cert_data.get("certificate_id", "")
+    if cert_id:
+        add_qr_to_certificate(pdf, cert_id)
+
     # ── Title ──────────────────────────────────────────────
     pdf.ln(4)
     pdf.set_font("Helvetica", "B", 20)

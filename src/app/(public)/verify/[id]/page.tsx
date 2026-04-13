@@ -106,14 +106,14 @@ function ActiveCertificate({ data }: { data: VerifyResponse }) {
 
         <div className="mt-6 space-y-4">
           <DetailRow label="Dataset" value={data.dataset_name ?? "Unknown"} />
-          <DetailRow label="Validated" value={formatDate(data.validated_at)} />
+          <DetailRow label="Validated" value={formatDate(data.validation_date)} />
           <DetailRow
             label="Rules Applied"
             value={data.rules_applied?.join(", ") ?? "None"}
           />
           <DetailRow
             label="Issues Found"
-            value={String(data.issue_count ?? 0)}
+            value={String(data.total_issues ?? 0)}
           />
           <DetailRow
             label="Pass Rate"
