@@ -92,7 +92,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can click "Generate Certificate" on a passed validation run and download a QC Certificate PDF
   2. Certificate PDF includes dataset name, validation date, rules applied, pass/fail summary, and a unique HMAC-SHA256 hash
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 31-01-PLAN.md — Backend: certificate builder service, HMAC signing, database migration, FastAPI endpoint
+- [ ] 31-02-PLAN.md — Frontend: TypeScript types, Next.js proxy route, CertificateButton component, UI integration
 
 ### Phase 32: Collaboration (Core)
 **Goal**: Team members stay informed about validation activity through in-app notifications and can communicate via resolvable comments with @mentions
@@ -165,7 +168,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 29. Job Queue Infrastructure | 2/2 | Complete    | 2026-04-11 | - |
 | 30. Dataset Versioning | 1/2 | Complete    | 2026-04-12 | - |
-| 31. Validation Certificates (Basic) | v1.1 | 0/TBD | Not started | - |
+| 31. Validation Certificates (Basic) | v1.1 | 0/2 | Planned | - |
 | 32. Collaboration (Core) | 2/2 | Complete    | 2026-04-12 | - |
 | 33. Validation Certificates (Verification) | v1.1 | 0/TBD | Not started | - |
 | 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
