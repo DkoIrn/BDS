@@ -31,6 +31,35 @@ export interface TriageEntry {
   timestamp: number
 }
 
+/** Dataset type labels for cross-dataset validation */
+export type DatasetTypeLabel =
+  | "DOB"
+  | "DOC"
+  | "TOP"
+  | "Event Listing"
+  | "Position"
+  | "Other"
+
+/** Map dataset type pairs to preset IDs */
+const PRESET_MAP: Record<string, string> = {
+  "DOB|DOC": "dob_vs_doc",
+  "DOC|DOB": "dob_vs_doc",
+  "Position|Event Listing": "position_vs_event",
+  "Event Listing|Position": "position_vs_event",
+}
+
+/** Lookup a preset ID from two dataset type labels */
+export function lookupPreset(a: DatasetTypeLabel | null, b: DatasetTypeLabel | null): string | null {
+  if (!a || !b) return null
+  return PRESET_MAP[`${a}|${b}`] ?? null
+}
+
+/** Human-readable preset names */
+export const PRESET_NAMES: Record<string, string> = {
+  dob_vs_doc: "DOB vs DOC Consistency",
+  position_vs_event: "Position vs Event Alignment",
+}
+
 export interface PipelineState {
   currentStage: PipelineStage
   stages: Record<PipelineStage, StageStatus>
@@ -51,6 +80,19 @@ export interface PipelineState {
   exportFormat: string | null
   triageDecisions: Record<string, TriageEntry>
   triageAutoSkipped: boolean
+
+  // Cross-dataset fields
+  crossDatasetMode: boolean
+  secondFileName: string | null
+  secondFileSource: "upload" | "existing" | null
+  secondDatasetId: string | null
+  secondParsedData: string[][] | null
+  secondColumnCount: number | null
+  secondRowCount: number | null
+  datasetTypeA: DatasetTypeLabel | null
+  datasetTypeB: DatasetTypeLabel | null
+  crossValidationPreset: string | null
+  crossValidationTolerances: Record<string, number>
 }
 
 export type PipelineAction =
@@ -76,11 +118,32 @@ export type PipelineAction =
   | { type: "AUTO_SKIP_REVIEW" }
   | { type: "GO_TO_STAGE"; stage: PipelineStage }
   | { type: "RESET" }
+  // Cross-dataset actions
+  | { type: "TOGGLE_CROSS_DATASET" }
+  | { type: "IMPORT_SECOND_FILE"; fileName: string }
+  | { type: "IMPORT_SECOND_EXISTING"; datasetId: string; fileName: string }
+  | { type: "INSPECT_SECOND_COMPLETE"; parsedData: string[][]; columnCount: number; rowCount: number }
+  | { type: "SET_DATASET_TYPE"; which: "A" | "B"; datasetType: DatasetTypeLabel }
+  | { type: "SET_CROSS_TOLERANCE"; key: string; value: number }
 
 const defaultStageStatus: StageStatus = {
   completed: false,
   skipped: false,
   summary: null,
+}
+
+const defaultCrossDatasetFields = {
+  crossDatasetMode: false,
+  secondFileName: null,
+  secondFileSource: null as "upload" | "existing" | null,
+  secondDatasetId: null,
+  secondParsedData: null,
+  secondColumnCount: null,
+  secondRowCount: null,
+  datasetTypeA: null as DatasetTypeLabel | null,
+  datasetTypeB: null as DatasetTypeLabel | null,
+  crossValidationPreset: null,
+  crossValidationTolerances: {} as Record<string, number>,
 }
 
 export const initialState: PipelineState = {
@@ -107,6 +170,7 @@ export const initialState: PipelineState = {
   exportFormat: null,
   triageDecisions: {},
   triageAutoSkipped: false,
+  ...defaultCrossDatasetFields,
 }
 
 /**
@@ -146,6 +210,18 @@ export function pipelineReducer(
     case "IMPORT_FILE": {
       return {
         ...initialState,
+        // Preserve cross-dataset mode and settings when importing primary file
+        crossDatasetMode: state.crossDatasetMode,
+        secondFileName: state.secondFileName,
+        secondFileSource: state.secondFileSource,
+        secondDatasetId: state.secondDatasetId,
+        secondParsedData: state.secondParsedData,
+        secondColumnCount: state.secondColumnCount,
+        secondRowCount: state.secondRowCount,
+        datasetTypeA: state.datasetTypeA,
+        datasetTypeB: state.datasetTypeB,
+        crossValidationPreset: state.crossValidationPreset,
+        crossValidationTolerances: state.crossValidationTolerances,
         currentStage: "inspect",
         stages: {
           ...initialState.stages,
@@ -163,6 +239,17 @@ export function pipelineReducer(
     case "IMPORT_EXISTING": {
       return {
         ...initialState,
+        crossDatasetMode: state.crossDatasetMode,
+        secondFileName: state.secondFileName,
+        secondFileSource: state.secondFileSource,
+        secondDatasetId: state.secondDatasetId,
+        secondParsedData: state.secondParsedData,
+        secondColumnCount: state.secondColumnCount,
+        secondRowCount: state.secondRowCount,
+        datasetTypeA: state.datasetTypeA,
+        datasetTypeB: state.datasetTypeB,
+        crossValidationPreset: state.crossValidationPreset,
+        crossValidationTolerances: state.crossValidationTolerances,
         currentStage: "inspect",
         stages: {
           ...initialState.stages,
@@ -380,6 +467,72 @@ export function pipelineReducer(
 
     case "RESET": {
       return { ...initialState }
+    }
+
+    // Cross-dataset actions
+    case "TOGGLE_CROSS_DATASET": {
+      if (state.crossDatasetMode) {
+        // Turning off: reset all cross-dataset fields
+        return {
+          ...state,
+          ...defaultCrossDatasetFields,
+        }
+      }
+      return {
+        ...state,
+        crossDatasetMode: true,
+      }
+    }
+
+    case "IMPORT_SECOND_FILE": {
+      return {
+        ...state,
+        secondFileName: action.fileName,
+        secondFileSource: "upload",
+        secondDatasetId: null,
+      }
+    }
+
+    case "IMPORT_SECOND_EXISTING": {
+      return {
+        ...state,
+        secondFileName: action.fileName,
+        secondFileSource: "existing",
+        secondDatasetId: action.datasetId,
+      }
+    }
+
+    case "INSPECT_SECOND_COMPLETE": {
+      return {
+        ...state,
+        secondParsedData: action.parsedData,
+        secondColumnCount: action.columnCount,
+        secondRowCount: action.rowCount,
+      }
+    }
+
+    case "SET_DATASET_TYPE": {
+      const newState = { ...state }
+      if (action.which === "A") {
+        newState.datasetTypeA = action.datasetType
+      } else {
+        newState.datasetTypeB = action.datasetType
+      }
+      // Auto-select preset
+      newState.crossValidationPreset = lookupPreset(newState.datasetTypeA, newState.datasetTypeB)
+      // Reset tolerances when preset changes
+      newState.crossValidationTolerances = {}
+      return newState
+    }
+
+    case "SET_CROSS_TOLERANCE": {
+      return {
+        ...state,
+        crossValidationTolerances: {
+          ...state.crossValidationTolerances,
+          [action.key]: action.value,
+        },
+      }
     }
 
     default:

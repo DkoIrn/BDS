@@ -23,8 +23,13 @@ export async function POST(request: Request) {
   }
 
   // Parse request body
-  const body = (await request.json()) as { datasetId?: string; config?: ProfileConfig }
-  const { datasetId, config } = body
+  const body = (await request.json()) as {
+    datasetId?: string
+    config?: ProfileConfig
+    secondaryDatasetId?: string
+    crossDatasetConfig?: Record<string, unknown>
+  }
+  const { datasetId, config, secondaryDatasetId, crossDatasetConfig } = body
 
   if (!datasetId) {
     return NextResponse.json({ error: 'datasetId is required' }, { status: 400 })
@@ -100,7 +105,12 @@ export async function POST(request: Request) {
     const fastApiResponse = await fetch(`${fastApiUrl}/api/v1/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dataset_id: datasetId, config: config ?? null }),
+      body: JSON.stringify({
+        dataset_id: datasetId,
+        config: config ?? null,
+        ...(secondaryDatasetId ? { secondary_dataset_id: secondaryDatasetId } : {}),
+        ...(crossDatasetConfig ? { cross_dataset_config: crossDatasetConfig } : {}),
+      }),
     })
 
     if (!fastApiResponse.ok) {

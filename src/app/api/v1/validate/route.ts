@@ -30,7 +30,12 @@ export async function POST(request: Request) {
   }
 
   // 3. Parse JSON body
-  let body: { dataset_id?: string; config?: ProfileConfig }
+  let body: {
+    dataset_id?: string
+    config?: ProfileConfig
+    secondary_dataset_id?: string
+    cross_dataset_config?: Record<string, unknown>
+  }
   try {
     body = await request.json()
   } catch {
@@ -43,7 +48,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const { dataset_id, config } = body
+  const { dataset_id, config, secondary_dataset_id, cross_dataset_config } = body
 
   if (!dataset_id) {
     return NextResponse.json(
@@ -128,7 +133,12 @@ export async function POST(request: Request) {
     const fastApiResponse = await fetch(`${fastApiUrl}/api/v1/validate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dataset_id, config: config ?? null }),
+      body: JSON.stringify({
+        dataset_id,
+        config: config ?? null,
+        ...(secondary_dataset_id ? { secondary_dataset_id } : {}),
+        ...(cross_dataset_config ? { cross_dataset_config } : {}),
+      }),
     })
 
     if (!fastApiResponse.ok) {
