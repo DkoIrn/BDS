@@ -16,9 +16,9 @@ export function OnboardingCelebration({
   onFinish,
 }: OnboardingCelebrationProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 pt-20 backdrop-blur-sm sm:items-center sm:pt-0">
       <Card className="mx-4 w-full max-w-md rounded-2xl">
-        <CardContent className="flex flex-col items-center px-8 py-10 text-center">
+        <CardContent className="flex flex-col items-center px-6 py-8 text-center sm:px-8 sm:py-10">
           <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-50">
             <CheckCircle2 className="size-7 text-emerald-600" />
           </div>

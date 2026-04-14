@@ -65,23 +65,28 @@ export function OnboardingTooltip({
       return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
     }
 
+    const navbarHeight = 56
     const tooltipHeight = 200
     const top = highlight.bottom + 16
     const fitsBelow = top + tooltipHeight < window.innerHeight
 
-    const baseTop = fitsBelow ? top : Math.max(16, highlight.top - tooltipHeight - 16)
+    // Ensure tooltip doesn't go behind the navbar
+    const minTop = navbarHeight + 8
+    const baseTop = fitsBelow
+      ? Math.max(minTop, top)
+      : Math.max(minTop, highlight.top - tooltipHeight - 16)
     const centerX = highlight.left + highlight.width / 2
 
     return {
       position: "fixed",
       top: baseTop,
-      left: Math.max(16, Math.min(centerX - 180, window.innerWidth - 376)),
-      maxWidth: "min(360px, calc(100vw - 32px))",
+      left: Math.max(16, Math.min(centerX - 160, window.innerWidth - 336)),
+      maxWidth: "min(320px, calc(100vw - 32px))",
     }
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999]">
+    <div className="fixed inset-0 z-[60]">
       {/* Backdrop with spotlight cutout */}
       <div
         className="absolute inset-0 bg-black/60 transition-all duration-300"
@@ -116,7 +121,7 @@ export function OnboardingTooltip({
 
       {/* Tooltip card */}
       <div
-        className="bg-background border border-border rounded-xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-300"
+        className="bg-background border border-border rounded-xl shadow-2xl p-4 sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300"
         style={getTooltipStyle()}
       >
         <h3 className="font-semibold text-sm">{step.title}</h3>
