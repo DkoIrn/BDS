@@ -50,7 +50,7 @@
 - [ ] **Phase 31: Validation Certificates (Basic)** - QC Certificate PDF generation with cryptographic hash
 - [x] **Phase 32: Collaboration (Core)** - In-app notifications, comment resolution, and @mentions
 - [x] **Phase 33: Validation Certificates (Verification)** - QR code verification, public verify endpoint, certificate registry (completed 2026-04-13)
-- [ ] **Phase 34: Collaboration (Extended)** - Email notifications and project activity feed
+- [x] **Phase 34: Collaboration (Extended)** - Email notifications and project activity feed (completed 2026-04-14)
 - [ ] **Phase 35: Cross-Dataset Validation** - Multi-dataset comparison integrated into validation pipeline
 - [ ] **Phase 36: Custom Rule Builder** - Visual IF/THEN rule builder with preview and profile integration
 - [ ] **Phase 37: Context-Aware QC** - Dynamic thresholds by context zones and event-conditional rules
@@ -177,7 +177,7 @@ Plans:
 | 31. Validation Certificates (Basic) | v1.1 | 0/2 | Planned | - |
 | 32. Collaboration (Core) | 2/2 | Complete    | 2026-04-12 | - |
 | 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
-| 34. Collaboration (Extended) | 1/2 | In Progress|  | - |
+| 34. Collaboration (Extended) | 2/2 | Complete   | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
 | 36. Custom Rule Builder | v1.1 | 0/TBD | Not started | - |
 | 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |

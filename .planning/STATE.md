@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: in_progress
-stopped_at: Completed 34-01 backend plan
-last_updated: "2026-04-14T13:07:14Z"
-last_activity: 2026-04-14 -- Completed 34-01 email notifications backend
+stopped_at: Completed 34-02 notification preferences and activity feed UI
+last_updated: "2026-04-14T13:57:49Z"
+last_activity: 2026-04-14 -- Completed 34-02 notification preferences and activity feed UI
 progress:
   total_phases: 9
   completed_phases: 4
   total_plans: 11
-  completed_plans: 9
-  percent: 87
+  completed_plans: 10
+  percent: 91
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-11)
 ## Current Position
 
 Phase: 34 of 37 (Collaboration Extended)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-04-14 -- Completed 34-01 email notifications, preferences, and activity backend
+Plan: 2 of 2 complete
+Status: Phase complete
+Last activity: 2026-04-14 -- Completed 34-02 notification preferences and activity feed UI
 
-Progress: [█████████░] 87%
+Progress: [█████████░] 91%
 
 ## Accumulated Context
 
@@ -71,6 +71,9 @@ See PROJECT.md Key Decisions table for full history.
 - 34-01: In-app preference OFF skips notification row insert entirely (not insert-then-mark-read)
 - 34-01: Email dispatch fire-and-forget via .catch(console.error) to never block notification creation
 - 34-01: Preferences default to all-enabled when no row exists (row created on first change)
+- 34-02: iOS-style shadcn Switch toggles for notification preferences with optimistic UI and error rollback
+- 34-02: Client-side relative timestamp formatting for activity items (no server roundtrip)
+- 34-02: Client-side event filtering via filter chips rather than server-side re-fetch
 
 ### Roadmap Evolution
 
@@ -86,6 +89,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-14T13:07:14Z
-Stopped at: Completed 34-01-PLAN.md
-Resume file: .planning/phases/34-collaboration-extended/34-02-PLAN.md
+Last session: 2026-04-14T13:57:49Z
+Stopped at: Completed 34-02-PLAN.md (Phase 34 complete)
+Resume file: .planning/phases/35-stripe-billing/35-01-PLAN.md
