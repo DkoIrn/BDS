@@ -37,19 +37,14 @@ export function RevokeDialog({
   const handleRevoke = async () => {
     setIsRevoking(true)
     try {
-      const fastApiUrl = process.env.NEXT_PUBLIC_FASTAPI_URL || ""
-      const res = await fetch(
-        `${fastApiUrl}/api/v1/certificates/${certificate.id}/revoke`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            reason: reason.trim() || undefined,
-            user_id: userId,
-            org_id: orgId,
-          }),
-        }
-      )
+      const res = await fetch("/api/certificates/revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          certId: certificate.id,
+          reason: reason.trim() || undefined,
+        }),
+      })
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
