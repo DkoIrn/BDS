@@ -290,6 +290,7 @@ function UploadTab({
   label?: string
 }) {
   const [uploading, setUploading] = useState<{ name: string; size: number } | null>(null)
+  const [imported, setImported] = useState<string | null>(null)
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -301,10 +302,15 @@ function UploadTab({
         // Minimum animation duration so users see the transition
         setTimeout(() => {
           dispatch({ type: "IMPORT_FILE", fileName: file.name })
+          // In cross-dataset mode, show confirmation instead of navigating away
+          if (label) {
+            setImported(file.name)
+          }
+          setUploading(null)
         }, 1400)
       }
     },
-    [dispatch, fileRef]
+    [dispatch, fileRef, label]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -334,6 +340,19 @@ function UploadTab({
       return null
     },
   })
+
+  // Cross-dataset mode: show confirmation after primary file imported
+  if (imported) {
+    return (
+      <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 dark:border-emerald-900 dark:bg-emerald-950/30">
+        <Check className="size-5 text-emerald-600" />
+        <div>
+          <p className="text-sm font-medium">{imported}</p>
+          <p className="text-xs text-muted-foreground">Dataset {label} imported</p>
+        </div>
+      </div>
+    )
+  }
 
   // Upload animation state
   if (uploading) {

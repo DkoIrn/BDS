@@ -208,9 +208,11 @@ export function pipelineReducer(
 ): PipelineState {
   switch (action.type) {
     case "IMPORT_FILE": {
+      // In cross-dataset mode, don't advance to inspect until both files are ready
+      const bothReady = state.crossDatasetMode && state.secondFileName
+      const waitingForSecond = state.crossDatasetMode && !state.secondFileName
       return {
         ...initialState,
-        // Preserve cross-dataset mode and settings when importing primary file
         crossDatasetMode: state.crossDatasetMode,
         secondFileName: state.secondFileName,
         secondFileSource: state.secondFileSource,
@@ -222,11 +224,11 @@ export function pipelineReducer(
         datasetTypeB: state.datasetTypeB,
         crossValidationPreset: state.crossValidationPreset,
         crossValidationTolerances: state.crossValidationTolerances,
-        currentStage: "inspect",
+        currentStage: waitingForSecond ? "import" : "inspect",
         stages: {
           ...initialState.stages,
           import: {
-            completed: true,
+            completed: !waitingForSecond,
             skipped: false,
             summary: action.fileName,
           },
@@ -237,6 +239,8 @@ export function pipelineReducer(
     }
 
     case "IMPORT_EXISTING": {
+      const bothReady2 = state.crossDatasetMode && state.secondFileName
+      const waitingForSecond2 = state.crossDatasetMode && !state.secondFileName
       return {
         ...initialState,
         crossDatasetMode: state.crossDatasetMode,
@@ -250,11 +254,11 @@ export function pipelineReducer(
         datasetTypeB: state.datasetTypeB,
         crossValidationPreset: state.crossValidationPreset,
         crossValidationTolerances: state.crossValidationTolerances,
-        currentStage: "inspect",
+        currentStage: waitingForSecond2 ? "import" : "inspect",
         stages: {
           ...initialState.stages,
           import: {
-            completed: true,
+            completed: !waitingForSecond2,
             skipped: false,
             summary: action.fileName,
           },
@@ -485,20 +489,41 @@ export function pipelineReducer(
     }
 
     case "IMPORT_SECOND_FILE": {
+      // If primary file is already imported, advance to inspect
+      const primaryReady = !!state.fileName
       return {
         ...state,
         secondFileName: action.fileName,
         secondFileSource: "upload",
         secondDatasetId: null,
+        currentStage: primaryReady ? "inspect" : "import",
+        stages: {
+          ...state.stages,
+          import: {
+            completed: primaryReady,
+            skipped: false,
+            summary: primaryReady ? `${state.fileName} + ${action.fileName}` : state.stages.import.summary,
+          },
+        },
       }
     }
 
     case "IMPORT_SECOND_EXISTING": {
+      const primaryReady2 = !!state.fileName
       return {
         ...state,
         secondFileName: action.fileName,
         secondFileSource: "existing",
         secondDatasetId: action.datasetId,
+        currentStage: primaryReady2 ? "inspect" : "import",
+        stages: {
+          ...state.stages,
+          import: {
+            completed: primaryReady2,
+            skipped: false,
+            summary: primaryReady2 ? `${state.fileName} + ${action.fileName}` : state.stages.import.summary,
+          },
+        },
       }
     }
 
