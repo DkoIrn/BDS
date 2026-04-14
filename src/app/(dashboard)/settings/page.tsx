@@ -21,6 +21,7 @@ import { TeamManagement } from "@/components/team/team-management"
 import { ApiKeysSection } from "@/components/settings/api-keys-section"
 import { WebhookSettings } from "@/components/settings/webhook-settings"
 import { resetOnboarding } from "@/lib/actions/onboarding"
+import { NotificationPreferences } from "@/components/settings/notification-preferences"
 
 const gbp: CurrencyConfig = { code: 'GBP', symbol: '£', multiplier: 1 }
 
@@ -376,6 +377,9 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Notifications Section */}
+      <NotificationPreferences />
 
       {/* Team Section */}
       <TeamManagement />

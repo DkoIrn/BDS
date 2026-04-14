@@ -6,6 +6,7 @@ import { ProjectStatusBadge } from "@/components/projects/project-status-badge"
 import { JobsList } from "@/components/jobs/jobs-list"
 import { CreateJobDialog } from "@/components/jobs/create-job-dialog"
 import type { Job } from "@/lib/types/projects"
+import { ActivityFeed } from "@/components/activity/activity-feed"
 
 export default async function ProjectDetailPage({
   params,
@@ -92,6 +93,11 @@ export default async function ProjectDetailPage({
             </div>
           </div>
         )}
+      </div>
+      {/* Activity Section */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Activity</h2>
+        <ActivityFeed projectId={projectId} />
       </div>
     </div>
   )
