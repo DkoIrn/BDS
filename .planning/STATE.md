@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
-status: completed
-stopped_at: Phase 34 context gathered
-last_updated: "2026-04-14T12:44:04.993Z"
-last_activity: 2026-04-13 -- Completed 33-02 certificate verification frontend
+status: in_progress
+stopped_at: Completed 34-01 backend plan
+last_updated: "2026-04-14T13:07:14Z"
+last_activity: 2026-04-14 -- Completed 34-01 email notifications backend
 progress:
   total_phases: 9
   completed_phases: 4
-  total_plans: 10
-  completed_plans: 8
-  percent: 83
+  total_plans: 11
+  completed_plans: 9
+  percent: 87
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 33 -- Validation Certificates Verification complete
+**Current focus:** Phase 34 -- Collaboration Extended (email notifications, preferences, activity feed)
 
 ## Current Position
 
-Phase: 33 of 37 (Validation Certificates Verification)
-Plan: 2 of 2 complete
-Status: Phase 33 complete
-Last activity: 2026-04-13 -- Completed 33-02 certificate verification frontend
+Phase: 34 of 37 (Collaboration Extended)
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-04-14 -- Completed 34-01 email notifications, preferences, and activity backend
 
-Progress: [████████░░] 83%
+Progress: [█████████░] 87%
 
 ## Accumulated Context
 
@@ -67,6 +67,10 @@ See PROJECT.md Key Decisions table for full history.
 - 33-02: Public verify page uses server component with force-dynamic to ensure revocation is always current
 - 33-02: Copy-to-clipboard button extracted as client component to keep verify page as server component
 - 33-02: Reports tab navigation uses client component with usePathname for active tab detection
+- 34-01: Resend client lazy singleton with graceful RESEND_API_KEY fallback (no-op in dev/test)
+- 34-01: In-app preference OFF skips notification row insert entirely (not insert-then-mark-read)
+- 34-01: Email dispatch fire-and-forget via .catch(console.error) to never block notification creation
+- 34-01: Preferences default to all-enabled when no row exists (row created on first change)
 
 ### Roadmap Evolution
 
@@ -82,6 +86,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-14T12:44:04.987Z
-Stopped at: Phase 34 context gathered
-Resume file: .planning/phases/34-collaboration-extended/34-CONTEXT.md
+Last session: 2026-04-14T13:07:14Z
+Stopped at: Completed 34-01-PLAN.md
+Resume file: .planning/phases/34-collaboration-extended/34-02-PLAN.md

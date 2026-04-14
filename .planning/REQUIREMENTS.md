@@ -43,8 +43,8 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 
 ### Collaboration (Extended)
 
-- [ ] **COLB-02**: User receives email notifications for job failures and @mentions (toggle on/off per category)
-- [ ] **COLB-05**: User can view a project-scoped activity feed showing recent actions (validations, fixes, comments, exports)
+- [x] **COLB-02**: User receives email notifications for job failures and @mentions (toggle on/off per category)
+- [x] **COLB-05**: User can view a project-scoped activity feed showing recent actions (validations, fixes, comments, exports)
 
 ### Cross-Dataset Validation
 
@@ -127,10 +127,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CERT-04 | Phase 33 | Complete |
 | CERT-05 | Phase 33 | Complete |
 | COLB-01 | Phase 32 | Complete |
-| COLB-02 | Phase 34 | Pending |
+| COLB-02 | Phase 34 | Complete |
 | COLB-03 | Phase 32 | Complete |
 | COLB-04 | Phase 32 | Complete |
-| COLB-05 | Phase 34 | Pending |
+| COLB-05 | Phase 34 | Complete |
 | XVAL-01 | Phase 35 | Pending |
 | XVAL-02 | Phase 35 | Pending |
 | XVAL-03 | Phase 35 | Pending |
