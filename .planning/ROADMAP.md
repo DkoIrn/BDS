@@ -130,7 +130,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User receives email notifications for job failures and @mentions, with per-category on/off toggles in settings
   2. User can view a project-scoped activity feed showing recent validations, fixes, comments, and exports in chronological order
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 34-01-PLAN.md — Backend: migration, email service (Resend + React Email), notification preferences, activity logging, createNotification email dispatch
+- [ ] 34-02-PLAN.md — Frontend: notification preferences toggles on settings page, activity feed timeline on project detail page
 
 ### Phase 35: Cross-Dataset Validation
 **Goal**: Users can validate consistency between related datasets (e.g., DOB vs DOC) within the standard pipeline workflow
@@ -174,7 +177,7 @@ Plans:
 | 31. Validation Certificates (Basic) | v1.1 | 0/2 | Planned | - |
 | 32. Collaboration (Core) | 2/2 | Complete    | 2026-04-12 | - |
 | 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
-| 34. Collaboration (Extended) | v1.1 | 0/TBD | Not started | - |
+| 34. Collaboration (Extended) | v1.1 | 0/2 | Planned | - |
 | 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
 | 36. Custom Rule Builder | v1.1 | 0/TBD | Not started | - |
 | 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |
