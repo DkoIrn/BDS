@@ -81,7 +81,9 @@ export function PricingSection() {
 
               <CardFooter>
                 <Link
-                  href="/signup"
+                  href={tier.basePrice === null
+                    ? 'mailto:hello@truqc.co.uk?subject=Enterprise%20Enquiry'
+                    : '/signup'}
                   className={`inline-flex h-10 w-full items-center justify-center rounded-md text-sm font-medium shadow-sm transition-colors ${
                     tier.highlighted
                       ? 'bg-accent text-accent-foreground hover:bg-accent/90'

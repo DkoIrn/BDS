@@ -460,8 +460,14 @@ export default function SettingsPage() {
                     }`}
                     size="sm"
                     variant={isCurrent || isDowngrade ? "outline" : tier.highlighted ? "default" : "outline"}
-                    disabled={isCurrent || isDowngrade || checkoutLoading !== null}
-                    onClick={() => handleUpgrade(tier.name)}
+                    disabled={isCurrent || isDowngrade || (checkoutLoading !== null && tier.basePrice !== null)}
+                    onClick={() => {
+                      if (tier.basePrice === null) {
+                        window.location.href = "mailto:hello@truqc.co.uk?subject=Enterprise%20Enquiry"
+                      } else {
+                        handleUpgrade(tier.name)
+                      }
+                    }}
                   >
                     {checkoutLoading === tier.name ? (
                       <Loader2 className="size-4 animate-spin" />
