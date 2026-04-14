@@ -48,10 +48,10 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 
 ### Cross-Dataset Validation
 
-- [ ] **XVAL-01**: User can select two datasets within the same job for cross-dataset validation
-- [ ] **XVAL-02**: System validates column-to-column consistency between paired datasets with configurable tolerance
+- [x] **XVAL-01**: User can select two datasets within the same job for cross-dataset validation
+- [x] **XVAL-02**: System validates column-to-column consistency between paired datasets with configurable tolerance
 - [ ] **XVAL-03**: Cross-dataset issues appear in the standard triage view under a "Cross-Dataset" category
-- [ ] **XVAL-04**: Domain-specific cross-dataset presets exist (DOB vs DOC consistency, position vs event alignment)
+- [x] **XVAL-04**: Domain-specific cross-dataset presets exist (DOB vs DOC consistency, position vs event alignment)
 
 ### Custom Rule Builder
 
@@ -131,10 +131,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COLB-03 | Phase 32 | Complete |
 | COLB-04 | Phase 32 | Complete |
 | COLB-05 | Phase 34 | Complete |
-| XVAL-01 | Phase 35 | Pending |
-| XVAL-02 | Phase 35 | Pending |
+| XVAL-01 | Phase 35 | Complete |
+| XVAL-02 | Phase 35 | Complete |
 | XVAL-03 | Phase 35 | Pending |
-| XVAL-04 | Phase 35 | Pending |
+| XVAL-04 | Phase 35 | Complete |
 | RULE-01 | Phase 36 | Pending |
 | RULE-02 | Phase 36 | Pending |
 | RULE-03 | Phase 36 | Pending |

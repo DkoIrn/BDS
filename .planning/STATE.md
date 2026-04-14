@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
-status: completed
-stopped_at: Phase 35 context gathered
-last_updated: "2026-04-14T22:34:29.393Z"
-last_activity: 2026-04-14 -- Completed 34-02 notification preferences and activity feed UI
+status: executing
+stopped_at: Completed 35-01-PLAN.md
+last_updated: "2026-04-14T23:04:59.160Z"
+last_activity: 2026-04-15 -- Completed 35-01 cross-dataset validation backend
 progress:
   total_phases: 9
   completed_phases: 5
-  total_plans: 12
-  completed_plans: 10
-  percent: 91
+  total_plans: 14
+  completed_plans: 11
+  percent: 81
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-11)
 
 ## Current Position
 
-Phase: 34 of 37 (Collaboration Extended)
-Plan: 2 of 2 complete
-Status: Phase complete
-Last activity: 2026-04-14 -- Completed 34-02 notification preferences and activity feed UI
+Phase: 35 of 37 (Cross-Dataset Validation)
+Plan: 1 of 2 complete
+Status: In progress
+Last activity: 2026-04-15 -- Completed 35-01 cross-dataset validation backend
 
-Progress: [█████████░] 91%
+Progress: [████████░░] 81%
 
 ## Accumulated Context
 
@@ -74,6 +74,8 @@ See PROJECT.md Key Decisions table for full history.
 - 34-02: iOS-style shadcn Switch toggles for notification preferences with optimistic UI and error rollback
 - 34-02: Client-side relative timestamp formatting for activity items (no server roundtrip)
 - 34-02: Client-side event filtering via filter chips rather than server-side re-fetch
+- [Phase 35]: merge_asof with direction=nearest for KP alignment between survey datasets
+- [Phase 35]: Cross-dataset issues use row_number=0 with populated kp_value for KP-based references
 
 ### Roadmap Evolution
 
@@ -89,6 +91,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-14T22:34:29.381Z
-Stopped at: Phase 35 context gathered
-Resume file: .planning/phases/35-cross-dataset-validation/35-CONTEXT.md
+Last session: 2026-04-14T23:04:59.156Z
+Stopped at: Completed 35-01-PLAN.md
+Resume file: None
