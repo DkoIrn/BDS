@@ -254,12 +254,14 @@ export function TutorialOverlay() {
     const pos = step.position || "bottom"
     const top = highlight.bottom + 12
 
+    const maxW = "min(320px, calc(100vw - 32px))"
+
     if (pos === "bottom-right") {
       return {
         position: "fixed",
         top,
         right: Math.max(16, window.innerWidth - highlight.right),
-        maxWidth: "min(360px, calc(100vw - 32px))",
+        maxWidth: maxW,
       }
     }
 
@@ -268,7 +270,7 @@ export function TutorialOverlay() {
         position: "fixed",
         top,
         left: Math.max(16, highlight.left),
-        maxWidth: "min(360px, calc(100vw - 32px))",
+        maxWidth: maxW,
       }
     }
 
@@ -277,8 +279,8 @@ export function TutorialOverlay() {
     return {
       position: "fixed",
       top,
-      left: Math.max(16, Math.min(centerX, window.innerWidth - 376)),
-      maxWidth: "min(360px, calc(100vw - 32px))",
+      left: Math.max(16, Math.min(centerX, window.innerWidth - 336)),
+      maxWidth: maxW,
     }
   }
 
@@ -318,7 +320,7 @@ export function TutorialOverlay() {
 
       {/* Tooltip card */}
       <div
-        className="bg-background border border-border rounded-xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-300"
+        className="bg-background border border-border rounded-xl shadow-2xl p-4 sm:p-5 animate-in fade-in slide-in-from-top-2 duration-300"
         style={getTooltipStyle()}
         onClick={(e) => e.stopPropagation()}
       >

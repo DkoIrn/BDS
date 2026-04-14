@@ -94,7 +94,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/pipeline"
-          className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
+          className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] sm:px-5 sm:py-2.5"
         >
           <ShieldCheck className="size-3.5" />
           Run QC Check
@@ -103,7 +103,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* QC metrics grid */}
-      <div className="grid animate-fade-up gap-4 [animation-delay:80ms] [animation-fill-mode:backwards] grid-cols-2 lg:grid-cols-4">
+      <div className="grid animate-fade-up gap-3 [animation-delay:80ms] [animation-fill-mode:backwards] grid-cols-2 sm:gap-4 lg:grid-cols-4">
         <QcStat
           icon={FileSpreadsheet}
           label="Datasets"
@@ -123,14 +123,14 @@ export default async function DashboardPage() {
           color="amber"
         />
         {/* Featured stat - pass rate */}
-        <div className="relative overflow-hidden rounded-2xl border bg-foreground p-5 text-background">
+        <div className="relative overflow-hidden rounded-2xl border bg-foreground p-3 text-background sm:p-5">
           <div className="absolute -right-6 -top-6 size-24 rounded-full bg-white/[0.06]" />
           <div className="relative">
             <div className="flex items-center gap-2 text-xs font-medium text-background/50">
               <Percent className="size-3.5" />
               QC Pass Rate
             </div>
-            <p className="mt-2 text-4xl font-extrabold tracking-tighter">
+            <p className="mt-2 text-2xl font-extrabold tracking-tighter sm:text-4xl">
               {passRate}%
             </p>
             <div className="mt-3 h-1.5 w-full rounded-full bg-white/10">
@@ -145,7 +145,7 @@ export default async function DashboardPage() {
 
       {/* Recent Jobs */}
       <div className="animate-fade-up [animation-delay:240ms] [animation-fill-mode:backwards]">
-        <div className="rounded-2xl border bg-card p-5">
+        <div className="rounded-2xl border bg-card p-3 sm:p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <History className="size-4 text-muted-foreground" />
@@ -159,7 +159,7 @@ export default async function DashboardPage() {
       {/* Main content */}
       <div className="grid animate-fade-up gap-4 [animation-delay:160ms] [animation-fill-mode:backwards] grid-cols-1 lg:grid-cols-5">
         {/* Recent QC activity */}
-        <div className="rounded-2xl border bg-card p-5 lg:col-span-3">
+        <div className="rounded-2xl border bg-card p-3 sm:p-5 lg:col-span-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShieldCheck className="size-4 text-muted-foreground" />
@@ -214,7 +214,7 @@ export default async function DashboardPage() {
         {/* Right sidebar */}
         <div className="space-y-4 lg:col-span-2">
           {/* Quick actions - QC focused */}
-          <div className="rounded-2xl border bg-card p-5">
+          <div className="rounded-2xl border bg-card p-3 sm:p-5">
             <h2 className="text-sm font-semibold text-foreground">Quick Actions</h2>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <QuickAction icon={Workflow} label="QC Pipeline" href="/pipeline" color="emerald" />
@@ -225,7 +225,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Supporting tools */}
-          <div className="rounded-2xl border bg-card p-5">
+          <div className="rounded-2xl border bg-card p-3 sm:p-5">
             <h2 className="text-sm font-semibold text-foreground">Data Tools</h2>
             <div className="mt-3 space-y-1.5">
               <ToolRow icon={ArrowRightLeft} title="Convert" description="File format conversion" href="/tools/convert" color="blue" />
@@ -260,12 +260,12 @@ function QcStat({
   }
 
   return (
-    <div className="rounded-2xl border bg-card p-5 transition-shadow hover:shadow-sm">
-      <div className={`flex size-9 items-center justify-center rounded-xl ${colorMap[color]}`}>
+    <div className="rounded-2xl border bg-card p-3 transition-shadow hover:shadow-sm sm:p-5">
+      <div className={`flex size-8 items-center justify-center rounded-xl sm:size-9 ${colorMap[color]}`}>
         <Icon className="size-4" />
       </div>
-      <p className="mt-3 text-3xl font-extrabold tracking-tighter text-foreground">{value}</p>
-      <p className="mt-0.5 text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="mt-2 text-2xl font-extrabold tracking-tighter text-foreground sm:mt-3 sm:text-3xl">{value}</p>
+      <p className="mt-0.5 text-[11px] font-medium text-muted-foreground sm:text-xs">{label}</p>
     </div>
   )
 }

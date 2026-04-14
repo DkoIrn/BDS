@@ -54,9 +54,9 @@ export default async function ProjectDetailPage({
         </Link>
       </div>
 
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <h1 className="text-2xl font-bold tracking-tight">
               {project.name}
             </h1>

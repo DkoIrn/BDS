@@ -219,7 +219,7 @@ export function ExportButtons({ runId, datasetId, criticalCount, status }: Expor
       {/* Pre-generation Dialog */}
       {dialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="relative mx-4 max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+          <div className="relative mx-3 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-4 shadow-xl sm:mx-4 sm:max-h-[80vh] sm:p-6">
             {/* Close button */}
             <button
               className="absolute right-4 top-4 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted"
@@ -271,7 +271,7 @@ export function ExportButtons({ runId, datasetId, criticalCount, status }: Expor
                       }))
                     }
                     placeholder="Add notes for this section..."
-                    className="h-20 w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="h-16 w-full resize-none rounded-xl border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring sm:h-20"
                   />
                 </div>
               ))}

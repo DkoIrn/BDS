@@ -129,9 +129,9 @@ export function ResultsDashboard({ datasetId, currentUserId, columnMappings, par
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold tracking-tight">Results</h3>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <RunSwitcher
             runs={runs}
             selectedRunId={selectedRunId}
@@ -177,10 +177,10 @@ export function ResultsDashboard({ datasetId, currentUserId, columnMappings, par
       ) : (
         <>
           {clusters.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <button
                 onClick={() => setViewMode("clustered")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs ${
                   viewMode === "clustered"
                     ? "bg-foreground text-background"
                     : "bg-muted text-muted-foreground hover:text-foreground"
@@ -191,7 +191,7 @@ export function ResultsDashboard({ datasetId, currentUserId, columnMappings, par
               </button>
               <button
                 onClick={() => setViewMode("individual")}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs ${
                   viewMode === "individual"
                     ? "bg-foreground text-background"
                     : "bg-muted text-muted-foreground hover:text-foreground"
@@ -204,7 +204,7 @@ export function ResultsDashboard({ datasetId, currentUserId, columnMappings, par
                 <button
                   onClick={() => hasSpatial && setViewMode("map")}
                   disabled={!hasSpatial}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs ${
                     viewMode === "map"
                       ? "bg-foreground text-background"
                       : "bg-muted text-muted-foreground hover:text-foreground"
@@ -214,7 +214,7 @@ export function ResultsDashboard({ datasetId, currentUserId, columnMappings, par
                   Map
                 </button>
                 {!hasSpatial && (
-                  <div className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="pointer-events-none absolute bottom-full left-0 mb-1.5 whitespace-nowrap rounded-md bg-gray-900 px-2.5 py-1 text-[11px] text-white opacity-0 group-hover:opacity-100 transition-opacity sm:left-1/2 sm:-translate-x-1/2">
                     No spatial columns detected
                   </div>
                 )}

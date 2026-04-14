@@ -118,13 +118,13 @@ export function IssuesTable({
   return (
     <div className="space-y-4">
       {/* Controls bar */}
-      <div className="flex flex-wrap items-center gap-2 sm:justify-between">
-        <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-1">
           {severityTabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => onSeverityChange(tab.value)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-lg px-2 py-1 text-[11px] font-semibold transition-colors sm:px-3 sm:py-1.5 sm:text-xs ${
                 activeSeverity === tab.value
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
@@ -137,7 +137,7 @@ export function IssuesTable({
 
         <button
           onClick={() => setViewMode(viewMode === "grouped" ? "flat" : "grouped")}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+          className="flex items-center gap-1.5 self-start rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
         >
           <Layers className="size-3.5" />
           {viewMode === "grouped" ? "Flat view" : "Group by rule"}

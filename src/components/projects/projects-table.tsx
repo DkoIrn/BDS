@@ -103,7 +103,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
   return (
     <>
     {selected.size > 0 && (
-      <div className="flex items-center justify-between rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-2 mb-4">
+      <div className="flex flex-col gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-4">
         <span className="text-sm font-medium">
           {selected.size} project{selected.size !== 1 ? "s" : ""} selected
         </span>

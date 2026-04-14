@@ -136,20 +136,19 @@ export function CertificateTable({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs text-muted-foreground">
-                <th className="px-4 py-3 font-medium">Dataset</th>
-                <th className="px-4 py-3 font-medium">
+                <th className="px-3 py-3 font-medium sm:px-4">Dataset</th>
+                <th className="hidden px-4 py-3 font-medium sm:table-cell">
                   <button
                     onClick={() => setSortDesc(!sortDesc)}
                     className="inline-flex items-center gap-1 hover:text-foreground"
                   >
-                    Validation Date
+                    Date
                     <ArrowUpDown className="size-3" />
                   </button>
                 </th>
-                <th className="px-4 py-3 font-medium">Result</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Certificate ID</th>
-                <th className="px-4 py-3 font-medium">
+                <th className="px-3 py-3 font-medium sm:px-4">Status</th>
+                <th className="hidden px-4 py-3 font-medium md:table-cell">Certificate ID</th>
+                <th className="px-2 py-3 font-medium sm:px-4">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
@@ -157,19 +156,16 @@ export function CertificateTable({
             <tbody>
               {filtered.map((cert) => (
                 <tr key={cert.id} className="border-b last:border-0 hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">{cert.dataset_name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
+                  <td className="max-w-[140px] truncate px-3 py-3 font-medium sm:max-w-none sm:px-4">
+                    {cert.dataset_name}
+                    <span className="block text-[10px] text-muted-foreground sm:hidden">
+                      {formatDate(cert.validation_date)}
+                    </span>
+                  </td>
+                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                     {formatDate(cert.validation_date)}
                   </td>
-                  <td className="px-4 py-3">
-                    <Badge
-                      variant={cert.total_issues === 0 ? "outline" : "destructive"}
-                      className="rounded-md text-[10px]"
-                    >
-                      {cert.total_issues === 0 ? "Pass" : `${cert.total_issues} issues`}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 sm:px-4">
                     {cert.status === "active" ? (
                       <Badge className="rounded-md bg-emerald-50 text-[10px] text-emerald-700 ring-1 ring-emerald-200">
                         <ShieldCheck className="mr-1 size-3" />
@@ -182,10 +178,10 @@ export function CertificateTable({
                       </Badge>
                     )}
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  <td className="hidden px-4 py-3 font-mono text-xs text-muted-foreground md:table-cell">
                     {cert.id.slice(0, 8)}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3 sm:px-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         render={

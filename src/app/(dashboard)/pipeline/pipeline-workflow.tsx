@@ -117,7 +117,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between animate-fade-up">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between animate-fade-up">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Pipeline
@@ -129,7 +129,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
         {state.currentStage !== "import" && (
           <button
             onClick={handleReset}
-            className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
+            className="group inline-flex items-center gap-2 self-start rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] sm:px-5 sm:py-2.5"
           >
             <RefreshCw className="size-3.5" />
             Reset Pipeline

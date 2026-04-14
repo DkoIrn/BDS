@@ -301,12 +301,12 @@ export default function SettingsPage() {
           {/* Brand Colour */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Brand Colour</Label>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <input
                 type="color"
                 value={brandColor}
                 onChange={(e) => setBrandColor(e.target.value)}
-                className="h-10 w-14 cursor-pointer rounded-lg border"
+                className="h-10 w-12 cursor-pointer rounded-lg border sm:w-14"
               />
               <Input
                 value={brandColor}
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                     setBrandColor(val)
                   }
                 }}
-                className="w-28 rounded-xl font-mono text-sm"
+                className="w-24 rounded-xl font-mono text-sm sm:w-28"
               />
               <Button
                 type="button"
