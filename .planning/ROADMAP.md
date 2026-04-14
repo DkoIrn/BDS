@@ -144,7 +144,10 @@ Plans:
   2. System validates column-to-column consistency between paired datasets with user-configurable tolerance
   3. Cross-dataset issues appear in the standard triage view under a "Cross-Dataset" category alongside single-dataset issues
   4. Domain-specific presets (DOB vs DOC consistency, position vs event alignment) are available out of the box
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 35-01-PLAN.md — Backend: cross-dataset validator, presets, column auto-detection, DB migration, API endpoint extension
+- [ ] 35-02-PLAN.md — Frontend: pipeline state extension, dual-file import UI, tolerance config, cross-dataset issue display
 
 ### Phase 36: Custom Rule Builder
 **Goal**: Users can define their own validation rules with conditional logic, capturing domain knowledge that predefined rules cannot cover
@@ -178,6 +181,6 @@ Plans:
 | 32. Collaboration (Core) | 2/2 | Complete    | 2026-04-12 | - |
 | 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
-| 35. Cross-Dataset Validation | v1.1 | 0/TBD | Not started | - |
+| 35. Cross-Dataset Validation | v1.1 | 0/2 | Planned | - |
 | 36. Custom Rule Builder | v1.1 | 0/TBD | Not started | - |
 | 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |
