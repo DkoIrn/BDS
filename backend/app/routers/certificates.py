@@ -328,7 +328,7 @@ def verify_certificate(cert_id: str):
 
     select_fields = (
         "id, dataset_name, validation_date, rules_applied, total_issues, "
-        "pass_rate, hmac_hash, org_name, status, revoked_at, revocation_reason"
+        "pass_rate, hmac_hash, org_id, status, revoked_at, revocation_reason"
     )
 
     try:
@@ -366,6 +366,21 @@ def verify_certificate(cert_id: str):
             headers={"Cache-Control": "no-store"},
         )
 
+    # Look up org name from organisations table
+    org_name = ""
+    try:
+        org_result = (
+            supabase.table("organisations")
+            .select("name")
+            .eq("id", cert.get("org_id", ""))
+            .single()
+            .execute()
+        )
+        if org_result.data:
+            org_name = org_result.data.get("name", "")
+    except Exception:
+        pass
+
     # Active: return full public-safe details
     return JSONResponse(
         content={
@@ -377,7 +392,7 @@ def verify_certificate(cert_id: str):
             "total_issues": cert.get("total_issues"),
             "pass_rate": cert.get("pass_rate"),
             "hmac_hash": cert.get("hmac_hash"),
-            "org_name": cert.get("org_name"),
+            "org_name": org_name,
         },
         headers={"Cache-Control": "no-store"},
     )

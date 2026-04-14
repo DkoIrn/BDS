@@ -3,12 +3,15 @@
 import { useState, useRef, useEffect } from "react"
 import { FileText, FileSpreadsheet, Loader2, Download, ChevronDown, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CertificateButton } from "@/components/files/certificate-button"
 
 type DownloadType = "pdf" | "csv" | "xlsx"
 
 interface ExportButtonsProps {
   runId: string
   datasetId: string
+  criticalCount?: number
+  status?: string
 }
 
 const TECHNICAL_SECTIONS = [
@@ -33,7 +36,7 @@ const COMMENTARY_FIELDS = [
   { key: "soq", label: "Statement of Quality Notes" },
 ]
 
-export function ExportButtons({ runId, datasetId }: ExportButtonsProps) {
+export function ExportButtons({ runId, datasetId, criticalCount, status }: ExportButtonsProps) {
   const [downloading, setDownloading] = useState<DownloadType | null>(null)
   const [pdfMenuOpen, setPdfMenuOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -146,6 +149,10 @@ export function ExportButtons({ runId, datasetId }: ExportButtonsProps) {
   return (
     <>
       <div className="flex items-center gap-2">
+        {/* Certificate Button */}
+        {criticalCount !== undefined && status && (
+          <CertificateButton runId={runId} criticalCount={criticalCount} status={status} />
+        )}
         {/* PDF Report Dropdown */}
         <div className="relative" ref={pdfMenuRef}>
           <Button

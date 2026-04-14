@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     port: int = 8000
     database_url: str = ""
     use_job_queue: bool = False
+    certificate_hmac_secret: str = ""
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -24,27 +24,31 @@ export default async function CertificatesPage() {
   const isAdmin = role === "admin"
 
   // Fetch certificates for the user's org
-  const { data: certificates } = await supabase
+  const { data: certificates, error: certError } = await supabase
     .from("certificates")
     .select(
-      "id, dataset_name, validation_date, rules_applied, total_issues, pass_rate, hmac_hash, status, generated_by, created_at, revoked_at, revoked_by, revocation_reason"
+      "id, dataset_name, validation_date, rules_applied, total_issues, pass_rate, hmac_hash, status, generated_by, generated_at, revoked_at, revoked_by, revocation_reason"
     )
     .eq("org_id", orgId)
-    .order("created_at", { ascending: false })
+    .order("generated_at", { ascending: false })
+
+  if (certError) {
+    console.error("Certificates query error:", certError)
+  }
 
   // Map to frontend Certificate type
   const mapped: Certificate[] = (certificates ?? []).map((c) => ({
     id: c.id,
     dataset_name: c.dataset_name ?? "Unknown",
-    validation_date: c.validation_date ?? c.created_at,
+    validation_date: c.validation_date ?? c.generated_at,
     rules_applied: c.rules_applied ?? [],
     total_issues: c.total_issues ?? 0,
     pass_rate: c.pass_rate ?? 0,
     hmac_hash: c.hmac_hash ?? "",
-    org_name: "", // not needed in registry view
+    org_name: "",
     status: c.status ?? "active",
     issued_by: c.generated_by ?? "",
-    created_at: c.created_at,
+    created_at: c.generated_at,
     revoked_at: c.revoked_at ?? undefined,
     revoked_by: c.revoked_by ?? undefined,
     revocation_reason: c.revocation_reason ?? undefined,

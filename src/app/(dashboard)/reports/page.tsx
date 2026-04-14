@@ -26,7 +26,7 @@ export default async function ReportsPage() {
   for (const ds of datasets ?? []) {
     const { data: run } = await supabase
       .from("validation_runs")
-      .select("id, run_at, total_issues, pass_rate")
+      .select("id, run_at, total_issues, pass_rate, critical_count, status")
       .eq("dataset_id", ds.id)
       .order("run_at", { ascending: false })
       .limit(1)
@@ -123,7 +123,12 @@ export default async function ReportsPage() {
                   </Badge>
                 </div>
               </div>
-              <ExportButtons runId={run.id} datasetId={dataset.id} />
+              <ExportButtons
+                runId={run.id}
+                datasetId={dataset.id}
+                criticalCount={run.critical_count ?? 0}
+                status={run.status ?? "completed"}
+              />
             </div>
           ))}
         </div>

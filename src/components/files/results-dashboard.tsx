@@ -138,7 +138,12 @@ export function ResultsDashboard({ datasetId, currentUserId, columnMappings, par
             onRunChange={setSelectedRunId}
           />
           {selectedRunId && (
-            <ExportButtons runId={selectedRunId} datasetId={datasetId} />
+            <ExportButtons
+              runId={selectedRunId}
+              datasetId={datasetId}
+              criticalCount={selectedRun?.critical_count ?? 0}
+              status={selectedRun?.status ?? ""}
+            />
           )}
         </div>
       </div>
