@@ -60,9 +60,19 @@ class ProfileConfig(BaseModel):
         return self
 
 
+class CrossDatasetConfig(BaseModel):
+    preset_id: str | None = None
+    dataset_type_a: str = ""
+    dataset_type_b: str = ""
+    column_mapping: list[dict] | None = None  # manual overrides
+    tolerances: dict[str, float] | None = None  # user tolerance overrides
+
+
 class ValidateRequest(BaseModel):
     dataset_id: str
     config: ProfileConfig | None = None
+    secondary_dataset_id: str | None = None
+    cross_dataset_config: CrossDatasetConfig | None = None
 
 
 class ValidateResponse(BaseModel):

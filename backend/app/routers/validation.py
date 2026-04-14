@@ -7,7 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from app.config import settings
 from app.dependencies import get_supabase_client
-from app.models.schemas import ProfileConfig, ValidateRequest
+from app.models.schemas import CrossDatasetConfig, ProfileConfig, ValidateRequest
 from app.services.templates import resolve_config
 from app.services.validation import run_validation_pipeline
 from app.services.webhooks import dispatch_webhooks
@@ -18,12 +18,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["validation"])
 
 
-def _legacy_validation_background(dataset_id: str, config: ProfileConfig | None) -> None:
+def _legacy_validation_background(
+    dataset_id: str,
+    config: ProfileConfig | None,
+    secondary_dataset_id: str | None = None,
+    cross_dataset_config: CrossDatasetConfig | None = None,
+) -> None:
     """Legacy: Run full validation pipeline via BackgroundTasks.
 
     Used when USE_JOB_QUEUE=false (default during transition).
     Always updates dataset status on completion or failure -- never leaves
     a dataset stuck in 'validating' state.
+
+    When secondary_dataset_id is provided, also runs cross-dataset validation
+    between the two datasets and merges issues into the same run.
     """
     supabase = get_supabase_client()
 
@@ -90,6 +98,97 @@ def _legacy_validation_background(dataset_id: str, config: ProfileConfig | None)
         flat_config, enabled_checks = resolve_config(profile_config)
         issues = run_validation_pipeline(df, mappings, flat_config, enabled_checks=enabled_checks)
 
+        # --- Cross-dataset validation (when secondary_dataset_id is provided) ---
+        cross_config_snapshot = None
+        if secondary_dataset_id:
+            try:
+                from app.validators.cross_dataset import run_cross_dataset_checks
+                from app.services.cross_validation_presets import (
+                    PRESETS, auto_match_columns, get_preset_for_types,
+                )
+
+                # Fetch secondary dataset
+                sec_result = supabase.table("datasets").select("*").eq("id", secondary_dataset_id).single().execute()
+                if sec_result.data:
+                    sec_dataset = sec_result.data
+                    sec_bytes = supabase.storage.from_("datasets").download(sec_dataset["storage_path"])
+
+                    if sec_dataset["file_name"].endswith(".csv"):
+                        df_b = pd.read_csv(
+                            io.BytesIO(sec_bytes),
+                            header=sec_dataset.get("header_row_index", 0),
+                            dtype=str,
+                        )
+                    else:
+                        df_b = pd.read_excel(
+                            io.BytesIO(sec_bytes),
+                            header=sec_dataset.get("header_row_index", 0),
+                            dtype=str,
+                        )
+
+                    # Apply column mappings for secondary dataset
+                    sec_mappings = sec_dataset.get("column_mappings", []) or []
+                    sec_rename = {}
+                    for m in sec_mappings:
+                        if m.get("mappedType") and not m.get("ignored"):
+                            sec_rename[m["originalName"]] = m["mappedType"]
+                    df_b = df_b.rename(columns=sec_rename)
+
+                    # Convert numeric columns
+                    for col in df_b.columns:
+                        if col in numeric_types:
+                            df_b[col] = pd.to_numeric(df_b[col], errors="coerce")
+
+                    # Determine preset and column mapping
+                    xd_config = cross_dataset_config or CrossDatasetConfig()
+                    col_mapping = xd_config.column_mapping or []
+
+                    # Auto-detect column mapping if not provided
+                    if not col_mapping:
+                        col_mapping = auto_match_columns(
+                            list(df.columns), list(df_b.columns)
+                        )
+
+                    # Select preset
+                    preset = None
+                    if xd_config.preset_id and xd_config.preset_id in PRESETS:
+                        preset = PRESETS[xd_config.preset_id]
+                    elif xd_config.dataset_type_a and xd_config.dataset_type_b:
+                        preset = get_preset_for_types(
+                            xd_config.dataset_type_a, xd_config.dataset_type_b
+                        )
+
+                    if preset:
+                        # Build tolerance config from user overrides
+                        tol_config = dict(xd_config.tolerances or {})
+
+                        cross_issues = run_cross_dataset_checks(
+                            df, df_b, preset, col_mapping, tol_config
+                        )
+                        issues.extend(cross_issues)
+
+                        cross_config_snapshot = {
+                            "preset_id": preset.id,
+                            "preset_name": preset.name,
+                            "dataset_type_a": preset.dataset_a_type,
+                            "dataset_type_b": preset.dataset_b_type,
+                            "column_mapping": col_mapping,
+                            "tolerances": tol_config,
+                        }
+                    else:
+                        logger.warning(
+                            "No cross-validation preset found for types %s/%s",
+                            xd_config.dataset_type_a, xd_config.dataset_type_b,
+                        )
+                else:
+                    logger.warning("Secondary dataset %s not found", secondary_dataset_id)
+            except Exception as xd_err:
+                logger.error(
+                    "Cross-dataset validation failed for %s vs %s: %s",
+                    dataset_id, secondary_dataset_id, str(xd_err),
+                )
+        # --- End cross-dataset validation ---
+
         # Count by severity
         critical_count = sum(1 for i in issues if i.severity == Severity.CRITICAL)
         warning_count = sum(1 for i in issues if i.severity == Severity.WARNING)
@@ -103,7 +202,7 @@ def _legacy_validation_background(dataset_id: str, config: ProfileConfig | None)
 
         # Create validation run record with config snapshot
         run_id = str(uuid.uuid4())
-        supabase.table("validation_runs").insert({
+        run_record = {
             "id": run_id,
             "dataset_id": dataset_id,
             "total_issues": total_issues,
@@ -113,7 +212,12 @@ def _legacy_validation_background(dataset_id: str, config: ProfileConfig | None)
             "pass_rate": pass_rate,
             "status": "completed",
             "config_snapshot": profile_config.model_dump(),
-        }).execute()
+        }
+        if secondary_dataset_id:
+            run_record["secondary_dataset_id"] = secondary_dataset_id
+        if cross_config_snapshot:
+            run_record["cross_validation_config"] = cross_config_snapshot
+        supabase.table("validation_runs").insert(run_record).execute()
 
         # Batch insert validation issues
         if issues:
@@ -250,6 +354,10 @@ async def validate_dataset(request: ValidateRequest, background_tasks: Backgroun
     else:
         # Legacy path: fire-and-forget BackgroundTasks
         background_tasks.add_task(
-            _legacy_validation_background, request.dataset_id, request.config
+            _legacy_validation_background,
+            request.dataset_id,
+            request.config,
+            request.secondary_dataset_id,
+            request.cross_dataset_config,
         )
         return {"status": "accepted", "dataset_id": request.dataset_id}
