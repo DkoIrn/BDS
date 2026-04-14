@@ -18,6 +18,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { StagePanelProps } from "./stage-import"
+import { PRESET_NAMES } from "../lib/pipeline-state"
+import { CROSS_VALIDATION_PRESETS } from "../lib/cross-validation-presets"
 import {
   validateClientSide,
   type ValidationIssue,
@@ -166,11 +168,24 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
     try {
       if (state.datasetId) {
         // Existing dataset — use backend
+        const requestBody: Record<string, unknown> = { datasetId: state.datasetId }
+        // Include cross-dataset config if in cross-dataset mode
+        if (state.crossDatasetMode && state.secondDatasetId) {
+          requestBody.secondaryDatasetId = state.secondDatasetId
+          requestBody.crossDatasetConfig = {
+            preset_id: state.crossValidationPreset,
+            dataset_type_a: state.datasetTypeA,
+            dataset_type_b: state.datasetTypeB,
+            tolerances: Object.keys(state.crossValidationTolerances).length > 0
+              ? state.crossValidationTolerances
+              : undefined,
+          }
+        }
         const [response] = await Promise.all([
           fetch("/api/validate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ datasetId: state.datasetId }),
+            body: JSON.stringify(requestBody),
           }),
           minDelay,
         ]) as [Response, unknown]
@@ -437,6 +452,11 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           </p>
         </div>
 
+        {/* Cross-validation settings */}
+        {state.crossDatasetMode && state.crossValidationPreset && (
+          <CrossValidationSettings state={state} dispatch={dispatch} />
+        )}
+
         {error && (
           <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-500" />
@@ -549,6 +569,104 @@ function IssuesList({
         </button>
       )}
     </div>
+  )
+}
+
+/** Cross-validation tolerance settings card */
+function CrossValidationSettings({
+  state,
+  dispatch,
+}: {
+  state: StagePanelProps["state"]
+  dispatch: StagePanelProps["dispatch"]
+}) {
+  const presetId = state.crossValidationPreset
+  if (!presetId) return null
+
+  const preset = CROSS_VALIDATION_PRESETS[presetId]
+  if (!preset) return null
+
+  const presetName = PRESET_NAMES[presetId] ?? preset.name
+
+  // Build tolerance values: user overrides take precedence over preset defaults
+  const getToleranceValue = (key: string, defaultVal: number): number => {
+    return state.crossValidationTolerances[key] ?? defaultVal
+  }
+
+  return (
+    <Card className="rounded-2xl border-indigo-200 dark:border-indigo-900">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <ShieldCheck className="size-4 text-indigo-600" />
+          Cross-Validation Settings
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Preset: {presetName} -- {preset.datasetAType} vs {preset.datasetBType}
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* KP alignment tolerance */}
+        <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-2.5">
+          <div>
+            <p className="text-sm font-medium">KP Alignment Tolerance</p>
+            <p className="text-xs text-muted-foreground">Maximum KP distance for row matching</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              step="0.001"
+              min="0"
+              className="w-20 rounded-md border bg-background px-2 py-1 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={getToleranceValue("kp_alignment", preset.kpAlignmentTolerance)}
+              onChange={(e) =>
+                dispatch({
+                  type: "SET_CROSS_TOLERANCE",
+                  key: "kp_alignment",
+                  value: parseFloat(e.target.value) || 0,
+                })
+              }
+            />
+            <span className="text-xs text-muted-foreground">km</span>
+          </div>
+        </div>
+
+        {/* Column pair tolerances */}
+        {preset.columnPairs
+          .filter((pair) => pair.tolerance !== undefined)
+          .map((pair) => {
+            const key = `${pair.a}_vs_${pair.b}_${pair.check}`
+            return (
+              <div
+                key={key}
+                className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-2.5"
+              >
+                <div>
+                  <p className="text-sm font-medium">{pair.description}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {pair.a} vs {pair.b} ({pair.check === "delta" ? "max difference" : pair.check === "a_gte_b" ? "A >= B" : pair.check})
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className="w-20 rounded-md border bg-background px-2 py-1 text-right text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={getToleranceValue(key, pair.tolerance!)}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "SET_CROSS_TOLERANCE",
+                        key,
+                        value: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            )
+          })}
+      </CardContent>
+    </Card>
   )
 }
 

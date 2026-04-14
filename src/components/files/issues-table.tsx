@@ -20,6 +20,8 @@ const RULE_LABELS: Record<string, string> = {
   cross_column: "Cross-Column Consistency",
   spike_detection: "Spike / Gradient",
   coordinate_sanity: "Coordinate Sanity",
+  cross_dataset: "Cross-Dataset",
+  cross_dataset_coverage: "Coverage Gap",
 }
 
 function getRuleLabel(ruleType: string): string {
@@ -38,6 +40,8 @@ const RULE_COLORS: Record<string, string> = {
   cross_column: "bg-teal-50 text-teal-600",
   spike_detection: "bg-pink-50 text-pink-600",
   coordinate_sanity: "bg-blue-50 text-blue-600",
+  cross_dataset: "bg-indigo-50 text-indigo-600",
+  cross_dataset_coverage: "bg-indigo-50 text-indigo-600",
 }
 
 function getRuleColor(ruleType: string): string {
@@ -267,14 +271,21 @@ function IssueItem({
             {issue.message}
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-mono text-muted-foreground">
-              Row {issue.row_number}
-            </span>
+            {/* Cross-dataset issues use KP-based reference when row_number is 0 */}
+            {(issue.rule_type === "cross_dataset" || issue.rule_type === "cross_dataset_coverage") && issue.row_number === 0 && issue.kp_value != null ? (
+              <span className="text-[11px] font-mono text-indigo-600">
+                KP {issue.kp_value}
+              </span>
+            ) : (
+              <span className="text-[11px] font-mono text-muted-foreground">
+                Row {issue.row_number}
+              </span>
+            )}
             <span className="text-muted-foreground/30">·</span>
             <span className="text-[11px] text-muted-foreground">
               {issue.column_name}
             </span>
-            {issue.kp_value != null && (
+            {issue.kp_value != null && issue.row_number !== 0 && (
               <>
                 <span className="text-muted-foreground/30">·</span>
                 <span className="text-[11px] text-muted-foreground">

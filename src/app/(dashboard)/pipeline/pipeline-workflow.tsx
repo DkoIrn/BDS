@@ -57,6 +57,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
 
   const [state, dispatch] = useReducer(pipelineReducer, initialState, initializeState)
   const fileRef = useRef<File | null>(null)
+  const secondFileRef = useRef<File | null>(null)
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
 
   // Persist state on changes
@@ -74,6 +75,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
   const handleReset = useCallback(() => {
     clearPipelineState()
     fileRef.current = null
+    secondFileRef.current = null
     dispatch({ type: "RESET" })
   }, [])
 
@@ -141,7 +143,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
 
       <div className="animate-fade-up [animation-delay:80ms] [animation-fill-mode:backwards]">
         {state.currentStage === "import" && (
-          <StageImport state={state} dispatch={dispatch} fileRef={fileRef} />
+          <StageImport state={state} dispatch={dispatch} fileRef={fileRef} secondFileRef={secondFileRef} />
         )}
 
         {state.currentStage === "inspect" && (
