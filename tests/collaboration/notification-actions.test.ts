@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Mock email module (createNotification now imports this)
+vi.mock('@/lib/email', () => ({
+  sendNotificationEmail: vi.fn().mockResolvedValue({ data: { id: 'email-1' }, error: null }),
+}))
+
 // Mock Supabase client
 const mockSelect = vi.fn().mockReturnThis()
 const mockInsert = vi.fn().mockReturnThis()
@@ -128,8 +133,35 @@ describe('createNotification', () => {
   })
 
   it('calls insert on notifications table', async () => {
-    mockFrom.mockReturnValueOnce({
-      insert: vi.fn().mockReturnValue({ data: null, error: null }),
+    // createNotification now calls from() multiple times:
+    // 1. notification_preferences (select prefs)
+    // 2. notifications (insert)
+    // 3. profiles (get user email)
+    // 4. profiles (get actor name)
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'notification_preferences') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+            }),
+          }),
+        }
+      }
+      if (table === 'notifications') {
+        return { insert: vi.fn().mockReturnValue({ data: null, error: null }) }
+      }
+      // profiles
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { email: 'test@example.com', full_name: 'Test' },
+              error: null,
+            }),
+          }),
+        }),
+      }
     })
 
     await createNotification({

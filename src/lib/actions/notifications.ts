@@ -2,8 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { requireOrgRole } from '@/lib/permissions'
+import { sendNotificationEmail } from '@/lib/email'
+import { DEFAULT_PREFERENCES } from '@/lib/types/notifications'
 import type {
   NotificationType,
+  NotificationPreferences,
   NotificationWithActor,
 } from '@/lib/types/notifications'
 
@@ -126,22 +129,73 @@ export async function createNotification(params: {
 }): Promise<{ success: true } | { error: string }> {
   const supabase = await createClient()
 
-  const { error } = await supabase.from('notifications').insert({
-    user_id: params.userId,
-    org_id: params.orgId,
-    type: params.type,
-    title: params.title,
-    body: params.body ?? null,
-    resource_type: params.resourceType ?? null,
-    resource_id: params.resourceId ?? null,
-    link_url: params.linkUrl ?? null,
-    actor_id: params.actorId ?? null,
-  })
+  // Fetch user preferences (defaults to all-on if no row exists)
+  let preferences: NotificationPreferences = DEFAULT_PREFERENCES
+  const { data: prefRow } = await supabase
+    .from('notification_preferences')
+    .select('preferences')
+    .eq('user_id', params.userId)
+    .maybeSingle()
 
-  if (error) {
-    // Dedup constraint violation is not an error -- notification already exists
-    if (error.code === '23505') return { success: true }
-    return { error: 'Failed to create notification' }
+  if (prefRow?.preferences) {
+    preferences = prefRow.preferences as NotificationPreferences
+  }
+
+  const typePrefs = preferences[params.type] ?? { in_app: true, email: true }
+
+  // Only insert notification row if in-app is enabled
+  if (typePrefs.in_app) {
+    const { error } = await supabase.from('notifications').insert({
+      user_id: params.userId,
+      org_id: params.orgId,
+      type: params.type,
+      title: params.title,
+      body: params.body ?? null,
+      resource_type: params.resourceType ?? null,
+      resource_id: params.resourceId ?? null,
+      link_url: params.linkUrl ?? null,
+      actor_id: params.actorId ?? null,
+    })
+
+    if (error) {
+      // Dedup constraint violation is not an error -- notification already exists
+      if (error.code !== '23505') {
+        return { error: 'Failed to create notification' }
+      }
+    }
+  }
+
+  // Dispatch email if email preference is enabled
+  if (typePrefs.email) {
+    // Fetch user email from profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email, full_name')
+      .eq('id', params.userId)
+      .single()
+
+    // Fetch actor name if actorId provided
+    let actorName: string | null = null
+    if (params.actorId) {
+      const { data: actorProfile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', params.actorId)
+        .single()
+      actorName = actorProfile?.full_name ?? null
+    }
+
+    if (profile?.email) {
+      // Fire-and-forget -- never block notification creation on email
+      sendNotificationEmail({
+        to: profile.email,
+        type: params.type,
+        title: params.title,
+        body: params.body ?? null,
+        linkUrl: params.linkUrl ?? null,
+        actorName,
+      }).catch(console.error)
+    }
   }
 
   return { success: true }
