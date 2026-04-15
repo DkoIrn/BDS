@@ -568,8 +568,8 @@ function SaveToProject({
               })
             }
           }
-        } catch {
-          // Non-critical — validation results just won't be linked
+        } catch (valErr) {
+          console.error("Failed to persist pipeline validation results:", valErr)
         }
       }
 

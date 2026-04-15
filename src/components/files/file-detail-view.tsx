@@ -448,19 +448,21 @@ export function FileDetailView({
     }
   }
 
-  // Load existing validation run if dataset is already validated
+  // Load existing validation run — check regardless of status since
+  // async parsing can overwrite 'validated' back to 'mapped'/'parsed'
   useEffect(() => {
-    if (
-      (dataset.status === "validated" || dataset.status === "validation_error") &&
-      !validationRun
-    ) {
+    if (!validationRun) {
       getValidationRuns(dataset.id).then((result) => {
         if ("data" in result && result.data.length > 0) {
           setValidationRun(result.data[0])
+          // Sync status if validation exists but status drifted
+          if (datasetStatus !== "validated" && datasetStatus !== "validation_error") {
+            setDatasetStatus("validated")
+          }
         }
       })
     }
-  }, [dataset.status, dataset.id, validationRun])
+  }, [dataset.id, validationRun])
 
   // Realtime subscription for this dataset's status changes
   useEffect(() => {
