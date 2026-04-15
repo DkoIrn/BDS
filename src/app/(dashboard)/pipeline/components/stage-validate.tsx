@@ -372,7 +372,7 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
             <Button
               variant="outline"
               onClick={() =>
-                dispatch({ type: "GO_TO_STAGE", stage: "clean" })
+                dispatch({ type: "GO_TO_STAGE", stage: "review" })
               }
             >
               <ArrowRight className="mr-2 size-4" />
@@ -479,11 +479,11 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() =>
-                dispatch({ type: "GO_TO_STAGE", stage: "clean" })
+                dispatch({ type: "GO_TO_STAGE", stage: "review" })
               }
               className="group inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98]"
             >
-              Continue to Clean
+              {(state.issueCount ?? 0) > 0 ? "Review Issues" : "Continue to Clean"}
               <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </button>
             <Button
@@ -493,7 +493,7 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
               }
             >
               <SkipForward className="mr-2 size-4" />
-              Skip Clean, Go to Export
+              Skip to Export
             </Button>
           </div>
         </CardContent>
