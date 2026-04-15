@@ -64,6 +64,45 @@ function buildColumnMappingsFromHeaders(headers: string[]): ColumnMapping[] {
   })
 }
 
+/** Map backend rule_type to client-side ValidationIssue type for auto-clean compatibility */
+function mapBackendRuleType(ruleType: string): ValidationIssue["type"] {
+  const mapping: Record<string, ValidationIssue["type"]> = {
+    // Direct matches
+    missing_data: "missing",
+    duplicate_row: "duplicate",
+    near_duplicate_kp: "duplicate",
+    outlier_zscore: "outlier",
+    outlier_iqr: "outlier",
+    kp_gap: "kp_gap",
+    monotonicity: "kp_monotonicity",
+    // Spike-related → outlier (auto-clean handles spikes)
+    spike_gradient: "outlier",
+    spike_detection: "outlier",
+    // Range/consistency → outlier (closest auto-clean category)
+    range_check: "outlier",
+    cross_column_consistency: "outlier",
+    // Spatial → outlier
+    coordinate_bounds: "outlier",
+    coordinate_jump: "outlier",
+    // Position → outlier
+    kp_distance_mismatch: "kp_gap",
+    bearing_discontinuity: "outlier",
+    lateral_deviation: "outlier",
+    // Event → missing (closest)
+    missing_event_code: "missing",
+    missing_event_description: "missing",
+    duplicate_event: "duplicate",
+    event_kp_order: "kp_monotonicity",
+    // Cross-dataset
+    cross_dataset: "cross_dataset",
+    cross_dataset_coverage: "cross_dataset_coverage",
+    // KP/segment
+    kp_drift: "kp_gap",
+    segment_continuity: "kp_gap",
+  }
+  return mapping[ruleType] ?? "outlier"
+}
+
 /** Adapt pipeline client-side ValidationIssue to server-compatible shape */
 function adaptToServerIssue(issue: ValidationIssue): ServerValidationIssue {
   return {
@@ -221,7 +260,7 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
               const issuesResult = await getValidationIssues(latestRun.id)
               if ("data" in issuesResult) {
                 const clientIssues: ValidationIssue[] = issuesResult.data.map((si) => ({
-                  type: si.rule_type as ValidationIssue["type"],
+                  type: mapBackendRuleType(si.rule_type),
                   severity: si.severity as ValidationIssue["severity"],
                   row: si.row_number,
                   column: si.column_name,
