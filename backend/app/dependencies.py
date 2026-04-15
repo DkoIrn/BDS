@@ -145,6 +145,21 @@ class BucketClient:
         resp.raise_for_status()
         return resp.content
 
+    def upload(self, path: str, data: bytes, content_type: str = "text/csv") -> None:
+        url = f"{self.client.url}/storage/v1/object/{self.bucket}/{path}"
+        headers = {
+            "apikey": self.client.key,
+            "Authorization": f"Bearer {self.client.key}",
+            "Content-Type": content_type,
+        }
+        resp = httpx.post(url, content=data, headers=headers)
+        resp.raise_for_status()
+
+    def remove(self, paths: list[str]) -> None:
+        url = f"{self.client.url}/storage/v1/object/{self.bucket}"
+        resp = httpx.delete(url, json={"prefixes": paths}, headers=self.client.headers)
+        resp.raise_for_status()
+
 
 def get_supabase_client() -> SupabaseClient:
     """Create a lightweight Supabase client (bypasses RLS via service role key)."""

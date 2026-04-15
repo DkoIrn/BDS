@@ -240,7 +240,7 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
         // Backend processes async — poll for completion
         const datasetId = state.datasetId!
         let attempts = 0
-        const maxAttempts = 30 // 30 seconds max
+        const maxAttempts = 60 // 60 seconds max
         let finalRunId = data.datasetId || datasetId
         let finalIssueCount = 0
 
@@ -280,6 +280,10 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
               break
             }
           }
+        }
+
+        if (attempts >= maxAttempts && finalIssueCount === 0) {
+          toast.error("Validation is still processing. Results will appear in the project page shortly.")
         }
 
         dispatch({

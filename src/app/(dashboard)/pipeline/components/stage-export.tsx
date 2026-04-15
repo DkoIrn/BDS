@@ -95,21 +95,10 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
     try {
       const formData = new FormData()
 
-      if (fileRef.current) {
-        formData.append("file", fileRef.current)
-      } else if (state.datasetId) {
-        // For existing datasets without a file ref, fetch the file first
-        const { getDatasetSignedUrl } = await import("@/lib/actions/files")
-        const result = await getDatasetSignedUrl(state.datasetId)
-        if ("error" in result) throw new Error(result.error)
-
-        const response = await fetch(result.url)
-        const blob = await response.blob()
-        const file = new File([blob], result.fileName)
-        formData.append("file", file)
-      } else if (state.parsedData && state.parsedData.length > 0) {
-        // Reconstruct CSV from parsed data (e.g. after session restore when fileRef is lost)
-        const csvContent = state.parsedData
+      if (state.cleanedData || (state.parsedData && state.parsedData.length > 0)) {
+        // Use current data state (reflects any cleaning that was done)
+        const dataToExport = state.parsedData!
+        const csvContent = dataToExport
           .map((row) =>
             row.map((cell) => {
               if (cell.includes(",") || cell.includes('"') || cell.includes("\n")) {
@@ -121,6 +110,18 @@ export function StageExport({ state, dispatch, fileRef, userId, validationIssues
           .join("\n")
         const blob = new Blob([csvContent], { type: "text/csv" })
         const file = new File([blob], state.fileName || "export.csv")
+        formData.append("file", file)
+      } else if (fileRef.current) {
+        formData.append("file", fileRef.current)
+      } else if (state.datasetId) {
+        // For existing datasets without parsed data, fetch the file
+        const { getDatasetSignedUrl } = await import("@/lib/actions/files")
+        const result = await getDatasetSignedUrl(state.datasetId)
+        if ("error" in result) throw new Error(result.error)
+
+        const response = await fetch(result.url)
+        const blob = await response.blob()
+        const file = new File([blob], result.fileName)
         formData.append("file", file)
       } else {
         throw new Error("No file available for export")
@@ -477,11 +478,14 @@ function SaveToProject({
       if (!jobId) throw new Error("Failed to retrieve job")
 
       // 3. Build the file to upload
-      let file: File | null = fileRef.current
+      // If data was cleaned, always reconstruct from parsedData (which reflects cleaned state)
+      // to ensure the saved file contains the fixes, not the original uncleaned data
+      let file: File | null = null
 
-      if (!file && state.parsedData && state.parsedData.length > 0) {
-        // Reconstruct from parsed data
-        const csvContent = state.parsedData
+      if (state.cleanedData || (state.parsedData && state.parsedData.length > 0)) {
+        // Use cleaned/current data — parsedData is updated to cleanedData after CLEAN_COMPLETE
+        const dataToSave = state.parsedData!
+        const csvContent = dataToSave
           .map((row) =>
             row.map((cell) => {
               if (cell.includes(",") || cell.includes('"') || cell.includes("\n")) {
@@ -493,6 +497,9 @@ function SaveToProject({
           .join("\n")
         const blob = new Blob([csvContent], { type: "text/csv" })
         file = new File([blob], state.fileName || "pipeline-export.csv", { type: "text/csv" })
+      } else if (fileRef.current) {
+        // Fallback to original file only if no parsed data available
+        file = fileRef.current
       }
 
       if (!file) throw new Error("No file available to save")
@@ -568,6 +575,10 @@ function SaveToProject({
                 issueCount: valData.totalIssues ?? validationIssues.length,
               })
             }
+          } else {
+            const errBody = await valRes.text().catch(() => "Unknown error")
+            console.error("Pipeline validation persist failed:", valRes.status, errBody)
+            console.error("QC results could not be saved to project")
           }
         } catch (valErr) {
           console.error("Failed to persist pipeline validation results:", valErr)
