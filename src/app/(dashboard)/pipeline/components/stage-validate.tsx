@@ -197,10 +197,56 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
         }
 
         const data = await response.json()
+
+        // Backend processes async — poll for completion
+        const datasetId = state.datasetId!
+        let attempts = 0
+        const maxAttempts = 30 // 30 seconds max
+        let finalRunId = data.datasetId || datasetId
+        let finalIssueCount = 0
+
+        while (attempts < maxAttempts) {
+          await new Promise((r) => setTimeout(r, 1000))
+          attempts++
+
+          const { getValidationRuns, getValidationIssues } = await import("@/lib/actions/validation")
+          const runsResult = await getValidationRuns(datasetId)
+          if ("data" in runsResult && runsResult.data.length > 0) {
+            const latestRun = runsResult.data[0]
+            if (latestRun.status === "completed") {
+              finalRunId = latestRun.id
+              finalIssueCount = latestRun.total_issues
+
+              // Fetch actual issues to display in pipeline
+              const issuesResult = await getValidationIssues(latestRun.id)
+              if ("data" in issuesResult) {
+                const clientIssues: ValidationIssue[] = issuesResult.data.map((si) => ({
+                  type: si.rule_type as ValidationIssue["type"],
+                  severity: si.severity as ValidationIssue["severity"],
+                  row: si.row_number,
+                  column: si.column_name,
+                  message: si.message,
+                  detail: si.expected ?? undefined,
+                  kpValue: si.kp_value ?? undefined,
+                }))
+                const summary = {
+                  total: clientIssues.length,
+                  critical: clientIssues.filter((i) => i.severity === "critical").length,
+                  warning: clientIssues.filter((i) => i.severity === "warning").length,
+                  info: clientIssues.filter((i) => i.severity === "info").length,
+                }
+                setResult({ issues: clientIssues, summary })
+                onIssuesFound?.(clientIssues)
+              }
+              break
+            }
+          }
+        }
+
         dispatch({
           type: "VALIDATE_COMPLETE",
-          runId: data.datasetId || state.datasetId || "run",
-          issueCount: 0,
+          runId: finalRunId,
+          issueCount: finalIssueCount,
         })
       } else if (state.parsedData && state.parsedData.length > 1) {
         // Uploaded file — run client-side validation
