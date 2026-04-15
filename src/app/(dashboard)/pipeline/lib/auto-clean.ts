@@ -397,19 +397,28 @@ export function detectNumericColumns(headers: string[], rows: string[][]): numbe
 function isResolved(issue: ValidationIssue, actions: CleanAction[]): boolean {
   // Check if any action addresses this issue
   if (issue.type === "duplicate") {
-    return actions.some((a) => a.type === "remove_duplicate" && a.row === issue.row)
+    // If any duplicates were removed, consider all duplicate issues resolved
+    // (row numbers may differ between backend and client detection)
+    return actions.some((a) => a.type === "remove_duplicate")
   }
   if (issue.type === "kp_monotonicity") {
     return actions.some((a) => a.type === "reorder_kp")
   }
   if (issue.type === "outlier" && issue.row && issue.column) {
     return actions.some(
-      (a) => a.type === "remove_spike" && a.row === issue.row && a.column === issue.column
+      (a) =>
+        (a.type === "remove_spike" || a.type === "interpolate") &&
+        a.row === issue.row &&
+        a.column === issue.column
     )
   }
   if (issue.type === "missing" && issue.column) {
-    // Check if all missing values in this column were filled
-    return actions.some((a) => a.type === "interpolate" && a.column === issue.column)
+    // Check if missing values in this column were filled
+    return actions.some(
+      (a) =>
+        (a.type === "interpolate" || a.type === "fill_missing") &&
+        a.column === issue.column
+    )
   }
   if (issue.type === "kp_gap") {
     // KP gaps might be resolved by reordering, or might remain
