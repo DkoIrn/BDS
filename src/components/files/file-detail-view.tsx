@@ -456,9 +456,11 @@ export function FileDetailView({
       getValidationRuns(dataset.id).then((result) => {
         if ("data" in result && result.data.length > 0) {
           setValidationRun(result.data[0])
-          // Sync status if validation exists but status drifted
+          // Sync status and tab if validation exists but status drifted
           if (datasetStatus !== "validated" && datasetStatus !== "validation_error") {
             setDatasetStatus("validated")
+            setActiveTab("results")
+            setConfirmed(true)
           }
         }
       })
