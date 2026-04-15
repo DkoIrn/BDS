@@ -170,8 +170,8 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
       if (state.datasetId) {
         // Existing dataset — use backend
         const requestBody: Record<string, unknown> = { datasetId: state.datasetId }
-        // Include cross-dataset config if in cross-dataset mode
-        if (state.crossDatasetMode && state.secondDatasetId) {
+        // Include cross-dataset config if in cross-dataset mode with types selected
+        if (state.crossDatasetMode && state.secondDatasetId && state.datasetTypeA && state.datasetTypeB) {
           requestBody.secondaryDatasetId = state.secondDatasetId
           requestBody.crossDatasetConfig = {
             preset_id: state.crossValidationPreset,
