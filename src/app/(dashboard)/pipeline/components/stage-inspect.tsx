@@ -31,15 +31,18 @@ interface StageInspectProps {
   state: PipelineState
   dispatch: React.Dispatch<PipelineAction>
   fileRef: React.MutableRefObject<File | null>
+  secondFileRef?: React.MutableRefObject<File | null>
 }
 
 const MAX_PREVIEW_ROWS = 50
 
-export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
+export function StageInspect({ state, dispatch, fileRef, secondFileRef }: StageInspectProps) {
   const [parsing, setParsing] = useState(false)
   const [parseError, setParseError] = useState<string | null>(null)
+  const [parsingSecond, setParsingSecond] = useState(false)
+  const [secondParseError, setSecondParseError] = useState<string | null>(null)
 
-  // Auto-parse on mount
+  // Auto-parse primary file on mount
   useEffect(() => {
     if (state.parsedData) return // Already parsed
     if (parsing) return
@@ -47,12 +50,24 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
     if (state.fileSource === "upload" && fileRef.current) {
       parseUploadedFile(fileRef.current)
     } else if (state.fileSource === "existing" && state.datasetId) {
-      // For existing datasets, we would fetch preview from Supabase.
-      // For now, show a message that the data needs to be fetched.
       fetchExistingDataset(state.datasetId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Auto-parse second file in cross-dataset mode
+  useEffect(() => {
+    if (!state.crossDatasetMode) return
+    if (state.secondParsedData) return // Already parsed
+    if (parsingSecond) return
+
+    if (state.secondFileSource === "upload" && secondFileRef?.current) {
+      parseSecondFile(secondFileRef.current)
+    } else if (state.secondFileSource === "existing" && state.secondDatasetId) {
+      fetchSecondExistingDataset(state.secondDatasetId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.crossDatasetMode, state.secondParsedData])
 
   async function parseUploadedFile(file: File) {
     setParsing(true)
@@ -132,8 +147,74 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
     }
   }
 
+  async function parseSecondFile(file: File) {
+    setParsingSecond(true)
+    setSecondParseError(null)
+
+    try {
+      const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase()
+      let data: string[][]
+
+      if (ext === ".csv") {
+        data = await parseCsv(file)
+      } else if (ext === ".xlsx" || ext === ".xls") {
+        data = await parseExcel(file)
+      } else {
+        data = await parseViaApi(file)
+      }
+
+      if (data.length < 2) {
+        setSecondParseError("Secondary file appears to be empty or contains only headers.")
+        setParsingSecond(false)
+        return
+      }
+
+      dispatch({
+        type: "INSPECT_SECOND_COMPLETE",
+        parsedData: data,
+        columnCount: data[0].length,
+        rowCount: data.length - 1,
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to parse secondary file"
+      setSecondParseError(message)
+    } finally {
+      setParsingSecond(false)
+    }
+  }
+
+  async function fetchSecondExistingDataset(datasetId: string) {
+    setParsingSecond(true)
+    setSecondParseError(null)
+
+    try {
+      const { getDatasetSignedUrl } = await import("@/lib/actions/files")
+      const result = await getDatasetSignedUrl(datasetId)
+
+      if ("error" in result) {
+        setSecondParseError(result.error)
+        setParsingSecond(false)
+        return
+      }
+
+      const response = await fetch(result.url)
+      const blob = await response.blob()
+      const file = new File([blob], result.fileName)
+
+      if (secondFileRef) {
+        secondFileRef.current = file
+      }
+
+      await parseSecondFile(file)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch secondary dataset"
+      setSecondParseError(message)
+      setParsingSecond(false)
+    }
+  }
+
   // Loading state
-  if (parsing) {
+  if (parsing || parsingSecond) {
     return (
       <Card className="rounded-2xl">
         <CardContent className="flex flex-col items-center justify-center py-16 animate-fade-up">
@@ -152,8 +233,8 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
     )
   }
 
-  // Error state
-  if (parseError) {
+  // Error state (primary or secondary)
+  if (parseError || secondParseError) {
     return (
       <Card className="rounded-2xl">
         <CardContent className="space-y-4 py-8">
@@ -161,10 +242,10 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
             <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-500 dark:text-red-400" />
             <div>
               <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                Failed to parse file
+                Failed to parse {secondParseError && !parseError ? "secondary " : ""}file
               </p>
               <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                {parseError}
+                {parseError || secondParseError}
               </p>
             </div>
           </div>
@@ -189,7 +270,7 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="size-5" />
-            Data Preview
+            {state.crossDatasetMode ? `Dataset A: ${state.fileName}` : "Data Preview"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -256,6 +337,77 @@ export function StageInspect({ state, dispatch, fileRef }: StageInspectProps) {
               Showing first {MAX_PREVIEW_ROWS} of{" "}
               {state.rowCount?.toLocaleString()} rows
             </p>
+          )}
+
+          {/* Secondary dataset preview (cross-dataset mode) */}
+          {state.crossDatasetMode && state.secondParsedData && (
+            <>
+              <div className="border-t pt-6">
+                <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
+                  <FileText className="size-4 text-indigo-500" />
+                  Dataset B: {state.secondFileName}
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center gap-3 rounded-lg border border-indigo-100 p-3 dark:border-indigo-900">
+                    <Columns3 className="size-4 text-indigo-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Columns</p>
+                      <p className="text-lg font-semibold">{state.secondColumnCount}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-lg border border-indigo-100 p-3 dark:border-indigo-900">
+                    <Rows3 className="size-4 text-indigo-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Rows</p>
+                      <p className="text-lg font-semibold">
+                        {state.secondRowCount?.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-lg border border-indigo-100 p-3 dark:border-indigo-900">
+                    <FileText className="size-4 text-indigo-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Type</p>
+                      <p className="truncate text-sm font-medium">
+                        {state.datasetTypeB ?? "—"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 max-h-64 overflow-auto rounded-lg border border-indigo-100 dark:border-indigo-900">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {state.secondParsedData[0].map((header, i) => (
+                          <TableHead key={i} className="whitespace-nowrap">
+                            {header || `Column ${i + 1}`}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {state.secondParsedData.slice(1, 21).map((row, rowIdx) => (
+                        <TableRow key={rowIdx}>
+                          {row.map((cell, cellIdx) => (
+                            <TableCell
+                              key={cellIdx}
+                              className="max-w-[200px] truncate whitespace-nowrap"
+                            >
+                              {cell}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                {(state.secondRowCount ?? 0) > 20 && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Showing first 20 of {state.secondRowCount?.toLocaleString()} rows
+                  </p>
+                )}
+              </div>
+            </>
           )}
 
           {/* Actions */}

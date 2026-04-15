@@ -74,7 +74,7 @@ describe('getNotifications', () => {
           }),
         }),
       }),
-    })
+    } as ReturnType<typeof mockFrom>)
 
     await getNotifications()
     expect(mockFrom).toHaveBeenCalledWith('notifications')
@@ -138,7 +138,8 @@ describe('createNotification', () => {
     // 2. notifications (insert)
     // 3. profiles (get user email)
     // 4. profiles (get actor name)
-    mockFrom.mockImplementation((table: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(mockFrom as any).mockImplementation((table: string) => {
       if (table === 'notification_preferences') {
         return {
           select: vi.fn().mockReturnValue({

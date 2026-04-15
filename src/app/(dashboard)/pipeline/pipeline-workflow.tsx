@@ -147,7 +147,7 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
         )}
 
         {state.currentStage === "inspect" && (
-          <StageInspect state={state} dispatch={dispatch} fileRef={fileRef} />
+          <StageInspect state={state} dispatch={dispatch} fileRef={fileRef} secondFileRef={secondFileRef} />
         )}
 
         {state.currentStage === "validate" && (

@@ -22,6 +22,7 @@ import { PRESET_NAMES } from "../lib/pipeline-state"
 import { CROSS_VALIDATION_PRESETS } from "../lib/cross-validation-presets"
 import {
   validateClientSide,
+  validateCrossDataset,
   type ValidationIssue,
   type ValidationResult,
 } from "../lib/client-validate"
@@ -76,7 +77,7 @@ function adaptToServerIssue(issue: ValidationIssue): ServerValidationIssue {
     message: issue.message,
     expected: null,
     actual: null,
-    kp_value: null,
+    kp_value: issue.kpValue ?? null,
     created_at: "",
   }
 }
@@ -208,13 +209,45 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           minDelay,
         ])
 
-        setResult(validationResult)
-        onIssuesFound?.(validationResult.issues)
-        // Audit logging deferred to save-to-project (where dataset ID is known)
+        let allIssues = validationResult.issues
+
+        // Cross-dataset validation: run if both datasets are parsed
+        if (
+          state.crossDatasetMode &&
+          state.secondParsedData &&
+          state.secondParsedData.length > 1 &&
+          state.crossValidationPreset
+        ) {
+          const preset = CROSS_VALIDATION_PRESETS[state.crossValidationPreset]
+          if (preset) {
+            const crossIssues = validateCrossDataset(
+              state.parsedData,
+              state.secondParsedData,
+              {
+                preset,
+                tolerances: state.crossValidationTolerances,
+                datasetTypeA: state.datasetTypeA ?? "Dataset A",
+                datasetTypeB: state.datasetTypeB ?? "Dataset B",
+              }
+            )
+            allIssues = [...allIssues, ...crossIssues]
+          }
+        }
+
+        const summary = {
+          total: allIssues.length,
+          critical: allIssues.filter((i) => i.severity === "critical").length,
+          warning: allIssues.filter((i) => i.severity === "warning").length,
+          info: allIssues.filter((i) => i.severity === "info").length,
+        }
+        const combinedResult = { issues: allIssues, summary }
+
+        setResult(combinedResult)
+        onIssuesFound?.(combinedResult.issues)
         dispatch({
           type: "VALIDATE_COMPLETE",
           runId: "client",
-          issueCount: validationResult.summary.total,
+          issueCount: combinedResult.summary.total,
         })
       } else {
         await minDelay
@@ -396,8 +429,9 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
             Running quality checks...
           </p>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            Scanning {state.rowCount?.toLocaleString()} rows across{" "}
-            {state.columnCount} columns
+            {state.crossDatasetMode
+              ? `Scanning both datasets and running cross-validation checks`
+              : `Scanning ${state.rowCount?.toLocaleString()} rows across ${state.columnCount} columns`}
           </p>
         </CardContent>
       </Card>

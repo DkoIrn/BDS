@@ -2,13 +2,15 @@
 // Runs on parsedData (string[][]) without needing Supabase/backend
 
 export interface ValidationIssue {
-  type: "missing" | "duplicate" | "outlier" | "kp_gap" | "kp_monotonicity"
+  type: "missing" | "duplicate" | "outlier" | "kp_gap" | "kp_monotonicity" | "cross_dataset" | "cross_dataset_coverage"
   severity: "critical" | "warning" | "info"
   row?: number
   column?: string
   message: string
   /** Human-readable explanation with expected vs actual values */
   detail?: string
+  /** KP value for cross-dataset issues (used instead of row number) */
+  kpValue?: number
 }
 
 export interface ValidationResult {
@@ -252,5 +254,251 @@ function checkKpGaps(
         detail: `Gap of ${spacing.toFixed(3)} km detected between rows. Normal spacing: ~${median.toFixed(3)} km. Threshold: ${gapThreshold.toFixed(3)} km (3× median). This may indicate missing survey data or a line break.`,
       })
     }
+  }
+}
+
+
+// --- Cross-dataset validation ---
+
+import type { CrossValidationPresetConfig } from "./cross-validation-presets"
+
+interface CrossDatasetConfig {
+  preset: CrossValidationPresetConfig
+  tolerances: Record<string, number>
+  datasetTypeA: string
+  datasetTypeB: string
+}
+
+interface NumericRow {
+  kp: number
+  values: Record<string, number>
+}
+
+function findColumnIndex(headers: string[], name: string): number {
+  const lower = name.toLowerCase()
+  for (let i = 0; i < headers.length; i++) {
+    if (headers[i].toLowerCase().trim() === lower) return i
+  }
+  return -1
+}
+
+function extractNumericRows(
+  data: string[][],
+  kpIdx: number,
+  colIndices: Record<string, number>
+): NumericRow[] {
+  const rows: NumericRow[] = []
+  for (let i = 1; i < data.length; i++) {
+    const kpRaw = data[i]?.[kpIdx]?.trim() ?? ""
+    const kp = Number(kpRaw)
+    if (isNaN(kp)) continue
+
+    const values: Record<string, number> = {}
+    for (const [name, idx] of Object.entries(colIndices)) {
+      if (idx >= 0) {
+        const v = Number(data[i]?.[idx]?.trim() ?? "")
+        if (!isNaN(v)) values[name] = v
+      }
+    }
+    rows.push({ kp, values })
+  }
+  return rows.sort((a, b) => a.kp - b.kp)
+}
+
+function alignByKp(
+  rowsA: NumericRow[],
+  rowsB: NumericRow[],
+  tolerance: number
+): Array<{ a: NumericRow; b: NumericRow | null }> {
+  const aligned: Array<{ a: NumericRow; b: NumericRow | null }> = []
+  let bStart = 0
+
+  for (const a of rowsA) {
+    let bestIdx = -1
+    let bestDist = Infinity
+
+    for (let j = bStart; j < rowsB.length; j++) {
+      const dist = Math.abs(a.kp - rowsB[j].kp)
+      if (dist < bestDist) {
+        bestDist = dist
+        bestIdx = j
+      }
+      // Once we're past the tolerance and moving away, stop searching
+      if (rowsB[j].kp > a.kp + tolerance) break
+    }
+
+    if (bestDist <= tolerance && bestIdx >= 0) {
+      aligned.push({ a, b: rowsB[bestIdx] })
+      // Advance search start to avoid re-matching
+      bStart = bestIdx + 1
+    } else {
+      aligned.push({ a, b: null })
+    }
+  }
+  return aligned
+}
+
+/**
+ * Run cross-dataset validation on two parsed datasets (string[][]).
+ * Ports the Python cross_dataset.py logic to TypeScript for client-side use.
+ */
+export function validateCrossDataset(
+  dataA: string[][],
+  dataB: string[][],
+  config: CrossDatasetConfig
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = []
+  const { preset, tolerances, datasetTypeA, datasetTypeB } = config
+
+  const headersA = dataA[0] ?? []
+  const headersB = dataB[0] ?? []
+
+  // Find KP columns
+  const kpIdxA = findColumnIndex(headersA, "kp")
+  const kpIdxB = findColumnIndex(headersB, "kp")
+
+  if (kpIdxA === -1 || kpIdxB === -1) {
+    if (kpIdxA === -1) {
+      issues.push({
+        type: "cross_dataset",
+        severity: "warning",
+        row: 0,
+        message: `No KP column found in ${datasetTypeA} dataset -- cannot perform cross-dataset alignment`,
+      })
+    }
+    if (kpIdxB === -1) {
+      issues.push({
+        type: "cross_dataset",
+        severity: "warning",
+        row: 0,
+        message: `No KP column found in ${datasetTypeB} dataset -- cannot perform cross-dataset alignment`,
+      })
+    }
+    return issues
+  }
+
+  // Collect column indices needed for checks
+  const colNamesA = new Set<string>()
+  const colNamesB = new Set<string>()
+  for (const pair of preset.columnPairs) {
+    if (pair.check !== "coverage") {
+      colNamesA.add(pair.a)
+      colNamesB.add(pair.b)
+    }
+  }
+
+  const colIndicesA: Record<string, number> = {}
+  for (const name of colNamesA) {
+    colIndicesA[name] = findColumnIndex(headersA, name)
+  }
+  const colIndicesB: Record<string, number> = {}
+  for (const name of colNamesB) {
+    colIndicesB[name] = findColumnIndex(headersB, name)
+  }
+
+  const rowsA = extractNumericRows(dataA, kpIdxA, colIndicesA)
+  const rowsB = extractNumericRows(dataB, kpIdxB, colIndicesB)
+
+  if (rowsA.length === 0 || rowsB.length === 0) return issues
+
+  // 1. Coverage gaps
+  checkCoverageGaps(rowsA, rowsB, datasetTypeA, datasetTypeB, issues)
+
+  // 2. Align by KP
+  const kpTol = tolerances["kp_alignment"] ?? preset.kpAlignmentTolerance
+  const aligned = alignByKp(rowsA, rowsB, kpTol)
+
+  // 3. Run column pair checks
+  for (const pair of preset.columnPairs) {
+    if (pair.check === "coverage") continue
+
+    const tolKey = `${pair.a}_vs_${pair.b}_${pair.check}`
+    const pairTol = tolerances[tolKey] ?? pair.tolerance ?? 0
+
+    for (const { a, b } of aligned) {
+      if (!b) continue // No match within tolerance
+
+      const valA = a.values[pair.a]
+      const valB = b.values[pair.b]
+      if (valA === undefined || valB === undefined) continue
+
+      if (pair.check === "delta") {
+        const delta = Math.abs(valA - valB)
+        if (delta > pairTol) {
+          issues.push({
+            type: "cross_dataset",
+            severity: "warning",
+            row: 0,
+            column: `${pair.a}(${datasetTypeA})/${pair.b}(${datasetTypeB})`,
+            message: `${pair.a} vs ${pair.b} mismatch at KP ${a.kp.toFixed(3)}: ${pair.a}=${valA.toFixed(3)} (${datasetTypeA}) vs ${pair.b}=${valB.toFixed(3)} (${datasetTypeB}) -- delta ${delta.toFixed(3)} exceeds tolerance ${pairTol}`,
+            kpValue: a.kp,
+          })
+        }
+      } else if (pair.check === "a_gte_b") {
+        if (valA < valB - pairTol) {
+          const delta = valB - valA
+          issues.push({
+            type: "cross_dataset",
+            severity: "critical",
+            row: 0,
+            column: `${pair.a}(${datasetTypeA})/${pair.b}(${datasetTypeB})`,
+            message: `${pair.a} vs ${pair.b} violation at KP ${a.kp.toFixed(3)}: ${pair.a}=${valA.toFixed(3)} (${datasetTypeA}) vs ${pair.b}=${valB.toFixed(3)} (${datasetTypeB}) -- ${pair.b} exceeds ${pair.a} by ${delta.toFixed(3)}`,
+            kpValue: a.kp,
+          })
+        }
+      }
+    }
+  }
+
+  return issues
+}
+
+function checkCoverageGaps(
+  rowsA: NumericRow[],
+  rowsB: NumericRow[],
+  typeA: string,
+  typeB: string,
+  issues: ValidationIssue[]
+) {
+  const minA = rowsA[0].kp
+  const maxA = rowsA[rowsA.length - 1].kp
+  const minB = rowsB[0].kp
+  const maxB = rowsB[rowsB.length - 1].kp
+
+  if (maxA > maxB) {
+    issues.push({
+      type: "cross_dataset_coverage",
+      severity: "warning",
+      row: 0,
+      message: `Coverage gap: ${typeA} extends to KP ${maxA.toFixed(3)} but ${typeB} only covers to KP ${maxB.toFixed(3)} -- gap from KP ${maxB.toFixed(3)} to ${maxA.toFixed(3)}`,
+      kpValue: maxB,
+    })
+  }
+  if (maxB > maxA) {
+    issues.push({
+      type: "cross_dataset_coverage",
+      severity: "warning",
+      row: 0,
+      message: `Coverage gap: ${typeB} extends to KP ${maxB.toFixed(3)} but ${typeA} only covers to KP ${maxA.toFixed(3)} -- gap from KP ${maxA.toFixed(3)} to ${maxB.toFixed(3)}`,
+      kpValue: maxA,
+    })
+  }
+  if (minA < minB) {
+    issues.push({
+      type: "cross_dataset_coverage",
+      severity: "warning",
+      row: 0,
+      message: `Coverage gap: ${typeA} starts at KP ${minA.toFixed(3)} but ${typeB} starts at KP ${minB.toFixed(3)} -- gap from KP ${minA.toFixed(3)} to ${minB.toFixed(3)}`,
+      kpValue: minA,
+    })
+  }
+  if (minB < minA) {
+    issues.push({
+      type: "cross_dataset_coverage",
+      severity: "warning",
+      row: 0,
+      message: `Coverage gap: ${typeB} starts at KP ${minB.toFixed(3)} but ${typeA} starts at KP ${minA.toFixed(3)} -- gap from KP ${minB.toFixed(3)} to ${minA.toFixed(3)}`,
+      kpValue: minB,
+    })
   }
 }

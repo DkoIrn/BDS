@@ -138,6 +138,7 @@ describe("pipelineReducer", () => {
       type: "CLEAN_COMPLETE",
       cleanedData,
       actionCount: 3,
+      summary: {},
     })
     expect(result.currentStage).toBe("export")
     expect(result.stages.clean.completed).toBe(true)

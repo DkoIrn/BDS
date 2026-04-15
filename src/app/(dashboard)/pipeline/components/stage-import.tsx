@@ -216,7 +216,9 @@ function CrossDatasetImport({
         {/* Dataset A */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-foreground">Dataset A (Primary)</h3>
-          {mode === "upload" ? (
+          {state.fileName ? (
+            <ImportedConfirmation name={state.fileName} label="A" />
+          ) : mode === "upload" ? (
             <UploadTab dispatch={dispatch} fileRef={fileRef} label="A" />
           ) : (
             <ExistingTab dispatch={dispatch} target="primary" />
@@ -230,7 +232,9 @@ function CrossDatasetImport({
         {/* Dataset B */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-foreground">Dataset B (Secondary)</h3>
-          {mode === "upload" ? (
+          {state.secondFileName ? (
+            <ImportedConfirmation name={state.secondFileName} label="B" />
+          ) : mode === "upload" ? (
             <SecondUploadTab dispatch={dispatch} secondFileRef={secondFileRef} />
           ) : (
             <ExistingTab dispatch={dispatch} target="secondary" />
@@ -251,6 +255,26 @@ function CrossDatasetImport({
           </span>
         </div>
       )}
+    </div>
+  )
+}
+
+/** Confirmation shown when a file is already imported (state-driven, not local state) */
+function ImportedConfirmation({ name, label }: { name: string; label: string }) {
+  const isSecondary = label === "B"
+  return (
+    <div
+      className={`flex items-center gap-3 rounded-2xl border p-6 ${
+        isSecondary
+          ? "border-indigo-200 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/30"
+          : "border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-950/30"
+      }`}
+    >
+      <Check className={`size-5 ${isSecondary ? "text-indigo-600" : "text-emerald-600"}`} />
+      <div>
+        <p className="text-sm font-medium">{name}</p>
+        <p className="text-xs text-muted-foreground">Dataset {label} imported</p>
+      </div>
     </div>
   )
 }

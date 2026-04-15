@@ -9,6 +9,7 @@ const mockLayer: MapLayer = {
   color: '#3B82F6',
   visible: true,
   featureCount: 0,
+  opacity: 1,
 }
 
 describe('session-store', () => {
