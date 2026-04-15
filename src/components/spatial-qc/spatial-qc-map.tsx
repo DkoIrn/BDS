@@ -26,6 +26,12 @@ const ESRI_URL =
 const ESRI_ATTR =
   '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, Maxar, Earthstar Geographics'
 
+/** World bounds to prevent panning into grey areas */
+const WORLD_BOUNDS = L.latLngBounds(
+  L.latLng(-85, -180),
+  L.latLng(85, 180)
+)
+
 /** Auto-fit map bounds to issue markers on data change */
 function FitToIssues({ issues }: { issues: SpatialIssue[] }) {
   const map = useMap()
@@ -37,7 +43,7 @@ function FitToIssues({ issues }: { issues: SpatialIssue[] }) {
 
     const bounds = L.latLngBounds(issues.map((si) => [si.lat, si.lng]))
     if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 })
+      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 })
     }
   }, [issues, map])
 
@@ -82,10 +88,11 @@ export function SpatialQCMap({
       <MapContainer
         center={[51.505, -0.09]}
         zoom={3}
-        minZoom={2}
+        minZoom={3}
         maxZoom={18}
+        maxBounds={WORLD_BOUNDS}
+        maxBoundsViscosity={1.0}
         worldCopyJump
-        preferCanvas
         style={{ height: "100%", width: "100%" }}
         className="z-0"
       >
