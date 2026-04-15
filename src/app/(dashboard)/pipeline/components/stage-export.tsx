@@ -553,6 +553,7 @@ function SaveToProject({
                 column: i.column,
                 message: i.message,
                 detail: i.detail,
+                kpValue: i.kpValue,
               })),
               totalRows: state.rowCount ?? 0,
               cleanActionCount: state.cleanActionCount ?? 0,

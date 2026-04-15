@@ -11,6 +11,7 @@ interface PipelineValidationRequest {
     column?: string
     message: string
     detail?: string
+    kpValue?: number
   }[]
   totalRows: number
   cleanActionCount: number
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
         message: issue.message,
         expected: issue.detail ?? null,
         actual: null,
-        kp_value: null,
+        kp_value: issue.kpValue ?? null,
       }))
 
       const { error: issuesError } = await supabase

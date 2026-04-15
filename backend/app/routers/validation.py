@@ -242,6 +242,27 @@ def _legacy_validation_background(
         supabase.table("datasets").update({"status": "validated"}).eq("id", dataset_id).execute()
         logger.info("Background validation completed for dataset %s", dataset_id)
 
+        # Create version snapshot for this validation run
+        try:
+            from app.services.versioning import create_version_snapshot
+
+            create_version_snapshot(
+                supabase=supabase,
+                dataset_id=dataset_id,
+                user_id=dataset.get("uploaded_by", ""),
+                validation_run_id=run_id,
+                issue_count=total_issues,
+                critical_count=critical_count,
+                warning_count=warning_count,
+                info_count=info_count,
+                row_count=total_rows,
+                column_count=len(df.columns),
+                file_size=dataset.get("file_size", 0),
+                storage_path=dataset.get("storage_path", ""),
+            )
+        except Exception as ver_err:
+            logger.error("Version snapshot failed for dataset %s: %s", dataset_id, str(ver_err))
+
         # Dispatch webhooks on successful validation
         try:
             dispatch_webhooks(dataset_id, "validation.completed", {

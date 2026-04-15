@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Loader2, Check, Pencil, Play, RotateCcw } from "lucide-react"
+import Link from "next/link"
+import { Loader2, Check, Pencil, Play, RotateCcw, Wrench } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -672,6 +673,13 @@ export function FileDetailView({
                   <Play className="mr-1.5 size-3.5" />
                   Re-run QC
                 </Button>
+                <Link
+                  href={`/pipeline?datasetId=${dataset.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Wrench className="size-3.5" />
+                  Fix in Pipeline
+                </Link>
               </div>
             </>
           ) : (

@@ -54,11 +54,36 @@ export function PipelineWorkflow({ user }: PipelineWorkflowProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const isDemoMode = searchParams.get("demo") === "true"
+  const preloadDatasetId = searchParams.get("datasetId")
 
   const [state, dispatch] = useReducer(pipelineReducer, initialState, initializeState)
   const fileRef = useRef<File | null>(null)
   const secondFileRef = useRef<File | null>(null)
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([])
+
+  // Auto-load dataset from query param (e.g. from "Fix in Pipeline" link)
+  const preloadedRef = useRef(false)
+  useEffect(() => {
+    if (!preloadDatasetId || preloadedRef.current) return
+    preloadedRef.current = true
+
+    // Fetch dataset info and load into pipeline
+    import("@/lib/actions/files").then(({ getAllUserDatasets }) => {
+      getAllUserDatasets().then((result) => {
+        if ("data" in result) {
+          const ds = result.data.find((d) => d.id === preloadDatasetId)
+          if (ds) {
+            dispatch({ type: "RESET" })
+            dispatch({
+              type: "IMPORT_EXISTING",
+              datasetId: ds.id,
+              fileName: ds.file_name,
+            })
+          }
+        }
+      })
+    })
+  }, [preloadDatasetId])
 
   // Persist state on changes
   useEffect(() => {
