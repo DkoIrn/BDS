@@ -14,9 +14,9 @@ import type { Condition, RuleType } from "@/lib/types/custom-rules"
 import { getOperatorsForType } from "@/lib/types/custom-rules"
 
 const RULE_TYPE_LABELS: Record<RuleType, string> = {
-  threshold: "Value check",
-  comparison: "Column comparison",
-  null_check: "Empty check",
+  threshold: "has a value",
+  comparison: "compared to column",
+  null_check: "is empty or filled",
 }
 
 interface ConditionRowProps {

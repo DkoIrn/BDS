@@ -157,9 +157,11 @@ export function RuleBuilder({
           </Select>
         </div>
 
-        {/* IF section */}
+        {/* Conditions section */}
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-muted-foreground">IF</p>
+          <p className="text-sm font-semibold text-muted-foreground">
+            Flag rows where...
+          </p>
           <ConditionGroupComponent
             group={rootGroup}
             columns={columns}
@@ -168,9 +170,9 @@ export function RuleBuilder({
           />
         </div>
 
-        {/* THEN label */}
+        {/* Result label */}
         <p className="text-sm font-semibold text-muted-foreground">
-          THEN flag as{" "}
+          Mark matching rows as{" "}
           <span className="text-foreground">{severityLabel}</span>
         </p>
 

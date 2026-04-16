@@ -55,12 +55,12 @@ export interface RuleTestResult {
 // ---------------------------------------------------------------------------
 
 export const THRESHOLD_OPERATORS = [
-  { value: ">", label: "greater than" },
-  { value: "<", label: "less than" },
-  { value: ">=", label: "greater than or equal" },
-  { value: "<=", label: "less than or equal" },
-  { value: "==", label: "equals" },
-  { value: "!=", label: "not equal to" },
+  { value: ">", label: "is greater than" },
+  { value: "<", label: "is less than" },
+  { value: ">=", label: "is at least" },
+  { value: "<=", label: "is at most" },
+  { value: "==", label: "is exactly" },
+  { value: "!=", label: "is not" },
 ] as const
 
 export const COMPARISON_OPERATORS = THRESHOLD_OPERATORS

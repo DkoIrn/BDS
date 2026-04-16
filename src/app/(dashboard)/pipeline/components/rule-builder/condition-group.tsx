@@ -18,6 +18,16 @@ interface ConditionGroupComponentProps {
   onRemove?: () => void
 }
 
+const LOGIC_LABELS = {
+  AND: "All of these are true",
+  OR: "Any of these are true",
+} as const
+
+const LOGIC_BADGES = {
+  AND: "and",
+  OR: "or",
+} as const
+
 export function ConditionGroupComponent({
   group,
   columns,
@@ -80,21 +90,30 @@ export function ConditionGroupComponent({
     >
       {/* Header */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Button variant="outline" size="xs" onClick={toggleLogic}>
-          {group.logic}
-        </Button>
+        <button
+          onClick={toggleLogic}
+          className={cn(
+            "rounded-lg px-3 py-1 text-xs font-semibold transition-colors cursor-pointer",
+            isAnd
+              ? "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300"
+              : "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300"
+          )}
+        >
+          {LOGIC_LABELS[group.logic]}
+        </button>
         <Button variant="ghost" size="xs" onClick={addCondition}>
           <Plus data-icon="inline-start" />
-          Condition
+          Add check
         </Button>
         <Button
           variant="ghost"
           size="xs"
           onClick={addNestedGroup}
           disabled={!canNest}
+          title={!canNest ? "Maximum nesting depth reached" : "Add a sub-group of conditions"}
         >
           <FolderPlus data-icon="inline-start" />
-          Group
+          Add group
         </Button>
         {onRemove && (
           <Button
@@ -120,7 +139,7 @@ export function ConditionGroupComponent({
                   : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
               )}
             >
-              {group.logic}
+              {LOGIC_BADGES[group.logic]}
             </span>
           )}
           <ConditionRow
@@ -144,7 +163,7 @@ export function ConditionGroupComponent({
                   : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
               )}
             >
-              {group.logic}
+              {LOGIC_BADGES[group.logic]}
             </span>
           )}
           <ConditionGroupComponent
