@@ -165,10 +165,11 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
     return buildColumnMappingsFromHeaders(state.parsedData[0])
   }, [state.parsedData])
 
-  const hasSpatial = useMemo(
-    () => pipelineMappings.some((m) => m.mappedType === "latitude" || m.mappedType === "easting"),
-    [pipelineMappings]
-  )
+  const hasSpatial = useMemo(() => {
+    const types = new Set(pipelineMappings.map((m) => m.mappedType).filter(Boolean))
+    // Only show map for lat/lng data — easting/northing requires CRS conversion
+    return types.has("latitude") && types.has("longitude")
+  }, [pipelineMappings])
 
   // Compute spatial issues for the map
   const { spatialIssues, heatmapPoints } = useMemo(() => {

@@ -11,8 +11,8 @@ export function hasSpatialColumns(
 ): boolean {
   if (!mappings) return false
   const types = new Set(mappings.map((m) => m.mappedType))
+  // Only lat/lng — easting/northing requires CRS conversion which isn't implemented
   if (types.has('latitude') && types.has('longitude')) return true
-  if (types.has('easting') && types.has('northing')) return true
   return false
 }
 
