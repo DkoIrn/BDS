@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     try {
       const { data: fullDataset } = await adminClient
         .from("datasets")
-        .select("storage_path, file_size, total_rows")
+        .select("storage_path, file_size, total_rows, column_mappings")
         .eq("id", datasetId)
         .single()
 
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
           version_number: nextVersion,
           storage_path: storagePath,
           row_count: fullDataset?.total_rows ?? totalRows,
-          column_count: 0,
+          column_count: Array.isArray(fullDataset?.column_mappings) ? fullDataset.column_mappings.length : 0,
           file_size: fullDataset?.file_size ?? 0,
           validation_run_id: run.id,
           issue_count: totalIssues,
