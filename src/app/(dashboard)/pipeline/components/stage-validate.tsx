@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import dynamic from "next/dynamic"
 import {
   ShieldCheck,
@@ -12,9 +12,14 @@ import {
   Info,
   X,
   MapPin,
+  Wand2,
+  Plus,
+  Trash2,
+  Pencil,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import type { StagePanelProps } from "./stage-import"
@@ -36,6 +41,20 @@ import type { IssueCluster } from "@/lib/ai/types"
 import type { SpatialIssue } from "@/components/spatial-qc/lib/types"
 import type { ColumnMapping, SurveyColumnType } from "@/lib/parsing/types"
 import type { ValidationIssue as ServerValidationIssue } from "@/lib/types/validation"
+import type {
+  CustomRule,
+  CustomRuleDefinition,
+  RuleTestResult,
+} from "@/lib/types/custom-rules"
+import {
+  getRulesForProfile,
+  createRule,
+  updateRule,
+  deleteRule,
+  testRule,
+} from "@/lib/actions/custom-rules"
+import { RuleBuilder } from "./rule-builder/rule-builder"
+import { RuleTestPreview } from "./rule-builder/rule-test-preview"
 
 const SpatialQCMap = dynamic(
   () => import("@/components/spatial-qc/spatial-qc-map").then((m) => ({ default: m.SpatialQCMap })),
@@ -99,6 +118,8 @@ function mapBackendRuleType(ruleType: string): ValidationIssue["type"] {
     // KP/segment
     kp_drift: "kp_gap",
     segment_continuity: "kp_gap",
+    // Custom rules
+    custom_rule: "outlier",
   }
   return mapping[ruleType] ?? "outlier"
 }
@@ -159,6 +180,14 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
   const [dismissed, setDismissed] = useState(false)
   const [showMap, setShowMap] = useState(false)
 
+  // Custom rules state
+  const [customRules, setCustomRules] = useState<CustomRule[]>([])
+  const [showRuleBuilder, setShowRuleBuilder] = useState(false)
+  const [editingRule, setEditingRule] = useState<CustomRule | null>(null)
+  const [testResult, setTestResult] = useState<RuleTestResult | null>(null)
+  const [isTesting, setIsTesting] = useState(false)
+  const [loadingRules, setLoadingRules] = useState(false)
+
   // Build column mappings from parsed data headers for spatial detection
   const pipelineMappings = useMemo(() => {
     if (!state.parsedData || state.parsedData.length === 0) return []
@@ -198,6 +227,95 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
     }
   }, [state.parsedData])
 
+  // Derive column options for RuleBuilder from parsed data headers
+  const ruleBuilderColumns = useMemo(() => {
+    if (!state.parsedData || state.parsedData.length === 0) return []
+    const headers = state.parsedData[0]
+    return headers.map((h) => ({ value: h, label: h }))
+  }, [state.parsedData])
+
+  // Custom rules handlers
+  const handleLoadRules = useCallback(async (profileId: string) => {
+    setLoadingRules(true)
+    const result = await getRulesForProfile(profileId)
+    if ("data" in result) {
+      setCustomRules(result.data)
+    } else {
+      toast.error(result.error)
+    }
+    setLoadingRules(false)
+  }, [])
+
+  const handleTestRule = useCallback(
+    async (rule: CustomRuleDefinition) => {
+      if (!state.datasetId) {
+        toast.error("No dataset available to test against")
+        return
+      }
+      setIsTesting(true)
+      setTestResult(null)
+      const res = await testRule(rule.rootGroup, state.datasetId, rule.severity)
+      if ("data" in res) {
+        setTestResult(res.data)
+      } else {
+        toast.error(res.error)
+      }
+      setIsTesting(false)
+    },
+    [state.datasetId]
+  )
+
+  const handleSaveRule = useCallback(
+    async (profileId: string, rule: CustomRuleDefinition) => {
+      if (editingRule) {
+        const res = await updateRule(editingRule.id, rule)
+        if ("data" in res) {
+          setCustomRules((prev) =>
+            prev.map((r) => (r.id === editingRule.id ? res.data : r))
+          )
+          toast.success("Rule updated")
+        } else {
+          toast.error(res.error)
+          return
+        }
+      } else {
+        const res = await createRule(profileId, rule)
+        if ("data" in res) {
+          setCustomRules((prev) => [...prev, res.data])
+          toast.success("Rule saved")
+        } else {
+          toast.error(res.error)
+          return
+        }
+      }
+      setShowRuleBuilder(false)
+      setEditingRule(null)
+      setTestResult(null)
+    },
+    [editingRule]
+  )
+
+  const handleToggleRule = useCallback(async (rule: CustomRule) => {
+    const res = await updateRule(rule.id, { enabled: !rule.enabled })
+    if ("data" in res) {
+      setCustomRules((prev) =>
+        prev.map((r) => (r.id === rule.id ? res.data : r))
+      )
+    } else {
+      toast.error(res.error)
+    }
+  }, [])
+
+  const handleDeleteRule = useCallback(async (ruleId: string) => {
+    const res = await deleteRule(ruleId)
+    if ("success" in res) {
+      setCustomRules((prev) => prev.filter((r) => r.id !== ruleId))
+      toast.success("Rule deleted")
+    } else {
+      toast.error(res.error)
+    }
+  }, [])
+
   async function handleRunQC() {
     setValidating(true)
     setError(null)
@@ -210,6 +328,11 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
       if (state.datasetId) {
         // Existing dataset — use backend
         const requestBody: Record<string, unknown> = { datasetId: state.datasetId }
+        // Include enabled custom rule IDs
+        const enabledRuleIds = customRules.filter((r) => r.enabled).map((r) => r.id)
+        if (enabledRuleIds.length > 0) {
+          requestBody.customRuleIds = enabledRuleIds
+        }
         // Include cross-dataset config if in cross-dataset mode with types selected
         if (state.crossDatasetMode && state.secondDatasetId && state.datasetTypeA && state.datasetTypeB) {
           requestBody.secondaryDatasetId = state.secondDatasetId
@@ -641,6 +764,40 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           <CrossValidationSettings state={state} dispatch={dispatch} />
         )}
 
+        {/* Custom Rules section */}
+        {state.datasetId && (
+          <CustomRulesSection
+            rules={customRules}
+            loading={loadingRules}
+            columns={ruleBuilderColumns}
+            showBuilder={showRuleBuilder}
+            editingRule={editingRule}
+            testResult={testResult}
+            isTesting={isTesting}
+            datasetId={state.datasetId}
+            onLoadRules={handleLoadRules}
+            onToggleBuilder={() => {
+              setShowRuleBuilder((v) => !v)
+              setEditingRule(null)
+              setTestResult(null)
+            }}
+            onEditRule={(rule) => {
+              setEditingRule(rule)
+              setShowRuleBuilder(true)
+              setTestResult(null)
+            }}
+            onToggleRule={handleToggleRule}
+            onDeleteRule={handleDeleteRule}
+            onTestRule={handleTestRule}
+            onSaveRule={handleSaveRule}
+            onCancelBuilder={() => {
+              setShowRuleBuilder(false)
+              setEditingRule(null)
+              setTestResult(null)
+            }}
+          />
+        )}
+
         {error && (
           <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-500" />
@@ -753,6 +910,203 @@ function IssuesList({
         </button>
       )}
     </div>
+  )
+}
+
+/** Custom rules section within the validate stage */
+function CustomRulesSection({
+  rules,
+  loading,
+  columns,
+  showBuilder,
+  editingRule,
+  testResult,
+  isTesting,
+  datasetId,
+  onLoadRules,
+  onToggleBuilder,
+  onEditRule,
+  onToggleRule,
+  onDeleteRule,
+  onTestRule,
+  onSaveRule,
+  onCancelBuilder,
+}: {
+  rules: CustomRule[]
+  loading: boolean
+  columns: Array<{ value: string; label: string }>
+  showBuilder: boolean
+  editingRule: CustomRule | null
+  testResult: RuleTestResult | null
+  isTesting: boolean
+  datasetId: string
+  onLoadRules: (profileId: string) => void
+  onToggleBuilder: () => void
+  onEditRule: (rule: CustomRule) => void
+  onToggleRule: (rule: CustomRule) => void
+  onDeleteRule: (ruleId: string) => void
+  onTestRule: (rule: CustomRuleDefinition) => void
+  onSaveRule: (profileId: string, rule: CustomRuleDefinition) => void
+  onCancelBuilder: () => void
+}) {
+  const [profileId, setProfileId] = useState<string | null>(null)
+  const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([])
+  const [loadedProfiles, setLoadedProfiles] = useState(false)
+
+  // Load profiles on mount
+  useEffect(() => {
+    if (loadedProfiles) return
+    setLoadedProfiles(true)
+    import("@/lib/actions/profiles").then(({ getProfiles }) => {
+      getProfiles().then((res) => {
+        if ("data" in res) {
+          setProfiles(res.data.map((p) => ({ id: p.id, name: p.name })))
+          // Auto-select first profile
+          if (res.data.length > 0 && !profileId) {
+            setProfileId(res.data[0].id)
+            onLoadRules(res.data[0].id)
+          }
+        }
+      })
+    })
+  }, [loadedProfiles, profileId, onLoadRules])
+
+  const severityBadge = (severity: string) => {
+    const config =
+      severity === "critical"
+        ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300"
+        : severity === "warning"
+          ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300"
+          : "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
+    return (
+      <span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${config}`}>
+        {severity}
+      </span>
+    )
+  }
+
+  return (
+    <Card className="rounded-2xl border-violet-200 dark:border-violet-900">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Wand2 className="size-4 text-violet-500" />
+          Custom Rules
+        </CardTitle>
+        <p className="text-xs text-muted-foreground">
+          Define custom validation rules to check alongside built-in validators
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Profile selector */}
+        {profiles.length > 0 && (
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-muted-foreground shrink-0">
+              Profile:
+            </label>
+            <select
+              className="rounded-md border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+              value={profileId ?? ""}
+              onChange={(e) => {
+                setProfileId(e.target.value)
+                onLoadRules(e.target.value)
+              }}
+            >
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {profiles.length === 0 && !loading && (
+          <p className="text-xs text-muted-foreground">
+            No validation profiles found. Create a profile to save custom rules.
+          </p>
+        )}
+
+        {/* Rules list */}
+        {loading ? (
+          <Skeleton className="h-8 w-full" />
+        ) : rules.length > 0 ? (
+          <div className="space-y-1.5">
+            {rules.map((rule) => (
+              <div
+                key={rule.id}
+                className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2"
+              >
+                <Switch
+                  checked={rule.enabled}
+                  onCheckedChange={() => onToggleRule(rule)}
+                  className="shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{rule.name}</p>
+                </div>
+                {severityBadge(rule.severity)}
+                <button
+                  onClick={() => onEditRule(rule)}
+                  className="p-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  title="Edit rule"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+                <button
+                  onClick={() => onDeleteRule(rule.id)}
+                  className="p-1 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                  title="Delete rule"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : profileId ? (
+          <p className="text-xs text-muted-foreground">
+            No custom rules yet. Click below to create one.
+          </p>
+        ) : null}
+
+        {/* Add rule button */}
+        {profileId && !showBuilder && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onToggleBuilder}
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-300 dark:hover:bg-violet-950/30"
+          >
+            <Plus className="mr-1 size-3.5" />
+            Add Custom Rule
+          </Button>
+        )}
+
+        {/* Rule builder */}
+        {showBuilder && profileId && (
+          <div className="space-y-3">
+            <RuleBuilder
+              columns={columns}
+              initialRule={
+                editingRule
+                  ? {
+                      name: editingRule.name,
+                      description: editingRule.description,
+                      severity: editingRule.severity,
+                      rootGroup: editingRule.rule_definition,
+                    }
+                  : undefined
+              }
+              onSave={(rule) => onSaveRule(profileId, rule)}
+              onTest={datasetId ? onTestRule : undefined}
+              onCancel={onCancelBuilder}
+              testResult={testResult}
+              isTesting={isTesting}
+            />
+            {testResult && <RuleTestPreview result={testResult} />}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

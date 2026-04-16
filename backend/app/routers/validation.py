@@ -23,6 +23,7 @@ def _legacy_validation_background(
     config: ProfileConfig | None,
     secondary_dataset_id: str | None = None,
     cross_dataset_config: CrossDatasetConfig | None = None,
+    custom_rule_ids: list[str] | None = None,
 ) -> None:
     """Legacy: Run full validation pipeline via BackgroundTasks.
 
@@ -188,6 +189,50 @@ def _legacy_validation_background(
                     dataset_id, secondary_dataset_id, str(xd_err),
                 )
         # --- End cross-dataset validation ---
+
+        # --- Custom rules execution ---
+        if custom_rule_ids:
+            try:
+                from app.models.schemas import ConditionGroup as CG, CustomRuleDefinition as CRD
+                from app.services.custom_rules import execute_custom_rule as exec_cr
+
+                cr_result = (
+                    supabase.table("custom_rules")
+                    .select("*")
+                    .in_("id", custom_rule_ids)
+                    .eq("enabled", True)
+                    .execute()
+                )
+                custom_rules = cr_result.data or []
+
+                kp_col = None
+                for m in mappings:
+                    if m.get("mappedType") == "kp" and not m.get("ignored"):
+                        kp_col = "kp"
+                        break
+
+                for cr in custom_rules:
+                    try:
+                        group = CG(**cr["rule_definition"])
+                        rule_def = CRD(
+                            name=cr["name"],
+                            description=cr.get("description", ""),
+                            severity=cr.get("severity", "warning"),
+                            root_group=group,
+                        )
+                        cr_issues = exec_cr(df, rule_def, kp_column=kp_col)
+                        issues.extend(cr_issues)
+                    except Exception as cr_err:
+                        logger.warning(
+                            "Custom rule %s execution failed: %s",
+                            cr.get("id", "?"), str(cr_err),
+                        )
+            except Exception as cr_err:
+                logger.error(
+                    "Custom rules execution failed for dataset %s: %s",
+                    dataset_id, str(cr_err),
+                )
+        # --- End custom rules execution ---
 
         # Count by severity
         critical_count = sum(1 for i in issues if i.severity == Severity.CRITICAL)
@@ -409,5 +454,6 @@ async def validate_dataset(request: ValidateRequest, background_tasks: Backgroun
             request.config,
             request.secondary_dataset_id,
             request.cross_dataset_config,
+            request.custom_rule_ids,
         )
         return {"status": "accepted", "dataset_id": request.dataset_id}

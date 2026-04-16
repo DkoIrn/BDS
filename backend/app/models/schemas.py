@@ -77,6 +77,7 @@ class ValidateRequest(BaseModel):
     config: ProfileConfig | None = None
     secondary_dataset_id: str | None = None
     cross_dataset_config: CrossDatasetConfig | None = None
+    custom_rule_ids: list[str] | None = None
 
 
 class ValidateResponse(BaseModel):
