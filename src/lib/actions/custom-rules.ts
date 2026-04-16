@@ -9,11 +9,13 @@ import type {
 
 /**
  * Helper to build absolute URL for API routes in server actions.
- * Uses NEXT_PUBLIC_APP_URL or falls back to localhost.
+ * Uses VERCEL_URL (auto-set by Vercel), NEXT_PUBLIC_APP_URL, or localhost.
  */
 function apiUrl(path: string): string {
   const base =
-    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    'http://localhost:3000'
   return `${base}${path}`
 }
 
