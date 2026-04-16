@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
 import { requireOrgRole } from "@/lib/permissions"
 
 interface PipelineValidationRequest {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const body: PipelineValidationRequest = await request.json()
     const { datasetId, issues, totalRows } = body
 
-    // RLS ensures dataset belongs to the user's org
+    // Verify dataset exists and user has access (via RLS)
     const { data: dataset } = await supabase
       .from("datasets")
       .select("id")
@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
     if (!dataset) {
       return NextResponse.json({ error: "Dataset not found" }, { status: 404 })
     }
+
+    // Use service role client for writes (validation_runs/issues have no INSERT RLS policy)
+    const adminClient = createServiceClient()
 
     // Count by severity
     const criticalCount = issues.filter((i) => i.severity === "critical").length
@@ -69,8 +72,8 @@ export async function POST(request: NextRequest) {
     )
     const completenessScore = totalRows > 0 ? (totalRows - missingRows.size) / totalRows : 1
 
-    // Create validation run
-    const { data: run, error: runError } = await supabase
+    // Create validation run (service role — bypasses RLS)
+    const { data: run, error: runError } = await adminClient
       .from("validation_runs")
       .insert({
         dataset_id: datasetId,
@@ -104,7 +107,7 @@ export async function POST(request: NextRequest) {
         kp_value: issue.kpValue ?? null,
       }))
 
-      const { error: issuesError } = await supabase
+      const { error: issuesError } = await adminClient
         .from("validation_issues")
         .insert(issueRows)
 
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update dataset status to validated
-    await supabase
+    await adminClient
       .from("datasets")
       .update({ status: "validated" })
       .eq("id", datasetId)
