@@ -64,13 +64,13 @@ export async function POST(request: NextRequest) {
     const criticalRows = new Set(
       issues.filter((i) => i.severity === "critical" && i.row).map((i) => i.row)
     )
-    const passRate = totalRows > 0 ? (totalRows - criticalRows.size) / totalRows : 1
+    const passRate = totalRows > 0 ? ((totalRows - criticalRows.size) / totalRows) * 100 : 100
 
     // Completeness: rows without missing data / total rows
     const missingRows = new Set(
       issues.filter((i) => i.type === "missing" && i.row).map((i) => i.row)
     )
-    const completenessScore = totalRows > 0 ? (totalRows - missingRows.size) / totalRows : 1
+    const completenessScore = totalRows > 0 ? ((totalRows - missingRows.size) / totalRows) * 100 : 100
 
     // Create validation run (service role — bypasses RLS)
     const { data: run, error: runError } = await adminClient
@@ -97,8 +97,8 @@ export async function POST(request: NextRequest) {
       const issueRows = issues.map((issue) => ({
         run_id: run.id,
         dataset_id: datasetId,
-        row_number: issue.row ?? null,
-        column_name: issue.column ?? null,
+        row_number: issue.row ?? 0,
+        column_name: issue.column ?? "unknown",
         rule_type: issue.type,
         severity: issue.severity,
         message: issue.message,
