@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: executing
-stopped_at: Completed 35-01-PLAN.md
-last_updated: "2026-04-14T23:04:59.160Z"
-last_activity: 2026-04-15 -- Completed 35-01 cross-dataset validation backend
+stopped_at: Completed 36-02-PLAN.md
+last_updated: "2026-04-16T22:46:30.522Z"
+last_activity: 2026-04-16 -- Completed 36-02 rule builder frontend
 progress:
   total_phases: 9
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 11
-  percent: 81
+  completed_phases: 6
+  total_plans: 17
+  completed_plans: 13
+  percent: 79
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 34 -- Collaboration Extended (email notifications, preferences, activity feed)
+**Current focus:** Phase 36 -- Custom Rule Builder
 
 ## Current Position
 
-Phase: 35 of 37 (Cross-Dataset Validation)
-Plan: 1 of 2 complete
+Phase: 36 of 37 (Custom Rule Builder)
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-04-15 -- Completed 35-01 cross-dataset validation backend
+Last activity: 2026-04-16 -- Completed 36-02 rule builder frontend
 
-Progress: [████████░░] 81%
+Progress: [████████░░] 79%
 
 ## Accumulated Context
 
@@ -76,6 +76,9 @@ See PROJECT.md Key Decisions table for full history.
 - 34-02: Client-side event filtering via filter chips rather than server-side re-fetch
 - [Phase 35]: merge_asof with direction=nearest for KP alignment between survey datasets
 - [Phase 35]: Cross-dataset issues use row_number=0 with populated kp_value for KP-based references
+- [Phase 36]: base-ui Select API used consistently with existing column-mapping-table pattern
+- [Phase 36]: AND/OR logic chip between conditions for visual grouping clarity
+- [Phase 36]: Nesting depth enforced at component level via depth prop comparison
 
 ### Roadmap Evolution
 
@@ -91,6 +94,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-14T23:04:59.156Z
-Stopped at: Completed 35-01-PLAN.md
+Last session: 2026-04-16T22:46:30.517Z
+Stopped at: Completed 36-02-PLAN.md
 Resume file: None

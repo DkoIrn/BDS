@@ -186,5 +186,5 @@ Plans:
 | 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | 1/2 | In Progress|  | - |
-| 36. Custom Rule Builder | v1.1 | 0/3 | Planned | - |
+| 36. Custom Rule Builder | 1/3 | In Progress|  | - |
 | 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |
