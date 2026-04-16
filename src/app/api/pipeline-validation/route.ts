@@ -124,61 +124,46 @@ export async function POST(request: NextRequest) {
 
     // Create version snapshot
     try {
-      // Get dataset details for version record
       const { data: fullDataset } = await adminClient
         .from("datasets")
-        .select("storage_path, file_size, uploaded_by, total_rows")
+        .select("storage_path, file_size, total_rows")
         .eq("id", datasetId)
         .single()
 
-      if (fullDataset?.storage_path) {
-        // Get existing versions to determine next version number
-        const { data: existingVersions } = await adminClient
-          .from("dataset_versions")
-          .select("version_number")
-          .eq("dataset_id", datasetId)
-          .order("version_number", { ascending: false })
-          .limit(1)
+      // Get next version number
+      const { data: existingVersions } = await adminClient
+        .from("dataset_versions")
+        .select("version_number")
+        .eq("dataset_id", datasetId)
+        .order("version_number", { ascending: false })
+        .limit(1)
 
-        const nextVersion = existingVersions && existingVersions.length > 0
-          ? existingVersions[0].version_number + 1
-          : 1
+      const nextVersion = existingVersions && existingVersions.length > 0
+        ? existingVersions[0].version_number + 1
+        : 1
 
-        // Copy file to versioned path
-        const timestamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14)
-        const userId = fullDataset.uploaded_by || user.id
-        const versionPath = `${userId}/${datasetId}/versions/v${nextVersion}_${timestamp}.csv`
+      const storagePath = fullDataset?.storage_path ?? ""
 
-        // Download and re-upload to version path
-        const { data: fileData } = await adminClient.storage
-          .from("datasets")
-          .download(fullDataset.storage_path)
+      const { error: versionError } = await adminClient
+        .from("dataset_versions")
+        .insert({
+          dataset_id: datasetId,
+          version_number: nextVersion,
+          storage_path: storagePath,
+          row_count: fullDataset?.total_rows ?? totalRows,
+          column_count: 0,
+          file_size: fullDataset?.file_size ?? 0,
+          validation_run_id: run.id,
+          issue_count: totalIssues,
+          severity_breakdown: {
+            critical: criticalCount,
+            warning: warningCount,
+            info: infoCount,
+          },
+        })
 
-        if (fileData) {
-          const buffer = await fileData.arrayBuffer()
-          await adminClient.storage
-            .from("datasets")
-            .upload(versionPath, Buffer.from(buffer), { contentType: "text/csv" })
-
-          // Insert version record
-          await adminClient
-            .from("dataset_versions")
-            .insert({
-              dataset_id: datasetId,
-              version_number: nextVersion,
-              storage_path: versionPath,
-              row_count: fullDataset.total_rows ?? totalRows,
-              column_count: 0,
-              file_size: fullDataset.file_size ?? 0,
-              validation_run_id: run.id,
-              issue_count: totalIssues,
-              severity_breakdown: {
-                critical: criticalCount,
-                warning: warningCount,
-                info: infoCount,
-              },
-            })
-        }
+      if (versionError) {
+        console.error("Version insert failed:", versionError.message)
       }
     } catch (versionErr) {
       console.error("Failed to create version snapshot:", versionErr)
