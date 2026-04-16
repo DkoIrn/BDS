@@ -525,12 +525,15 @@ function SaveToProject({
 
       if ("error" in fileResult) throw new Error(fileResult.error)
 
-      // 6. Trigger parse and wait — must complete before setting mappings
-      await fetch("/api/parse", {
+      // 6. Trigger parse and WAIT for completion before setting mappings/validation
+      const parseRes = await fetch("/api/parse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ datasetId: fileResult.id }),
-      }).catch(() => {})
+      })
+      if (!parseRes.ok) {
+        console.error("Parse failed:", await parseRes.text().catch(() => ""))
+      }
 
       // 6b. Confirm column mappings so the dataset skips the mapping step
       // Parse auto-detects mappings; this promotes status from 'parsed' → 'mapped'
