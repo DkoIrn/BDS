@@ -417,7 +417,7 @@ function SaveToProject({
   const [savedProjectId, setSavedProjectId] = useState<string | null>(null)
 
   // Existing project state
-  const [existingProjects, setExistingProjects] = useState<{ id: string; name: string; jobs: { id: string; name: string }[] }[]>([])
+  const [existingProjects, setExistingProjects] = useState<{ id: string; name: string; jobs: { id: string; name: string; datasets: { id: string; file_name: string; storage_path: string }[] }[] }[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState("")
   const [selectedJobId, setSelectedJobId] = useState("")
   const [loadingProjects, setLoadingProjects] = useState(false)
@@ -548,58 +548,118 @@ function SaveToProject({
 
       if (!file) throw new Error("No file available to save")
 
-      // 4. Upload to Supabase Storage
-      const storagePath = `${userId}/${jobId}/${Date.now()}-${file.name}`
-      const contentType = file.type || "text/csv"
-      const { error: uploadError } = await supabase.storage
-        .from("datasets")
-        .upload(storagePath, file, { contentType })
+      let datasetId: string
 
-      if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
+      if (saveMode === "existing") {
+        // --- EXISTING PROJECT: update existing dataset ---
+        const selectedJob = selectedProject?.jobs.find((j) => j.id === jobId)
+        const existingDataset = selectedJob?.datasets?.[0]
 
-      // 5. Create file record
-      const { createFileRecord } = await import("@/lib/actions/files")
-      const fileResult = await createFileRecord({
-        jobId,
-        fileName: file.name,
-        fileSize: file.size,
-        mimeType: file.type || "text/csv",
-        storagePath,
-      })
+        // Upload new file version to storage
+        const storagePath = `${userId}/${jobId}/${Date.now()}-${file.name}`
+        const contentType = file.type || "text/csv"
+        const { error: uploadError } = await supabase.storage
+          .from("datasets")
+          .upload(storagePath, file, { contentType })
 
-      if ("error" in fileResult) throw new Error(fileResult.error)
+        if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
 
-      // 6. Trigger parse and WAIT for completion before setting mappings/validation
-      const parseRes = await fetch("/api/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ datasetId: fileResult.id }),
-      })
-      if (!parseRes.ok) {
-        console.error("Parse failed:", await parseRes.text().catch(() => ""))
-      }
+        if (existingDataset) {
+          // Update existing dataset record with new file
+          datasetId = existingDataset.id
+          await supabase
+            .from("datasets")
+            .update({
+              storage_path: storagePath,
+              file_name: file.name,
+              file_size: file.size,
+              total_rows: state.rowCount,
+            })
+            .eq("id", datasetId)
+        } else {
+          // No dataset in this job yet — create one
+          const { createFileRecord } = await import("@/lib/actions/files")
+          const fileResult = await createFileRecord({
+            jobId,
+            fileName: file.name,
+            fileSize: file.size,
+            mimeType: file.type || "text/csv",
+            storagePath,
+          })
+          if ("error" in fileResult) throw new Error(fileResult.error)
+          datasetId = fileResult.id
+        }
 
-      // 6b. Confirm column mappings so the dataset skips the mapping step
-      // Parse auto-detects mappings; this promotes status from 'parsed' → 'mapped'
-      const { saveColumnMappings } = await import("@/lib/actions/files")
-      const { data: freshDataset } = await supabase
-        .from("datasets")
-        .select("column_mappings")
-        .eq("id", fileResult.id)
-        .single()
-      if (freshDataset?.column_mappings) {
-        await saveColumnMappings(fileResult.id, freshDataset.column_mappings as import("@/lib/parsing/types").ColumnMapping[])
+        // Parse the updated file
+        const parseRes = await fetch("/api/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ datasetId }),
+        })
+        if (!parseRes.ok) {
+          console.error("Parse failed:", await parseRes.text().catch(() => ""))
+        }
+
+        // Confirm mappings
+        const { saveColumnMappings } = await import("@/lib/actions/files")
+        const { data: freshDataset } = await supabase
+          .from("datasets")
+          .select("column_mappings")
+          .eq("id", datasetId)
+          .single()
+        if (freshDataset?.column_mappings) {
+          await saveColumnMappings(datasetId, freshDataset.column_mappings as import("@/lib/parsing/types").ColumnMapping[])
+        }
+      } else {
+        // --- NEW PROJECT: create new dataset ---
+        const storagePath = `${userId}/${jobId}/${Date.now()}-${file.name}`
+        const contentType = file.type || "text/csv"
+        const { error: uploadError } = await supabase.storage
+          .from("datasets")
+          .upload(storagePath, file, { contentType })
+
+        if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
+
+        const { createFileRecord } = await import("@/lib/actions/files")
+        const fileResult = await createFileRecord({
+          jobId,
+          fileName: file.name,
+          fileSize: file.size,
+          mimeType: file.type || "text/csv",
+          storagePath,
+        })
+        if ("error" in fileResult) throw new Error(fileResult.error)
+        datasetId = fileResult.id
+
+        // Parse and confirm mappings
+        const parseRes = await fetch("/api/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ datasetId }),
+        })
+        if (!parseRes.ok) {
+          console.error("Parse failed:", await parseRes.text().catch(() => ""))
+        }
+
+        const { saveColumnMappings } = await import("@/lib/actions/files")
+        const { data: freshDataset } = await supabase
+          .from("datasets")
+          .select("column_mappings")
+          .eq("id", datasetId)
+          .single()
+        if (freshDataset?.column_mappings) {
+          await saveColumnMappings(datasetId, freshDataset.column_mappings as import("@/lib/parsing/types").ColumnMapping[])
+        }
       }
 
       // 7. Save pipeline validation results if we ran validation
-      // Runs after mapping so final status ends up as 'validated'
       if (validationIssues.length > 0 || state.stages.validate.completed) {
         try {
           const valRes = await fetch("/api/pipeline-validation", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              datasetId: fileResult.id,
+              datasetId,
               issues: validationIssues.map((i) => ({
                 type: i.type,
                 severity: i.severity,
@@ -619,7 +679,6 @@ function SaveToProject({
           } else {
             const errBody = await valRes.text().catch(() => "Unknown error")
             console.error("Pipeline validation persist failed:", valRes.status, errBody)
-            console.error("QC results could not be saved to project")
           }
         } catch (valErr) {
           console.error("Failed to persist pipeline validation results:", valErr)
@@ -634,7 +693,7 @@ function SaveToProject({
         auditEntries.push({
           action: "validation.complete",
           entityType: "dataset",
-          entityId: fileResult.id,
+          entityId: datasetId,
           metadata: {
             source: "pipeline_client",
             fileName: state.fileName,
@@ -648,7 +707,7 @@ function SaveToProject({
         auditEntries.push({
           action: "clean.auto",
           entityType: "dataset",
-          entityId: fileResult.id,
+          entityId: datasetId,
           metadata: {
             ...(state.cleanSummary ?? {}),
             fileName: state.fileName,
@@ -660,10 +719,14 @@ function SaveToProject({
       auditEntries.push({
         action: "dataset.save_to_project",
         entityType: "dataset",
-        entityId: fileResult.id,
+        entityId: datasetId,
         metadata: {
-          projectName: projectName.trim(),
-          jobName: jobName.trim(),
+          projectName: saveMode === "existing"
+            ? existingProjects.find((p) => p.id === selectedProjectId)?.name ?? ""
+            : projectName.trim(),
+          jobName: saveMode === "existing"
+            ? selectedProject?.jobs.find((j) => j.id === selectedJobId)?.name ?? ""
+            : jobName.trim(),
           surveyType,
           fileName: state.fileName,
           rowCount: state.rowCount,

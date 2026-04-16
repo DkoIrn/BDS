@@ -119,7 +119,7 @@ export async function createJob(
 }
 
 export async function getUserProjectsWithJobs(): Promise<
-  { data: { id: string; name: string; jobs: { id: string; name: string }[] }[] } | { error: string }
+  { data: { id: string; name: string; jobs: { id: string; name: string; datasets: { id: string; file_name: string; storage_path: string }[] }[] }[] } | { error: string }
 > {
   const supabase = await createClient()
 
@@ -134,7 +134,7 @@ export async function getUserProjectsWithJobs(): Promise<
 
   const { data: projects, error } = await supabase
     .from('projects')
-    .select('id, name, jobs(id, name)')
+    .select('id, name, jobs(id, name, datasets(id, file_name, storage_path))')
     .eq('org_id', orgResult.orgId)
     .order('updated_at', { ascending: false })
 
@@ -144,7 +144,11 @@ export async function getUserProjectsWithJobs(): Promise<
     data: (projects || []).map((p) => ({
       id: p.id as string,
       name: p.name as string,
-      jobs: ((p.jobs as { id: string; name: string }[]) || []),
+      jobs: ((p.jobs as { id: string; name: string; datasets: { id: string; file_name: string; storage_path: string }[] }[]) || []).map((j) => ({
+        id: j.id,
+        name: j.name,
+        datasets: j.datasets || [],
+      })),
     })),
   }
 }
