@@ -17,6 +17,7 @@ from app.routers.jobs import router as jobs_router
 from app.routers.versions import router as versions_router
 from app.routers.certificates import router as certificates_router
 from app.routers.validate_file import router as validate_file_router
+from app.routers.custom_rules import router as custom_rules_router
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,7 @@ app.include_router(jobs_router)
 app.include_router(versions_router, tags=["versions"])
 app.include_router(certificates_router, tags=["certificates"])
 app.include_router(validate_file_router)
+app.include_router(custom_rules_router, tags=["custom-rules"])
 
 
 @app.get("/health")
