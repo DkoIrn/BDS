@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: executing
-stopped_at: Completed 36-02-PLAN.md
-last_updated: "2026-04-16T22:46:30.522Z"
+stopped_at: Completed 36-01-PLAN.md
+last_updated: "2026-04-16T22:49:30.790Z"
 last_activity: 2026-04-16 -- Completed 36-02 rule builder frontend
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 17
-  completed_plans: 13
+  completed_plans: 14
   percent: 79
 ---
 
@@ -79,6 +79,9 @@ See PROJECT.md Key Decisions table for full history.
 - [Phase 36]: base-ui Select API used consistently with existing column-mapping-table pattern
 - [Phase 36]: AND/OR logic chip between conditions for visual grouping clarity
 - [Phase 36]: Nesting depth enforced at component level via depth prop comparison
+- [Phase 36]: Nesting depth counted from root_group (depth 0); max 2 levels of sub-groups allowed
+- [Phase 36]: Rule executor produces standard ValidationIssue dataclass objects for pipeline compatibility
+- [Phase 36]: Test endpoint caps at 10K rows with truncation warning flag
 
 ### Roadmap Evolution
 
@@ -94,6 +97,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-16T22:46:30.517Z
-Stopped at: Completed 36-02-PLAN.md
+Last session: 2026-04-16T22:49:22.169Z
+Stopped at: Completed 36-01-PLAN.md
 Resume file: None

@@ -58,8 +58,8 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 - [x] **RULE-01**: User can create custom validation rules with IF/THEN conditions via a visual builder
 - [x] **RULE-02**: Rule builder supports three rule types: threshold check, column comparison, and null check
 - [x] **RULE-03**: Rules support AND/OR grouping (max 2 levels of nesting)
-- [ ] **RULE-04**: User can test a rule against the current dataset and preview matching rows before saving
-- [ ] **RULE-05**: Custom rules are saved to validation profiles and run alongside built-in validators
+- [x] **RULE-04**: User can test a rule against the current dataset and preview matching rows before saving
+- [x] **RULE-05**: Custom rules are saved to validation profiles and run alongside built-in validators
 
 ### Context-Aware QC
 
@@ -138,8 +138,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RULE-01 | Phase 36 | Complete |
 | RULE-02 | Phase 36 | Complete |
 | RULE-03 | Phase 36 | Complete |
-| RULE-04 | Phase 36 | Pending |
-| RULE-05 | Phase 36 | Pending |
+| RULE-04 | Phase 36 | Complete |
+| RULE-05 | Phase 36 | Complete |
 | CTXQ-01 | Phase 37 | Pending |
 | CTXQ-02 | Phase 37 | Pending |
 | CTXQ-03 | Phase 37 | Pending |
