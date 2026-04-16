@@ -571,13 +571,7 @@ function SaveToProject({
           })
           if (valRes.ok) {
             const valData = await valRes.json()
-            if (valData.runId) {
-              dispatch({
-                type: "VALIDATE_COMPLETE",
-                runId: valData.runId,
-                issueCount: valData.totalIssues ?? validationIssues.length,
-              })
-            }
+            console.log("Pipeline validation saved:", valData.runId, valData.totalIssues)
           } else {
             const errBody = await valRes.text().catch(() => "Unknown error")
             console.error("Pipeline validation persist failed:", valRes.status, errBody)
