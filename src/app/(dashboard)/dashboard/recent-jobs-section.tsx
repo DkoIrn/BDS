@@ -1,12 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { CheckCircle, XCircle, Clock, Loader2, FileText } from "lucide-react"
+import { CheckCircle, XCircle, FileText, Loader2 } from "lucide-react"
 
 interface RecentRun {
   id: string
-  datasetId: string
   fileName: string
   projectName: string
   totalIssues: number
@@ -23,43 +21,17 @@ export function RecentJobsSection() {
   useEffect(() => {
     async function fetchRuns() {
       try {
-        const supabase = createClient()
-        const { data, error } = await supabase
-          .from("validation_runs")
-          .select("id, dataset_id, total_issues, critical_count, pass_rate, status, run_at, datasets(file_name, job_id, jobs(project_id, projects(name)))")
-          .order("run_at", { ascending: false })
-          .limit(10)
-
-        if (error || !data) {
-          setLoading(false)
-          return
+        const res = await fetch("/api/recent-runs")
+        if (res.ok) {
+          const data = await res.json()
+          setRuns(data.runs ?? [])
         }
-
-        const mapped: RecentRun[] = data.map((r: Record<string, unknown>) => {
-          const dataset = r.datasets as Record<string, unknown> | null
-          const job = dataset?.jobs as Record<string, unknown> | null
-          const project = job?.projects as Record<string, unknown> | null
-          return {
-            id: r.id as string,
-            datasetId: r.dataset_id as string,
-            fileName: (dataset?.file_name as string) || "Unknown",
-            projectName: (project?.name as string) || "Unknown Project",
-            totalIssues: r.total_issues as number,
-            criticalCount: r.critical_count as number,
-            passRate: r.pass_rate as number | null,
-            status: r.status as string,
-            runAt: r.run_at as string,
-          }
-        })
-
-        setRuns(mapped)
       } catch (err) {
         console.error("Failed to fetch recent runs:", err)
       } finally {
         setLoading(false)
       }
     }
-
     fetchRuns()
   }, [])
 
@@ -95,15 +67,9 @@ export function RecentJobsSection() {
             className="flex items-center gap-3 rounded-xl border p-3 transition-colors hover:bg-muted/30"
           >
             <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${
-              run.status === "completed"
-                ? passed ? "bg-green-100 dark:bg-green-950/50" : "bg-red-100 dark:bg-red-950/50"
-                : "bg-amber-100 dark:bg-amber-950/50"
+              passed ? "bg-green-100 dark:bg-green-950/50" : "bg-red-100 dark:bg-red-950/50"
             }`}>
-              {run.status === "completed" ? (
-                passed ? <CheckCircle className="size-4 text-green-600" /> : <XCircle className="size-4 text-red-600" />
-              ) : (
-                <Clock className="size-4 text-amber-600" />
-              )}
+              {passed ? <CheckCircle className="size-4 text-green-600" /> : <XCircle className="size-4 text-red-600" />}
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{run.fileName}</p>
