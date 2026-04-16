@@ -158,7 +158,11 @@ Plans:
   2. User can combine conditions with AND/OR grouping (up to 2 levels of nesting)
   3. User can test a rule against the current dataset and preview which rows match before saving
   4. Saved custom rules run alongside built-in validators when included in a validation profile
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 36-01-PLAN.md — Backend: DB migration, Pydantic models, rule execution engine, CRUD + test API endpoints
+- [ ] 36-02-PLAN.md — Frontend: TypeScript types, rule builder UI components (ConditionRow, ConditionGroup, RuleBuilder)
+- [ ] 36-03-PLAN.md — Integration: API proxies, server actions, pipeline wiring, end-to-end custom rule flow
 
 ### Phase 37: Context-Aware QC
 **Goal**: Validators apply different thresholds based on pipeline context (zones, events), reducing false positives in complex survey environments
@@ -182,5 +186,5 @@ Plans:
 | 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | 1/2 | In Progress|  | - |
-| 36. Custom Rule Builder | v1.1 | 0/TBD | Not started | - |
+| 36. Custom Rule Builder | v1.1 | 0/3 | Planned | - |
 | 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |
