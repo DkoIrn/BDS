@@ -292,52 +292,108 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           issueCount: finalIssueCount,
         })
       } else if (state.parsedData && state.parsedData.length > 1) {
-        // Uploaded file — run client-side validation
-        const [validationResult] = await Promise.all([
-          Promise.resolve(validateClientSide(state.parsedData)),
-          minDelay,
-        ])
-
-        let allIssues = validationResult.issues
-
-        // Cross-dataset validation: run if both datasets are parsed
-        if (
-          state.crossDatasetMode &&
-          state.secondParsedData &&
-          state.secondParsedData.length > 1 &&
-          state.crossValidationPreset
-        ) {
-          const preset = CROSS_VALIDATION_PRESETS[state.crossValidationPreset]
-          if (preset) {
-            const crossIssues = validateCrossDataset(
-              state.parsedData,
-              state.secondParsedData,
-              {
-                preset,
-                tolerances: state.crossValidationTolerances,
-                datasetTypeA: state.datasetTypeA ?? "Dataset A",
-                datasetTypeB: state.datasetTypeB ?? "Dataset B",
+        // Uploaded file — send to backend for consistent validation
+        const csvContent = state.parsedData
+          .map((row) =>
+            row.map((cell) => {
+              if (cell.includes(",") || cell.includes('"') || cell.includes("\n")) {
+                return `"${cell.replace(/"/g, '""')}"`
               }
-            )
-            allIssues = [...allIssues, ...crossIssues]
+              return cell
+            }).join(",")
+          )
+          .join("\n")
+        const blob = new Blob([csvContent], { type: "text/csv" })
+        const file = new File([blob], state.fileName || "upload.csv", { type: "text/csv" })
+
+        const formData = new FormData()
+        formData.append("file", file)
+
+        let backendSuccess = false
+
+        try {
+          const [response] = await Promise.all([
+            fetch("/api/validate-file", { method: "POST", body: formData }),
+            minDelay,
+          ]) as [Response, unknown]
+
+          if (response.ok) {
+            const data = await response.json()
+            const backendIssues: ValidationIssue[] = (data.issues || []).map((si: { rule_type: string; severity: string; row_number: number; column_name: string; message: string; expected?: string; kp_value?: number }) => ({
+              type: mapBackendRuleType(si.rule_type),
+              severity: si.severity as ValidationIssue["severity"],
+              row: si.row_number,
+              column: si.column_name,
+              message: si.message,
+              detail: si.expected ?? undefined,
+              kpValue: si.kp_value ?? undefined,
+            }))
+
+            let allIssues = backendIssues
+
+            // Cross-dataset validation (client-side, not available in backend for uploaded files)
+            if (
+              state.crossDatasetMode &&
+              state.secondParsedData &&
+              state.secondParsedData.length > 1 &&
+              state.crossValidationPreset
+            ) {
+              const preset = CROSS_VALIDATION_PRESETS[state.crossValidationPreset]
+              if (preset) {
+                const crossIssues = validateCrossDataset(
+                  state.parsedData,
+                  state.secondParsedData,
+                  {
+                    preset,
+                    tolerances: state.crossValidationTolerances,
+                    datasetTypeA: state.datasetTypeA ?? "Dataset A",
+                    datasetTypeB: state.datasetTypeB ?? "Dataset B",
+                  }
+                )
+                allIssues = [...allIssues, ...crossIssues]
+              }
+            }
+
+            const summary = {
+              total: allIssues.length,
+              critical: allIssues.filter((i) => i.severity === "critical").length,
+              warning: allIssues.filter((i) => i.severity === "warning").length,
+              info: allIssues.filter((i) => i.severity === "info").length,
+            }
+
+            setResult({ issues: allIssues, summary })
+            onIssuesFound?.(allIssues)
+            dispatch({
+              type: "VALIDATE_COMPLETE",
+              runId: "backend-direct",
+              issueCount: summary.total,
+            })
+            backendSuccess = true
           }
+        } catch {
+          // Backend unavailable — fall through to client-side
         }
 
-        const summary = {
-          total: allIssues.length,
-          critical: allIssues.filter((i) => i.severity === "critical").length,
-          warning: allIssues.filter((i) => i.severity === "warning").length,
-          info: allIssues.filter((i) => i.severity === "info").length,
+        // Fallback to client-side validation if backend unavailable
+        if (!backendSuccess) {
+          const [validationResult] = await Promise.all([
+            Promise.resolve(validateClientSide(state.parsedData)),
+            minDelay,
+          ])
+          const summary = {
+            total: validationResult.issues.length,
+            critical: validationResult.issues.filter((i) => i.severity === "critical").length,
+            warning: validationResult.issues.filter((i) => i.severity === "warning").length,
+            info: validationResult.issues.filter((i) => i.severity === "info").length,
+          }
+          setResult(validationResult)
+          onIssuesFound?.(validationResult.issues)
+          dispatch({
+            type: "VALIDATE_COMPLETE",
+            runId: "client",
+            issueCount: summary.total,
+          })
         }
-        const combinedResult = { issues: allIssues, summary }
-
-        setResult(combinedResult)
-        onIssuesFound?.(combinedResult.issues)
-        dispatch({
-          type: "VALIDATE_COMPLETE",
-          runId: "client",
-          issueCount: combinedResult.summary.total,
-        })
       } else {
         await minDelay
         throw new Error("No data available to validate.")
