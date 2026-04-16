@@ -44,6 +44,8 @@ import type { ValidationIssue as ServerValidationIssue } from "@/lib/types/valid
 import type {
   CustomRule,
   CustomRuleDefinition,
+  ConditionGroup,
+  RuleType,
   RuleTestResult,
 } from "@/lib/types/custom-rules"
 import {
@@ -122,6 +124,26 @@ function mapBackendRuleType(ruleType: string): ValidationIssue["type"] {
     custom_rule: "outlier",
   }
   return mapping[ruleType] ?? "outlier"
+}
+
+/** Convert backend snake_case rule definition to frontend camelCase */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toFrontendGroup(group: any): ConditionGroup {
+  const conditions = ((group.conditions as Record<string, unknown>[]) || []).map((c) => ({
+    id: (c.id as string) || crypto.randomUUID(),
+    column: (c.column as string) || "",
+    ruleType: ((c.rule_type || c.ruleType) as RuleType) || "threshold",
+    operator: (c.operator as string) || ">",
+    value: c.value as number | string | undefined,
+    compareColumn: (c.compare_column || c.compareColumn) as string | undefined,
+  }))
+  const groups = ((group.groups as Record<string, unknown>[]) || []).map(toFrontendGroup)
+  return {
+    id: (group.id as string) || crypto.randomUUID(),
+    logic: (group.logic as "AND" | "OR") || "AND",
+    conditions,
+    groups,
+  }
 }
 
 /** Adapt pipeline client-side ValidationIssue to server-compatible shape */
@@ -1092,7 +1114,7 @@ function CustomRulesSection({
                       name: editingRule.name,
                       description: editingRule.description,
                       severity: editingRule.severity,
-                      rootGroup: editingRule.rule_definition,
+                      rootGroup: toFrontendGroup(editingRule.rule_definition),
                     }
                   : undefined
               }
