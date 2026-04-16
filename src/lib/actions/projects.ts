@@ -118,6 +118,37 @@ export async function createJob(
   return { success: true }
 }
 
+export async function getUserProjectsWithJobs(): Promise<
+  { data: { id: string; name: string; jobs: { id: string; name: string }[] }[] } | { error: string }
+> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Not authenticated' }
+
+  const orgResult = await requireOrgRole(supabase, user.id, 'viewer')
+  if ('error' in orgResult) return { error: orgResult.error }
+
+  const { data: projects, error } = await supabase
+    .from('projects')
+    .select('id, name, jobs(id, name)')
+    .eq('org_id', orgResult.orgId)
+    .order('updated_at', { ascending: false })
+
+  if (error) return { error: error.message }
+
+  return {
+    data: (projects || []).map((p) => ({
+      id: p.id as string,
+      name: p.name as string,
+      jobs: ((p.jobs as { id: string; name: string }[]) || []),
+    })),
+  }
+}
+
 export async function deleteProject(projectId: string) {
   const supabase = await createClient()
 

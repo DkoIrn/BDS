@@ -409,11 +409,18 @@ function SaveToProject({
   validationIssues: ValidationIssue[]
 }) {
   const [step, setStep] = useState<SaveStep>("prompt")
+  const [saveMode, setSaveMode] = useState<"new" | "existing">("new")
   const [projectName, setProjectName] = useState("")
   const [jobName, setJobName] = useState("")
   const [surveyType, setSurveyType] = useState("General")
   const [error, setError] = useState<string | null>(null)
   const [savedProjectId, setSavedProjectId] = useState<string | null>(null)
+
+  // Existing project state
+  const [existingProjects, setExistingProjects] = useState<{ id: string; name: string; jobs: { id: string; name: string }[] }[]>([])
+  const [selectedProjectId, setSelectedProjectId] = useState("")
+  const [selectedJobId, setSelectedJobId] = useState("")
+  const [loadingProjects, setLoadingProjects] = useState(false)
 
   // Pre-fill from filename
   useEffect(() => {
@@ -423,59 +430,96 @@ function SaveToProject({
     }
   }, [state.fileName])
 
-  async function handleSave() {
-    if (projectName.trim().length < 3) {
-      setError("Project name must be at least 3 characters")
-      return
+  // Load existing projects when switching to existing mode
+  useEffect(() => {
+    if (saveMode === "existing" && existingProjects.length === 0 && !loadingProjects) {
+      setLoadingProjects(true)
+      import("@/lib/actions/projects").then(({ getUserProjectsWithJobs }) => {
+        getUserProjectsWithJobs().then((result) => {
+          if ("data" in result) {
+            setExistingProjects(result.data)
+          }
+          setLoadingProjects(false)
+        })
+      })
     }
-    if (jobName.trim().length < 3) {
-      setError("Job name must be at least 3 characters")
-      return
+  }, [saveMode, existingProjects.length, loadingProjects])
+
+  async function handleSave() {
+    if (saveMode === "new") {
+      if (projectName.trim().length < 3) {
+        setError("Project name must be at least 3 characters")
+        return
+      }
+      if (jobName.trim().length < 3) {
+        setError("Job name must be at least 3 characters")
+        return
+      }
+    } else {
+      if (!selectedProjectId) {
+        setError("Please select a project")
+        return
+      }
+      if (!selectedJobId) {
+        setError("Please select a job")
+        return
+      }
     }
 
     setStep("saving")
     setError(null)
 
     try {
-      // 1. Create project
-      const projectForm = new FormData()
-      projectForm.set("name", projectName.trim())
-      const { createProject } = await import("@/lib/actions/projects")
-      const projectResult = await createProject(null, projectForm)
-      if ("error" in projectResult) throw new Error(projectResult.error)
+      let projectId = ""
+      let jobId = ""
 
-      // Get the project ID from the DB (most recent project by this user)
       const { createClient } = await import("@/lib/supabase/client")
       const supabase = createClient()
-      const { data: projects } = await supabase
-        .from("projects")
-        .select("id")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(1)
 
-      const projectId = projects?.[0]?.id
-      if (!projectId) throw new Error("Failed to retrieve project")
+      if (saveMode === "existing") {
+        projectId = selectedProjectId
+        jobId = selectedJobId
+      } else {
+        // 1. Create project
+        const projectForm = new FormData()
+        projectForm.set("name", projectName.trim())
+        const { createProject } = await import("@/lib/actions/projects")
+        const projectResult = await createProject(null, projectForm)
+        if ("error" in projectResult) throw new Error(projectResult.error)
 
-      // 2. Create job
-      const jobForm = new FormData()
-      jobForm.set("name", jobName.trim())
-      jobForm.set("survey_type", surveyType)
-      jobForm.set("project_id", projectId)
-      const { createJob } = await import("@/lib/actions/projects")
-      const jobResult = await createJob(null, jobForm)
-      if ("error" in jobResult) throw new Error(jobResult.error)
+        // Get the project ID from the DB (most recent project by this user)
+        const { data: projects } = await supabase
+          .from("projects")
+          .select("id")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(1)
 
-      // Get the job ID
-      const { data: jobs } = await supabase
-        .from("jobs")
-        .select("id")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false })
-        .limit(1)
+        projectId = projects?.[0]?.id
+        if (!projectId) throw new Error("Failed to retrieve project")
 
-      const jobId = jobs?.[0]?.id
-      if (!jobId) throw new Error("Failed to retrieve job")
+        // 2. Create job
+        const jobForm = new FormData()
+        jobForm.set("name", jobName.trim())
+        jobForm.set("survey_type", surveyType)
+        jobForm.set("project_id", projectId)
+        const { createJob } = await import("@/lib/actions/projects")
+        const jobResult = await createJob(null, jobForm)
+        if ("error" in jobResult) throw new Error(jobResult.error)
+      }
+
+      if (saveMode === "new") {
+        // Fetch the newly created job ID
+        const { data: jobs } = await supabase
+          .from("jobs")
+          .select("id")
+          .eq("project_id", projectId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+
+        jobId = jobs?.[0]?.id
+        if (!jobId) throw new Error("Failed to retrieve job")
+      }
 
       // 3. Build the file to upload
       // If data was cleaned, always reconstruct from parsedData (which reflects cleaned state)
@@ -693,7 +737,11 @@ function SaveToProject({
             </p>
           </div>
           <p className="mt-1 text-xs text-green-600 dark:text-green-400">
-            {projectName} / {jobName}
+            {saveMode === "existing"
+              ? existingProjects.find((p) => p.id === selectedProjectId)?.name ?? "Project"
+              : projectName} / {saveMode === "existing"
+              ? existingProjects.find((p) => p.id === selectedProjectId)?.jobs.find((j) => j.id === selectedJobId)?.name ?? "Job"
+              : jobName}
           </p>
           <a
             href={`/projects/${savedProjectId}`}
@@ -708,6 +756,11 @@ function SaveToProject({
   }
 
   // Form state
+  const selectedProject = existingProjects.find((p) => p.id === selectedProjectId)
+  const canSave = saveMode === "new"
+    ? projectName.trim().length >= 3 && jobName.trim().length >= 3
+    : !!selectedProjectId && !!selectedJobId
+
   return (
     <div className="space-y-4 rounded-xl border bg-card p-4">
       <div className="flex items-center gap-2">
@@ -715,50 +768,125 @@ function SaveToProject({
         <p className="text-sm font-semibold">Save to Project</p>
       </div>
 
-      <div className="space-y-3">
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">
-            Project Name
-          </label>
-          <input
-            type="text"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            placeholder="e.g., Pipeline Route Survey 2026"
-            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
-          />
-        </div>
-
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">
-            Job Name
-          </label>
-          <input
-            type="text"
-            value={jobName}
-            onChange={(e) => setJobName(e.target.value)}
-            placeholder="e.g., DOB Survey Line 1"
-            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
-          />
-        </div>
-
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">
-            Survey Type
-          </label>
-          <select
-            value={surveyType}
-            onChange={(e) => setSurveyType(e.target.value)}
-            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
-          >
-            {SURVEY_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Mode toggle */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setSaveMode("new")}
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+            saveMode === "new"
+              ? "bg-foreground text-background"
+              : "border border-border bg-background text-foreground hover:bg-muted/60"
+          }`}
+        >
+          New Project
+        </button>
+        <button
+          onClick={() => setSaveMode("existing")}
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+            saveMode === "existing"
+              ? "bg-foreground text-background"
+              : "border border-border bg-background text-foreground hover:bg-muted/60"
+          }`}
+        >
+          Existing Project
+        </button>
       </div>
+
+      {saveMode === "new" ? (
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">
+              Project Name
+            </label>
+            <input
+              type="text"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="e.g., Pipeline Route Survey 2026"
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">
+              Job Name
+            </label>
+            <input
+              type="text"
+              value={jobName}
+              onChange={(e) => setJobName(e.target.value)}
+              placeholder="e.g., DOB Survey Line 1"
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">
+              Survey Type
+            </label>
+            <select
+              value={surveyType}
+              onChange={(e) => setSurveyType(e.target.value)}
+              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+            >
+              {SURVEY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {loadingProjects ? (
+            <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              Loading projects...
+            </div>
+          ) : existingProjects.length === 0 ? (
+            <p className="py-4 text-center text-sm text-muted-foreground">
+              No existing projects found. Create a new one instead.
+            </p>
+          ) : (
+            <>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">
+                  Project
+                </label>
+                <select
+                  value={selectedProjectId}
+                  onChange={(e) => {
+                    setSelectedProjectId(e.target.value)
+                    setSelectedJobId("")
+                  }}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+                >
+                  <option value="">Select a project...</option>
+                  {existingProjects.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              {selectedProject && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Job
+                  </label>
+                  <select
+                    value={selectedJobId}
+                    onChange={(e) => setSelectedJobId(e.target.value)}
+                    className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-foreground"
+                  >
+                    <option value="">Select a job...</option>
+                    {selectedProject.jobs.map((j) => (
+                      <option key={j.id} value={j.id}>{j.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950/30">
@@ -773,11 +901,11 @@ function SaveToProject({
         </Button>
         <button
           onClick={handleSave}
-          disabled={!projectName.trim() || !jobName.trim()}
+          disabled={!canSave}
           className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background transition-all hover:opacity-90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
         >
           <FolderPlus className="size-3.5" />
-          Save
+          {saveMode === "existing" ? "Save as New Version" : "Save"}
         </button>
       </div>
     </div>
