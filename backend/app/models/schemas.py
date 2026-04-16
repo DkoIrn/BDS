@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Literal
+
 from pydantic import BaseModel, model_validator
 
 
@@ -83,3 +87,45 @@ class ValidateResponse(BaseModel):
     info_count: int
     pass_rate: float
     status: str
+
+
+# --- Custom rule models ---
+
+
+class Condition(BaseModel):
+    column: str
+    rule_type: Literal["threshold", "comparison", "null_check"]
+    operator: str
+    value: float | str | None = None
+    compare_column: str | None = None
+
+
+class ConditionGroup(BaseModel):
+    logic: Literal["AND", "OR"] = "AND"
+    conditions: list[Condition] = []
+    groups: list[ConditionGroup] = []
+
+
+def _check_nesting_depth(group: ConditionGroup, current_depth: int = 0) -> int:
+    """Return max nesting depth from this group downward."""
+    if not group.groups:
+        return current_depth
+    return max(
+        _check_nesting_depth(g, current_depth + 1) for g in group.groups
+    )
+
+
+class CustomRuleDefinition(BaseModel):
+    name: str
+    description: str = ""
+    severity: Literal["critical", "warning", "info"] = "warning"
+    root_group: ConditionGroup
+
+    @model_validator(mode="after")
+    def validate_nesting_depth(self):
+        depth = _check_nesting_depth(self.root_group)
+        if depth > 2:
+            raise ValueError(
+                f"Rule nesting depth {depth} exceeds maximum of 2 levels"
+            )
+        return self

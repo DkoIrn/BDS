@@ -143,16 +143,21 @@ class TestEdgeCases:
 
     def test_nesting_depth_exceeds_2_raises_validation_error(self):
         """Nesting depth > 2 raises ValidationError."""
+        # 3 levels deep: root -> L1 -> L2 -> L3 (exceeds max of 2)
         deep_group = ConditionGroup(
             logic="AND",
-            conditions=[Condition(column="x", rule_type="threshold", operator=">", value=1)],
             groups=[
                 ConditionGroup(
                     logic="OR",
                     groups=[
                         ConditionGroup(
                             logic="AND",
-                            conditions=[Condition(column="x", rule_type="threshold", operator=">", value=1)],
+                            groups=[
+                                ConditionGroup(
+                                    logic="OR",
+                                    conditions=[Condition(column="x", rule_type="threshold", operator=">", value=1)],
+                                )
+                            ],
                         )
                     ],
                 )
