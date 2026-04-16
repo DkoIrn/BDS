@@ -415,6 +415,8 @@ function SaveToProject({
   const [surveyType, setSurveyType] = useState("General")
   const [error, setError] = useState<string | null>(null)
   const [savedProjectId, setSavedProjectId] = useState<string | null>(null)
+  const [savedJobId, setSavedJobId] = useState<string | null>(null)
+  const [savedDatasetId, setSavedDatasetId] = useState<string | null>(null)
 
   // Existing project state
   const [existingProjects, setExistingProjects] = useState<{ id: string; name: string; jobs: { id: string; name: string; datasets: { id: string; file_name: string; storage_path: string }[] }[] }[]>([])
@@ -743,6 +745,8 @@ function SaveToProject({
       }).catch(() => {})
 
       setSavedProjectId(projectId)
+      setSavedJobId(jobId)
+      setSavedDatasetId(datasetId)
       setStep("saved")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save")
@@ -807,10 +811,12 @@ function SaveToProject({
               : jobName}
           </p>
           <a
-            href={`/projects/${savedProjectId}`}
+            href={savedDatasetId && savedJobId
+              ? `/projects/${savedProjectId}/jobs/${savedJobId}/files/${savedDatasetId}`
+              : `/projects/${savedProjectId}`}
             className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-green-700 underline hover:text-green-900 dark:text-green-300 dark:hover:text-green-100"
           >
-            View Project
+            View Results
             <ExternalLink className="size-3" />
           </a>
         </div>
