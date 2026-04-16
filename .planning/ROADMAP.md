@@ -52,7 +52,7 @@
 - [x] **Phase 33: Validation Certificates (Verification)** - QR code verification, public verify endpoint, certificate registry (completed 2026-04-13)
 - [x] **Phase 34: Collaboration (Extended)** - Email notifications and project activity feed (completed 2026-04-14)
 - [ ] **Phase 35: Cross-Dataset Validation** - Multi-dataset comparison integrated into validation pipeline
-- [ ] **Phase 36: Custom Rule Builder** - Visual IF/THEN rule builder with preview and profile integration
+- [x] **Phase 36: Custom Rule Builder** - Visual IF/THEN rule builder with preview and profile integration (completed 2026-04-16)
 - [ ] **Phase 37: Context-Aware QC** - Dynamic thresholds by context zones and event-conditional rules
 
 ## Phase Details
@@ -186,5 +186,5 @@ Plans:
 | 33. Validation Certificates (Verification) | 2/2 | Complete    | 2026-04-13 | - |
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | 1/2 | In Progress|  | - |
-| 36. Custom Rule Builder | 2/3 | In Progress|  | - |
+| 36. Custom Rule Builder | 3/3 | Complete   | 2026-04-16 | - |
 | 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |

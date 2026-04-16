@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: executing
-stopped_at: Completed 36-01-PLAN.md
-last_updated: "2026-04-16T22:49:30.790Z"
-last_activity: 2026-04-16 -- Completed 36-02 rule builder frontend
+stopped_at: Completed 36-03-PLAN.md Task 1 (checkpoint pending)
+last_updated: "2026-04-16T23:10:13.834Z"
+last_activity: 2026-04-17 -- Completed 36-03 pipeline integration (awaiting human verification)
 progress:
   total_phases: 9
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
   percent: 79
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-11)
 ## Current Position
 
 Phase: 36 of 37 (Custom Rule Builder)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-04-16 -- Completed 36-02 rule builder frontend
+Plan: 3 of 3 complete
+Status: In progress (checkpoint pending)
+Last activity: 2026-04-17 -- Completed 36-03 pipeline integration (awaiting human verification)
 
 Progress: [████████░░] 79%
 
@@ -82,6 +82,9 @@ See PROJECT.md Key Decisions table for full history.
 - [Phase 36]: Nesting depth counted from root_group (depth 0); max 2 levels of sub-groups allowed
 - [Phase 36]: Rule executor produces standard ValidationIssue dataclass objects for pipeline compatibility
 - [Phase 36]: Test endpoint caps at 10K rows with truncation warning flag
+- [Phase 36]: Server actions call Next.js API proxies (not FastAPI directly) for consistent auth cookie forwarding
+- [Phase 36]: Custom rules section uses profile selector to scope rules per validation profile
+- [Phase 36]: Custom rule IDs forwarded through validate route; backend executes enabled rules after built-in checks
 
 ### Roadmap Evolution
 
@@ -97,6 +100,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-16T22:49:22.169Z
-Stopped at: Completed 36-01-PLAN.md
+Last session: 2026-04-16T23:10:13.830Z
+Stopped at: Completed 36-03-PLAN.md Task 1 (checkpoint pending)
 Resume file: None
