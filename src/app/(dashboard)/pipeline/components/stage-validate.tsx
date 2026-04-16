@@ -319,6 +319,7 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
 
           if (response.ok) {
             const data = await response.json()
+            console.log("Backend validation returned", data.issues?.length, "issues")
             const backendIssues: ValidationIssue[] = (data.issues || []).map((si: { rule_type: string; severity: string; row_number: number; column_name: string; message: string; expected?: string; kp_value?: number }) => ({
               type: mapBackendRuleType(si.rule_type),
               severity: si.severity as ValidationIssue["severity"],
@@ -369,9 +370,12 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
               issueCount: summary.total,
             })
             backendSuccess = true
+          } else {
+            const errText = await response.text().catch(() => "")
+            console.error("Backend validation returned", response.status, errText)
           }
-        } catch {
-          // Backend unavailable — fall through to client-side
+        } catch (backendErr) {
+          console.error("Backend validation failed, falling back to client-side:", backendErr)
         }
 
         // Fallback to client-side validation if backend unavailable
