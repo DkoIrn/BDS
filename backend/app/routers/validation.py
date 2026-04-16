@@ -298,6 +298,35 @@ def _legacy_validation_background(
         except Exception as notif_err:
             logger.warning("Notification creation failed for dataset %s: %s", dataset_id, str(notif_err))
 
+        # Log activity event for project feed
+        try:
+            if job_id and org_id:
+                job_data = supabase.table("jobs").select("project_id").eq("id", job_id).single().execute()
+                project_id = job_data.data["project_id"] if job_data.data else None
+                if project_id:
+                    file_name = dataset.get("file_name", "dataset")
+                    summary = (
+                        f"Validation passed for {file_name}"
+                        if total_issues == 0
+                        else f"Validation found {total_issues} issue{'s' if total_issues != 1 else ''} in {file_name}"
+                    )
+                    supabase.table("activity_events").insert({
+                        "project_id": project_id,
+                        "org_id": org_id,
+                        "actor_id": dataset.get("uploaded_by") or dataset.get("user_id", ""),
+                        "event_type": "validation_run",
+                        "summary": summary,
+                        "resource_type": "dataset",
+                        "resource_id": dataset_id,
+                        "metadata": {
+                            "total_issues": total_issues,
+                            "critical_count": critical_count,
+                            "pass_rate": pass_rate,
+                        },
+                    }).execute()
+        except Exception as act_err:
+            logger.warning("Activity logging failed for dataset %s: %s", dataset_id, str(act_err))
+
     except Exception as e:
         # Always update status on failure -- never leave dataset stuck in 'validating'
         import traceback

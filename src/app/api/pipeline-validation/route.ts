@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     // Verify dataset exists and user has access (via RLS)
     const { data: dataset } = await supabase
       .from("datasets")
-      .select("id")
+      .select("id, file_name, job_id, jobs(project_id, projects(id, org_id))")
       .eq("id", datasetId)
       .single()
 
@@ -167,6 +167,33 @@ export async function POST(request: NextRequest) {
       }
     } catch (versionErr) {
       console.error("Failed to create version snapshot:", versionErr)
+    }
+
+    // Log activity event
+    try {
+      const job = dataset.jobs as unknown as Record<string, unknown> | null
+      const project = job?.projects as unknown as Record<string, unknown> | null
+      const projectId = project?.id as string | undefined
+      const orgId = project?.org_id as string | undefined
+      const fileName = dataset.file_name as string | undefined
+
+      if (projectId && orgId) {
+        const { logActivity } = await import("@/lib/actions/activity")
+        await logActivity({
+          projectId,
+          orgId,
+          actorId: user.id,
+          eventType: "validation_run",
+          summary: totalIssues === 0
+            ? `Validation passed for ${fileName || "dataset"}`
+            : `Validation found ${totalIssues} issue${totalIssues !== 1 ? "s" : ""} in ${fileName || "dataset"}`,
+          resourceType: "dataset",
+          resourceId: datasetId,
+          metadata: { totalIssues, criticalCount, passRate },
+        })
+      }
+    } catch {
+      // Activity logging is non-critical
     }
 
     return NextResponse.json({ runId: run.id, totalIssues, passRate })
