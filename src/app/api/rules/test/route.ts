@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireOrgRole } from '@/lib/permissions'
 
+/** Convert frontend camelCase rule definition to backend snake_case */
+function toBackendRuleDef(group: Record<string, unknown>): Record<string, unknown> {
+  const conditions = ((group.conditions as Record<string, unknown>[]) || []).map((c) => ({
+    column: c.column,
+    rule_type: c.ruleType || c.rule_type,
+    operator: c.operator,
+    value: c.value,
+    compare_column: c.compareColumn || c.compare_column,
+  }))
+  const groups = ((group.groups as Record<string, unknown>[]) || []).map(toBackendRuleDef)
+  return {
+    logic: group.logic || "AND",
+    conditions,
+    groups,
+  }
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient()
 
@@ -37,7 +54,10 @@ export async function POST(request: Request) {
     const response = await fetch(`${fastApiUrl}/api/v1/rules/test`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        ...body,
+        rule_definition: body.rule_definition ? toBackendRuleDef(body.rule_definition) : body.rule_definition,
+      }),
     })
 
     if (!response.ok) {
