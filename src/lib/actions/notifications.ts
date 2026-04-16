@@ -29,14 +29,34 @@ export async function getNotifications(
 
   const { data, error } = await supabase
     .from('notifications')
-    .select('*, actor_profile:actor_id(full_name)')
+    .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(limit)
 
   if (error) return []
 
-  return (data ?? []) as NotificationWithActor[]
+  // Fetch actor names separately (profiles RLS blocks cross-user joins)
+  const notifications = (data ?? []) as NotificationWithActor[]
+  const actorIds = [...new Set(notifications.map((n) => n.actor_id).filter(Boolean))]
+
+  if (actorIds.length > 0) {
+    const { createServiceClient } = await import('@/lib/supabase/server')
+    const admin = createServiceClient()
+    const { data: profiles } = await admin
+      .from('profiles')
+      .select('id, full_name')
+      .in('id', actorIds)
+
+    const profileMap = new Map((profiles ?? []).map((p: { id: string; full_name: string }) => [p.id, p.full_name]))
+    for (const n of notifications) {
+      if (n.actor_id && profileMap.has(n.actor_id)) {
+        n.actor_profile = { full_name: profileMap.get(n.actor_id)! }
+      }
+    }
+  }
+
+  return notifications
 }
 
 /**
