@@ -53,7 +53,7 @@
 - [x] **Phase 34: Collaboration (Extended)** - Email notifications and project activity feed (completed 2026-04-14)
 - [ ] **Phase 35: Cross-Dataset Validation** - Multi-dataset comparison integrated into validation pipeline
 - [x] **Phase 36: Custom Rule Builder** - Visual IF/THEN rule builder with preview and profile integration (completed 2026-04-16)
-- [ ] **Phase 37: Context-Aware QC** - Dynamic thresholds by context zones and event-conditional rules
+- [x] **Phase 37: Context-Aware QC** - Dynamic thresholds by context zones and event-conditional rules (completed 2026-04-17)
 
 ## Phase Details
 
@@ -191,4 +191,4 @@ Plans:
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | 1/2 | In Progress|  | - |
 | 36. Custom Rule Builder | 3/3 | Complete   | 2026-04-16 | - |
-| 37. Context-Aware QC | 2/3 | In Progress|  | - |
+| 37. Context-Aware QC | 3/3 | Complete   | 2026-04-17 | - |
