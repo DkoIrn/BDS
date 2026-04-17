@@ -29,8 +29,9 @@ export async function POST(request: Request) {
     secondaryDatasetId?: string
     crossDatasetConfig?: Record<string, unknown>
     customRuleIds?: string[]
+    contextZoneIds?: string[]
   }
-  const { datasetId, config, secondaryDatasetId, crossDatasetConfig, customRuleIds } = body
+  const { datasetId, config, secondaryDatasetId, crossDatasetConfig, customRuleIds, contextZoneIds } = body
 
   if (!datasetId) {
     return NextResponse.json({ error: 'datasetId is required' }, { status: 400 })
@@ -112,6 +113,7 @@ export async function POST(request: Request) {
         ...(secondaryDatasetId ? { secondary_dataset_id: secondaryDatasetId } : {}),
         ...(crossDatasetConfig ? { cross_dataset_config: crossDatasetConfig } : {}),
         ...(customRuleIds && customRuleIds.length > 0 ? { custom_rule_ids: customRuleIds } : {}),
+        ...(contextZoneIds && contextZoneIds.length > 0 ? { context_zone_ids: contextZoneIds } : {}),
       }),
     })
 

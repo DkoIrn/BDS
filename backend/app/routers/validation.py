@@ -24,6 +24,7 @@ def _legacy_validation_background(
     secondary_dataset_id: str | None = None,
     cross_dataset_config: CrossDatasetConfig | None = None,
     custom_rule_ids: list[str] | None = None,
+    context_zone_ids: list[str] | None = None,
 ) -> None:
     """Legacy: Run full validation pipeline via BackgroundTasks.
 
@@ -233,6 +234,31 @@ def _legacy_validation_background(
                     dataset_id, str(cr_err),
                 )
         # --- End custom rules execution ---
+
+        # --- Context zone-aware validation ---
+        if context_zone_ids:
+            try:
+                from app.services.context_zones import apply_context_zones, load_zones
+
+                zones = load_zones(supabase, context_zone_ids)
+                if zones:
+                    # Determine KP column from mappings
+                    kp_col = None
+                    for m in mappings:
+                        if m.get("mappedType") == "kp" and not m.get("ignored"):
+                            kp_col = "kp"
+                            break
+
+                    zone_issues = apply_context_zones(
+                        df, mappings, flat_config, enabled_checks, zones, kp_col
+                    )
+                    issues.extend(zone_issues)
+            except Exception as zone_err:
+                logger.error(
+                    "Context zone validation failed for dataset %s: %s",
+                    dataset_id, str(zone_err),
+                )
+        # --- End context zone-aware validation ---
 
         # Count by severity
         critical_count = sum(1 for i in issues if i.severity == Severity.CRITICAL)
@@ -455,5 +481,6 @@ async def validate_dataset(request: ValidateRequest, background_tasks: Backgroun
             request.secondary_dataset_id,
             request.cross_dataset_config,
             request.custom_rule_ids,
+            request.context_zone_ids,
         )
         return {"status": "accepted", "dataset_id": request.dataset_id}
