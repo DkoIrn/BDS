@@ -1009,8 +1009,8 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           />
         )}
 
-        {/* Context Zones section */}
-        {(state.datasetId || state.parsedData) && (
+        {/* Context Zones section — only for saved datasets (backend-validated) */}
+        {state.datasetId ? (
           <ContextZonesSection
             zones={contextZones}
             loading={zonesLoading}
@@ -1020,6 +1020,14 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
             onSave={handleSaveZones}
             onDeleteZone={handleDeleteZone}
           />
+        ) : (
+          <div className="flex items-center gap-2 rounded-lg border border-teal-100 bg-teal-50/50 px-3 py-2 dark:border-teal-900/50 dark:bg-teal-950/20">
+            <MapPin className="size-3.5 shrink-0 text-teal-500" />
+            <p className="text-xs text-teal-700 dark:text-teal-400">
+              <span className="font-medium">Context Zones</span> are available when validating saved datasets.
+              Save your dataset to a project to configure zone-specific thresholds.
+            </p>
+          </div>
         )}
 
         {error && (
