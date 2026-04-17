@@ -50,10 +50,13 @@ function generateClusterLabel(
   kpRange: { min: number; max: number } | null,
 ): string {
   const ruleLabel = RULE_LABELS[ruleType] || ruleType
-  // Pluralise: add 's' for count > 1 unless label already ends in 's' or contains 'data'
-  const label = count > 1 && !ruleLabel.endsWith('s') && !ruleLabel.includes('data')
-    ? `${ruleLabel}s`
-    : ruleLabel
+  // Pluralise for count > 1 unless label already ends in 's' or contains 'data'
+  let label = ruleLabel
+  if (count > 1 && !ruleLabel.endsWith('s') && !ruleLabel.includes('data')) {
+    label = ruleLabel.endsWith('ch') || ruleLabel.endsWith('sh') || ruleLabel.endsWith('x')
+      ? `${ruleLabel}es`
+      : `${ruleLabel}s`
+  }
   const base = `${count} ${label} in "${columnName}"`
   if (kpRange) {
     return `${base} between KP ${kpRange.min.toFixed(1)}-${kpRange.max.toFixed(1)}`
