@@ -98,7 +98,29 @@ def _legacy_validation_background(
         # Resolve validation config from request (or use General Survey defaults)
         profile_config = config or ProfileConfig()
         flat_config, enabled_checks = resolve_config(profile_config)
-        issues = run_validation_pipeline(df, mappings, flat_config, enabled_checks=enabled_checks)
+
+        # If context zones are provided, use zone-aware validation instead of base
+        if context_zone_ids:
+            try:
+                from app.services.context_zones import apply_context_zones, load_zones
+
+                zones = load_zones(supabase, context_zone_ids)
+                kp_col = None
+                for m in mappings:
+                    if m.get("mappedType") == "kp" and not m.get("ignored"):
+                        kp_col = "kp"
+                        break
+                issues = apply_context_zones(
+                    df, mappings, flat_config, enabled_checks, zones, kp_col
+                )
+            except Exception as zone_err:
+                logger.error(
+                    "Context zone validation failed for dataset %s, falling back to base: %s",
+                    dataset_id, str(zone_err),
+                )
+                issues = run_validation_pipeline(df, mappings, flat_config, enabled_checks=enabled_checks)
+        else:
+            issues = run_validation_pipeline(df, mappings, flat_config, enabled_checks=enabled_checks)
 
         # --- Cross-dataset validation (when secondary_dataset_id is provided) ---
         cross_config_snapshot = None
@@ -235,30 +257,7 @@ def _legacy_validation_background(
                 )
         # --- End custom rules execution ---
 
-        # --- Context zone-aware validation ---
-        if context_zone_ids:
-            try:
-                from app.services.context_zones import apply_context_zones, load_zones
-
-                zones = load_zones(supabase, context_zone_ids)
-                if zones:
-                    # Determine KP column from mappings
-                    kp_col = None
-                    for m in mappings:
-                        if m.get("mappedType") == "kp" and not m.get("ignored"):
-                            kp_col = "kp"
-                            break
-
-                    zone_issues = apply_context_zones(
-                        df, mappings, flat_config, enabled_checks, zones, kp_col
-                    )
-                    issues.extend(zone_issues)
-            except Exception as zone_err:
-                logger.error(
-                    "Context zone validation failed for dataset %s: %s",
-                    dataset_id, str(zone_err),
-                )
-        # --- End context zone-aware validation ---
+        # --- Context zone-aware validation handled above (replaces base validation) ---
 
         # Count by severity
         critical_count = sum(1 for i in issues if i.severity == Severity.CRITICAL)
