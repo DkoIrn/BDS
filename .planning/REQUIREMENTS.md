@@ -63,10 +63,10 @@ Requirements for v1.1 Production-Grade QC Platform. Each maps to roadmap phases.
 
 ### Context-Aware QC
 
-- [ ] **CTXQ-01**: User can define context zones/segments with associated threshold modifiers
+- [x] **CTXQ-01**: User can define context zones/segments with associated threshold modifiers
 - [ ] **CTXQ-02**: Validators apply context-specific thresholds instead of global defaults when a context match exists
 - [ ] **CTXQ-03**: User can define event-conditional rules (e.g., "if event = trench crossing, relax depth thresholds")
-- [ ] **CTXQ-04**: Domain QC packs include pre-configured context rules for common pipeline scenarios
+- [x] **CTXQ-04**: Domain QC packs include pre-configured context rules for common pipeline scenarios
 
 ## v1.2 Requirements
 
@@ -140,10 +140,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RULE-03 | Phase 36 | Complete |
 | RULE-04 | Phase 36 | Complete |
 | RULE-05 | Phase 36 | Complete |
-| CTXQ-01 | Phase 37 | Pending |
+| CTXQ-01 | Phase 37 | Complete |
 | CTXQ-02 | Phase 37 | Pending |
 | CTXQ-03 | Phase 37 | Pending |
-| CTXQ-04 | Phase 37 | Pending |
+| CTXQ-04 | Phase 37 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 34 total

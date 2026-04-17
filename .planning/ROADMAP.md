@@ -191,4 +191,4 @@ Plans:
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | 1/2 | In Progress|  | - |
 | 36. Custom Rule Builder | 3/3 | Complete   | 2026-04-16 | - |
-| 37. Context-Aware QC | v1.1 | 0/3 | Planned | - |
+| 37. Context-Aware QC | 2/3 | In Progress|  | - |

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Production-Grade QC Platform
 status: executing
-stopped_at: Completed 36-03-PLAN.md Task 1 (checkpoint pending)
-last_updated: "2026-04-16T23:10:13.834Z"
-last_activity: 2026-04-17 -- Completed 36-03 pipeline integration (awaiting human verification)
+stopped_at: Completed 37-01-PLAN.md
+last_updated: "2026-04-17T10:10:22.110Z"
+last_activity: 2026-04-17 -- Completed 37-02 context zone types and editor UI
 progress:
   total_phases: 9
   completed_phases: 7
-  total_plans: 17
-  completed_plans: 15
-  percent: 79
+  total_plans: 20
+  completed_plans: 17
+  percent: 84
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Engineers can upload survey data and receive automated QC reports with every flagged issue explained -- replacing hours of manual checking with minutes of automated validation.
-**Current focus:** Phase 36 -- Custom Rule Builder
+**Current focus:** Phase 37 -- Context-Aware QC
 
 ## Current Position
 
-Phase: 36 of 37 (Custom Rule Builder)
-Plan: 3 of 3 complete
-Status: In progress (checkpoint pending)
-Last activity: 2026-04-17 -- Completed 36-03 pipeline integration (awaiting human verification)
+Phase: 37 of 37 (Context-Aware QC)
+Plan: 2 of 3 complete
+Status: In progress
+Last activity: 2026-04-17 -- Completed 37-02 context zone types and editor UI
 
-Progress: [████████░░] 79%
+Progress: [████████░░] 84%
 
 ## Accumulated Context
 
@@ -85,6 +85,13 @@ See PROJECT.md Key Decisions table for full history.
 - [Phase 36]: Server actions call Next.js API proxies (not FastAPI directly) for consistent auth cookie forwarding
 - [Phase 36]: Custom rules section uses profile selector to scope rules per validation profile
 - [Phase 36]: Custom rule IDs forwarded through validate route; backend executes enabled rules after built-in checks
+- [Phase 37]: Multiplier UI shows percentage change with computed result preview for threshold modifier clarity
+- [Phase 37]: EditableZone type allows optional id for new unsaved zones (local-first editing)
+- [Phase 37]: KP overlap detection uses enabled zones only to avoid false warnings
+- [Phase 37]: First-match-wins with sort_order priority for overlapping zone resolution
+- [Phase 37]: Multiplier-based threshold modifiers (not absolute overrides) for portability across profiles
+- [Phase 37]: column_mappings used to find event column (not hard-coded column name)
+- [Phase 37]: Zone dispatch wraps existing validators unchanged -- no modifications to run_validation_pipeline
 
 ### Roadmap Evolution
 
@@ -100,6 +107,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-16T23:10:13.830Z
-Stopped at: Completed 36-03-PLAN.md Task 1 (checkpoint pending)
+Last session: 2026-04-17T10:10:22.106Z
+Stopped at: Completed 37-01-PLAN.md
 Resume file: None
