@@ -201,12 +201,12 @@ export function executeCustomRuleClientSide(
       // Find the primary column from the first condition
       const primaryCol = rule.rootGroup.conditions[0]?.column || "unknown"
       issues.push({
-        type: "outlier", // custom rules map to outlier for auto-clean
+        type: "custom_rule" as ValidationIssue["type"],
         severity: rule.severity,
         row: i + 1, // 1-indexed
         column: primaryCol,
-        message: `Custom rule "${rule.name}": ${rule.description || "condition matched"}`,
-        detail: `Row ${i + 1} matched rule: ${rule.name}`,
+        message: `${rule.name}: ${rule.description || "condition matched"}`,
+        detail: `Row ${i + 1} matched custom rule`,
       })
     }
   }

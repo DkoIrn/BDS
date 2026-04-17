@@ -121,7 +121,7 @@ function mapBackendRuleType(ruleType: string): ValidationIssue["type"] {
     kp_drift: "kp_gap",
     segment_continuity: "kp_gap",
     // Custom rules
-    custom_rule: "outlier",
+    custom_rule: "custom_rule",
   }
   return mapping[ruleType] ?? "outlier"
 }

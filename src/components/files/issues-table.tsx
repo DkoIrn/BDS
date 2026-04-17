@@ -22,6 +22,7 @@ const RULE_LABELS: Record<string, string> = {
   coordinate_sanity: "Coordinate Sanity",
   cross_dataset: "Cross-Dataset",
   cross_dataset_coverage: "Coverage Gap",
+  custom_rule: "Custom Rule",
 }
 
 function getRuleLabel(ruleType: string): string {
@@ -42,6 +43,7 @@ const RULE_COLORS: Record<string, string> = {
   coordinate_sanity: "bg-blue-50 text-blue-600",
   cross_dataset: "bg-indigo-50 text-indigo-600",
   cross_dataset_coverage: "bg-indigo-50 text-indigo-600",
+  custom_rule: "bg-violet-50 text-violet-600",
 }
 
 function getRuleColor(ruleType: string): string {

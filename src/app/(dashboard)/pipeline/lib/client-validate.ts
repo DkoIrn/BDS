@@ -2,7 +2,7 @@
 // Runs on parsedData (string[][]) without needing Supabase/backend
 
 export interface ValidationIssue {
-  type: "missing" | "duplicate" | "outlier" | "kp_gap" | "kp_monotonicity" | "cross_dataset" | "cross_dataset_coverage"
+  type: "missing" | "duplicate" | "outlier" | "kp_gap" | "kp_monotonicity" | "cross_dataset" | "cross_dataset_coverage" | "custom_rule"
   severity: "critical" | "warning" | "info"
   row?: number
   column?: string

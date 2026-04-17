@@ -32,9 +32,18 @@ const SEVERITY_CONFIG = {
   },
 }
 
+const CUSTOM_RULE_CONFIG = {
+  bg: "bg-violet-50 dark:bg-violet-950/30",
+  border: "border-violet-200 dark:border-violet-900",
+  text: "text-violet-700 dark:text-violet-300",
+  sub: "text-violet-600 dark:text-violet-400",
+  badge: "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300",
+}
+
 export function IssueClusterRow({ cluster }: IssueClusterRowProps) {
   const [expanded, setExpanded] = useState(false)
-  const config = SEVERITY_CONFIG[cluster.severity]
+  const isCustomRule = cluster.rule_type === "custom_rule"
+  const config = isCustomRule ? CUSTOM_RULE_CONFIG : SEVERITY_CONFIG[cluster.severity]
 
   return (
     <div className={`rounded-lg border ${config.border} overflow-hidden`}>

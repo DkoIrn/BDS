@@ -33,6 +33,7 @@ const RULE_LABELS: Record<string, string> = {
   outlier: 'outlier',
   kp_gap: 'KP gap',
   kp_monotonicity: 'monotonicity violation',
+  custom_rule: 'custom rule match',
 }
 
 /**
