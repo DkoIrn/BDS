@@ -39,7 +39,10 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/forgot-password') &&
     !request.nextUrl.pathname.startsWith('/update-password') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/tools/visualize')
+    !request.nextUrl.pathname.startsWith('/tools/visualize') &&
+    !request.nextUrl.pathname.startsWith('/privacy') &&
+    !request.nextUrl.pathname.startsWith('/terms') &&
+    !request.nextUrl.pathname.startsWith('/verify')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
