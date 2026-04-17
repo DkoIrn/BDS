@@ -55,6 +55,16 @@ import {
   deleteRule,
   testRule,
 } from "@/lib/actions/custom-rules"
+import {
+  getContextZones,
+  createContextZone,
+  updateContextZone,
+  deleteContextZone,
+  applyPreset,
+} from "@/lib/actions/context-zones"
+import type { ContextZone } from "@/lib/types/context-zones"
+import { ZoneEditor } from "./zone-editor/zone-editor"
+import type { EditableZone } from "./zone-editor/zone-row"
 import { RuleBuilder } from "./rule-builder/rule-builder"
 import { RuleTestPreview } from "./rule-builder/rule-test-preview"
 
@@ -209,6 +219,11 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
   const [testResult, setTestResult] = useState<RuleTestResult | null>(null)
   const [isTesting, setIsTesting] = useState(false)
   const [loadingRules, setLoadingRules] = useState(false)
+
+  // Context zones state
+  const [contextZones, setContextZones] = useState<EditableZone[]>([])
+  const [zonesLoading, setZonesLoading] = useState(false)
+  const [zonesProfileId, setZonesProfileId] = useState<string | null>(null)
 
   // Build column mappings from parsed data headers for spatial detection
   const pipelineMappings = useMemo(() => {
@@ -385,6 +400,28 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
     }
   }, [])
 
+  // Context zones handlers
+  const handleLoadZones = useCallback(async (profileId: string) => {
+    setZonesLoading(true)
+    setZonesProfileId(profileId)
+    const result = await getContextZones(profileId)
+    if ("data" in result) {
+      setContextZones(result.data.map((z) => ({ ...z })))
+    } else {
+      toast.error(result.error)
+    }
+    setZonesLoading(false)
+  }, [])
+
+  const handleZonesChange = useCallback(
+    async (zones: EditableZone[]) => {
+      setContextZones(zones)
+      // Persist changes for zones with IDs (saved zones)
+      // New zones (no id) will be created when user runs QC or saves profile
+    },
+    []
+  )
+
   async function handleRunQC() {
     setValidating(true)
     setError(null)
@@ -401,6 +438,13 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
         const enabledRuleIds = customRules.filter((r) => r.enabled).map((r) => r.id)
         if (enabledRuleIds.length > 0) {
           requestBody.customRuleIds = enabledRuleIds
+        }
+        // Include enabled context zone IDs
+        const enabledZoneIds = contextZones
+          .filter((z) => z.enabled && z.id)
+          .map((z) => z.id!)
+        if (enabledZoneIds.length > 0) {
+          requestBody.contextZoneIds = enabledZoneIds
         }
         // Include cross-dataset config if in cross-dataset mode with types selected
         if (state.crossDatasetMode && state.secondDatasetId && state.datasetTypeA && state.datasetTypeB) {
@@ -900,6 +944,17 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           />
         )}
 
+        {/* Context Zones section */}
+        {(state.datasetId || state.parsedData) && (
+          <ContextZonesSection
+            zones={contextZones}
+            loading={zonesLoading}
+            profileId={zonesProfileId}
+            onLoadZones={handleLoadZones}
+            onChange={handleZonesChange}
+          />
+        )}
+
         {error && (
           <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-red-500" />
@@ -1208,6 +1263,112 @@ function CustomRulesSection({
           </div>
         )}
       </CardContent>
+    </Card>
+  )
+}
+
+/** Context zones section within the validate stage */
+function ContextZonesSection({
+  zones,
+  loading,
+  profileId,
+  onLoadZones,
+  onChange,
+}: {
+  zones: EditableZone[]
+  loading: boolean
+  profileId: string | null
+  onLoadZones: (profileId: string) => void
+  onChange: (zones: EditableZone[]) => void
+}) {
+  const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([])
+  const [localProfileId, setLocalProfileId] = useState<string | null>(profileId)
+  const [loadedProfiles, setLoadedProfiles] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+
+  // Load profiles on mount
+  useEffect(() => {
+    if (loadedProfiles) return
+    setLoadedProfiles(true)
+    import("@/lib/actions/profiles").then(({ getProfiles }) => {
+      getProfiles().then((res) => {
+        if ("data" in res) {
+          setProfiles(res.data.map((p) => ({ id: p.id, name: p.name })))
+          if (res.data.length > 0 && !localProfileId) {
+            setLocalProfileId(res.data[0].id)
+            onLoadZones(res.data[0].id)
+          }
+        }
+      })
+    })
+  }, [loadedProfiles, localProfileId, onLoadZones])
+
+  // Auto-expand if zones exist
+  useEffect(() => {
+    if (zones.length > 0) setExpanded(true)
+  }, [zones.length])
+
+  const enabledCount = zones.filter((z) => z.enabled).length
+
+  return (
+    <Card className="rounded-2xl border-teal-200 dark:border-teal-900">
+      <CardHeader className="pb-3">
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-2 text-left cursor-pointer w-full"
+        >
+          <MapPin className="size-4 text-teal-500" />
+          <span className="text-base font-semibold flex-1">Context Zones</span>
+          {enabledCount > 0 && (
+            <span className="inline-flex items-center rounded-md bg-teal-100 px-1.5 py-0.5 text-[10px] font-semibold text-teal-700 dark:bg-teal-900/50 dark:text-teal-300">
+              {enabledCount} active
+            </span>
+          )}
+        </button>
+        <p className="text-xs text-muted-foreground">
+          Define pipeline zones with modified thresholds for specific KP ranges or events
+        </p>
+      </CardHeader>
+      {expanded && (
+        <CardContent className="space-y-4">
+          {/* Profile selector */}
+          {profiles.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-muted-foreground shrink-0">
+                Profile:
+              </label>
+              <select
+                className="rounded-md border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                value={localProfileId ?? ""}
+                onChange={(e) => {
+                  setLocalProfileId(e.target.value)
+                  onLoadZones(e.target.value)
+                }}
+              >
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {loading ? (
+            <Skeleton className="h-8 w-full" />
+          ) : localProfileId ? (
+            <ZoneEditor
+              zones={zones}
+              onChange={onChange}
+              profileId={localProfileId}
+            />
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              No validation profiles found. Create a profile to configure context zones.
+            </p>
+          )}
+        </CardContent>
+      )}
     </Card>
   )
 }
