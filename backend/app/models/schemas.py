@@ -72,12 +72,35 @@ class CrossDatasetConfig(BaseModel):
     tolerances: dict[str, float] | None = None  # user tolerance overrides
 
 
+class ContextZoneDefinition(BaseModel):
+    name: str
+    description: str = ""
+    zone_type: Literal["kp_range", "event_match"]
+    kp_start: float | None = None
+    kp_end: float | None = None
+    event_value: str | None = None
+    threshold_modifiers: dict[str, float] = {}  # key: config param, value: multiplier
+
+    @model_validator(mode="after")
+    def validate_zone_type(self):
+        if self.zone_type == "kp_range":
+            if self.kp_start is None or self.kp_end is None:
+                raise ValueError("kp_range zone requires kp_start and kp_end")
+            if self.kp_start > self.kp_end:
+                raise ValueError("kp_start must be <= kp_end")
+        elif self.zone_type == "event_match":
+            if not self.event_value:
+                raise ValueError("event_match zone requires event_value")
+        return self
+
+
 class ValidateRequest(BaseModel):
     dataset_id: str
     config: ProfileConfig | None = None
     secondary_dataset_id: str | None = None
     cross_dataset_config: CrossDatasetConfig | None = None
     custom_rule_ids: list[str] | None = None
+    context_zone_ids: list[str] | None = None
 
 
 class ValidateResponse(BaseModel):
