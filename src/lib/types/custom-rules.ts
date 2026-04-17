@@ -121,3 +121,95 @@ export function getNestingDepth(
 export function canAddNestedGroup(group: ConditionGroup): boolean {
   return getNestingDepth(group) < 2
 }
+
+// ---------------------------------------------------------------------------
+// Client-side rule execution (works on parsedData string[][])
+// ---------------------------------------------------------------------------
+
+import type { ValidationIssue } from "@/app/(dashboard)/pipeline/lib/client-validate"
+
+function evaluateCondition(cond: Condition, headers: string[], row: string[]): boolean {
+  const colIdx = headers.findIndex((h) => h.toLowerCase() === cond.column.toLowerCase())
+  if (colIdx === -1) return false
+
+  const cellValue = row[colIdx]?.trim() ?? ""
+
+  if (cond.ruleType === "null_check") {
+    const isEmpty = cellValue === "" || cellValue.toLowerCase() === "null"
+    return cond.operator === "is_null" ? isEmpty : !isEmpty
+  }
+
+  if (cond.ruleType === "threshold") {
+    const numVal = parseFloat(cellValue)
+    const threshold = typeof cond.value === "number" ? cond.value : parseFloat(String(cond.value ?? ""))
+    if (isNaN(numVal) || isNaN(threshold)) return false
+
+    switch (cond.operator) {
+      case ">": return numVal > threshold
+      case "<": return numVal < threshold
+      case ">=": return numVal >= threshold
+      case "<=": return numVal <= threshold
+      case "==": return numVal === threshold
+      case "!=": return numVal !== threshold
+      default: return false
+    }
+  }
+
+  if (cond.ruleType === "comparison") {
+    const compareIdx = headers.findIndex((h) => h.toLowerCase() === (cond.compareColumn ?? "").toLowerCase())
+    if (compareIdx === -1) return false
+    const numA = parseFloat(cellValue)
+    const numB = parseFloat(row[compareIdx]?.trim() ?? "")
+    if (isNaN(numA) || isNaN(numB)) return false
+
+    switch (cond.operator) {
+      case ">": return numA > numB
+      case "<": return numA < numB
+      case ">=": return numA >= numB
+      case "<=": return numA <= numB
+      case "==": return numA === numB
+      case "!=": return numA !== numB
+      default: return false
+    }
+  }
+
+  return false
+}
+
+function evaluateGroup(group: ConditionGroup, headers: string[], row: string[]): boolean {
+  const condResults = group.conditions.map((c) => evaluateCondition(c, headers, row))
+  const groupResults = group.groups.map((g) => evaluateGroup(g, headers, row))
+  const all = [...condResults, ...groupResults]
+
+  if (all.length === 0) return false
+  return group.logic === "AND" ? all.every(Boolean) : all.some(Boolean)
+}
+
+/** Execute a custom rule definition against parsedData and return validation issues */
+export function executeCustomRuleClientSide(
+  rule: CustomRuleDefinition,
+  parsedData: string[][]
+): ValidationIssue[] {
+  if (parsedData.length < 2) return []
+
+  const headers = parsedData[0]
+  const issues: ValidationIssue[] = []
+
+  for (let i = 1; i < parsedData.length; i++) {
+    const row = parsedData[i]
+    if (evaluateGroup(rule.rootGroup, headers, row)) {
+      // Find the primary column from the first condition
+      const primaryCol = rule.rootGroup.conditions[0]?.column || "unknown"
+      issues.push({
+        type: "outlier", // custom rules map to outlier for auto-clean
+        severity: rule.severity,
+        row: i + 1, // 1-indexed
+        column: primaryCol,
+        message: `Custom rule "${rule.name}": ${rule.description || "condition matched"}`,
+        detail: `Row ${i + 1} matched rule: ${rule.name}`,
+      })
+    }
+  }
+
+  return issues
+}

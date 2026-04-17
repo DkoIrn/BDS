@@ -270,37 +270,67 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
 
   const handleTestRule = useCallback(
     async (rule: CustomRuleDefinition) => {
-      if (!state.datasetId) {
-        toast.error("No dataset available to test against")
-        return
-      }
       setIsTesting(true)
       setTestResult(null)
-      const res = await testRule(rule.rootGroup, state.datasetId, rule.severity)
-      if ("data" in res) {
-        setTestResult(res.data)
+
+      if (state.datasetId) {
+        // Existing dataset — test via backend
+        const res = await testRule(rule.rootGroup, state.datasetId, rule.severity)
+        if ("data" in res) {
+          setTestResult(res.data)
+        } else {
+          toast.error(res.error)
+        }
+      } else if (state.parsedData && state.parsedData.length > 1) {
+        // Fresh upload — test client-side
+        const { executeCustomRuleClientSide } = await import("@/lib/types/custom-rules")
+        const issues = executeCustomRuleClientSide(rule, state.parsedData)
+        setTestResult({
+          matching_rows: issues.length,
+          total_rows: state.parsedData.length - 1,
+          sample_matches: issues.slice(0, 10).map((iss) => ({
+            row_number: iss.row ?? 0,
+            values: {},
+          })),
+        })
       } else {
-        toast.error(res.error)
+        toast.error("No data available to test against")
       }
+
       setIsTesting(false)
     },
-    [state.datasetId]
+    [state.datasetId, state.parsedData]
   )
 
   const handleSaveRule = useCallback(
     async (profileId: string, rule: CustomRuleDefinition) => {
       if (editingRule) {
-        const res = await updateRule(editingRule.id, rule)
-        if ("data" in res) {
+        if (editingRule.id.startsWith("local-")) {
+          // Update local rule
           setCustomRules((prev) =>
-            prev.map((r) => (r.id === editingRule.id ? res.data : r))
+            prev.map((r) => r.id === editingRule.id ? {
+              ...r,
+              name: rule.name,
+              description: rule.description,
+              severity: rule.severity,
+              rule_definition: rule.rootGroup,
+            } : r)
           )
           toast.success("Rule updated")
         } else {
-          toast.error(res.error)
-          return
+          const res = await updateRule(editingRule.id, rule)
+          if ("data" in res) {
+            setCustomRules((prev) =>
+              prev.map((r) => (r.id === editingRule.id ? res.data : r))
+            )
+            toast.success("Rule updated")
+          } else {
+            toast.error(res.error)
+            return
+          }
         }
-      } else {
+      } else if (profileId && state.datasetId) {
+        // Save to backend if we have a profile and dataset
         const res = await createRule(profileId, rule)
         if ("data" in res) {
           setCustomRules((prev) => [...prev, res.data])
@@ -309,12 +339,29 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           toast.error(res.error)
           return
         }
+      } else {
+        // Save locally for fresh uploads
+        const localRule: CustomRule = {
+          id: `local-${crypto.randomUUID()}`,
+          profile_id: "",
+          user_id: "",
+          org_id: "",
+          name: rule.name,
+          description: rule.description,
+          severity: rule.severity,
+          rule_definition: rule.rootGroup,
+          enabled: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        setCustomRules((prev) => [...prev, localRule])
+        toast.success("Rule added")
       }
       setShowRuleBuilder(false)
       setEditingRule(null)
       setTestResult(null)
     },
-    [editingRule]
+    [editingRule, state.datasetId]
   )
 
   const handleToggleRule = useCallback(async (rule: CustomRule) => {
@@ -501,6 +548,21 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
               }
             }
 
+            // Run enabled custom rules client-side
+            if (state.parsedData && customRules.length > 0) {
+              const { executeCustomRuleClientSide } = await import("@/lib/types/custom-rules")
+              for (const rule of customRules.filter((r) => r.enabled)) {
+                const def: CustomRuleDefinition = {
+                  name: rule.name,
+                  description: rule.description,
+                  severity: rule.severity,
+                  rootGroup: toFrontendGroup(rule.rule_definition),
+                }
+                const ruleIssues = executeCustomRuleClientSide(def, state.parsedData)
+                allIssues = [...allIssues, ...ruleIssues]
+              }
+            }
+
             const summary = {
               total: allIssues.length,
               critical: allIssues.filter((i) => i.severity === "critical").length,
@@ -530,14 +592,32 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
             Promise.resolve(validateClientSide(state.parsedData)),
             minDelay,
           ])
-          const summary = {
-            total: validationResult.issues.length,
-            critical: validationResult.issues.filter((i) => i.severity === "critical").length,
-            warning: validationResult.issues.filter((i) => i.severity === "warning").length,
-            info: validationResult.issues.filter((i) => i.severity === "info").length,
+
+          let allFallbackIssues = validationResult.issues
+
+          // Run enabled custom rules client-side
+          if (customRules.length > 0) {
+            const { executeCustomRuleClientSide } = await import("@/lib/types/custom-rules")
+            for (const rule of customRules.filter((r) => r.enabled)) {
+              const def: CustomRuleDefinition = {
+                name: rule.name,
+                description: rule.description,
+                severity: rule.severity,
+                rootGroup: toFrontendGroup(rule.rule_definition),
+              }
+              const ruleIssues = executeCustomRuleClientSide(def, state.parsedData)
+              allFallbackIssues = [...allFallbackIssues, ...ruleIssues]
+            }
           }
-          setResult(validationResult)
-          onIssuesFound?.(validationResult.issues)
+
+          const summary = {
+            total: allFallbackIssues.length,
+            critical: allFallbackIssues.filter((i) => i.severity === "critical").length,
+            warning: allFallbackIssues.filter((i) => i.severity === "warning").length,
+            info: allFallbackIssues.filter((i) => i.severity === "info").length,
+          }
+          setResult({ issues: allFallbackIssues, summary })
+          onIssuesFound?.(allFallbackIssues)
           dispatch({
             type: "VALIDATE_COMPLETE",
             runId: "client",
@@ -786,8 +866,8 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
           <CrossValidationSettings state={state} dispatch={dispatch} />
         )}
 
-        {/* Custom Rules section */}
-        {state.datasetId && (
+        {/* Custom Rules section — available for all datasets */}
+        {(state.datasetId || state.parsedData) && (
           <CustomRulesSection
             rules={customRules}
             loading={loadingRules}
@@ -961,7 +1041,7 @@ function CustomRulesSection({
   editingRule: CustomRule | null
   testResult: RuleTestResult | null
   isTesting: boolean
-  datasetId: string
+  datasetId: string | null
   onLoadRules: (profileId: string) => void
   onToggleBuilder: () => void
   onEditRule: (rule: CustomRule) => void
