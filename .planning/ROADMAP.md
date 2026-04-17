@@ -173,7 +173,11 @@ Plans:
   2. Validators automatically apply context-specific thresholds instead of global defaults when data falls within a defined zone
   3. User can define event-conditional rules (e.g., "if event = trench crossing, relax depth thresholds by 20%")
   4. Domain QC packs include pre-configured context rules for common pipeline scenarios (shore approach, trench crossing, J-tube)
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 37-01-PLAN.md — Backend: DB migration, Pydantic models, zone service, CRUD router, preset zones, tests
+- [ ] 37-02-PLAN.md — Frontend: TypeScript types, context presets, zone editor UI components
+- [ ] 37-03-PLAN.md — Integration: API proxies, server actions, pipeline wiring, validate stage UI, end-to-end verification
 
 ## Progress
 
@@ -187,4 +191,4 @@ Plans:
 | 34. Collaboration (Extended) | 2/2 | Complete    | 2026-04-14 | - |
 | 35. Cross-Dataset Validation | 1/2 | In Progress|  | - |
 | 36. Custom Rule Builder | 3/3 | Complete   | 2026-04-16 | - |
-| 37. Context-Aware QC | v1.1 | 0/TBD | Not started | - |
+| 37. Context-Aware QC | v1.1 | 0/3 | Planned | - |
