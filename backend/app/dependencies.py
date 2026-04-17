@@ -40,6 +40,11 @@ class TableQuery:
         self._filters.append(f"{column}=eq.{value}")
         return self
 
+    def in_(self, column: str, values: list) -> "TableQuery":
+        joined = ",".join(str(v) for v in values)
+        self._filters.append(f"{column}=in.({joined})")
+        return self
+
     def single(self) -> "TableQuery":
         self._is_single = True
         self.headers["Accept"] = "application/vnd.pgrst.object+json"
