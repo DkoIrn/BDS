@@ -12,7 +12,7 @@ export async function signup(formData: FormData) {
   const password = formData.get('password') as string
   const fullName = formData.get('full_name') as string | null
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -22,6 +22,12 @@ export async function signup(formData: FormData) {
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Supabase returns a user with no identities when the email already exists
+  // (instead of an error). Detect this and prompt login instead.
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    return { error: 'An account with this email already exists. Please sign in instead.' }
   }
 
   return { success: true, email }

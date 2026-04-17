@@ -15,7 +15,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
-  const [otp, setOtp] = useState(['', '', '', '', '', '', '', ''])
+  const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,13 +42,13 @@ export default function SignupPage() {
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) {
       // Handle paste of full code
-      const digits = value.replace(/\D/g, '').slice(0, 8).split('')
+      const digits = value.replace(/\D/g, '').slice(0, 6).split('')
       const newOtp = [...otp]
       digits.forEach((d, i) => {
-        if (index + i < 8) newOtp[index + i] = d
+        if (index + i < 6) newOtp[index + i] = d
       })
       setOtp(newOtp)
-      const nextIndex = Math.min(index + digits.length, 7)
+      const nextIndex = Math.min(index + digits.length, 5)
       inputRefs.current[nextIndex]?.focus()
       return
     }
@@ -58,7 +58,7 @@ export default function SignupPage() {
     newOtp[index] = digit
     setOtp(newOtp)
 
-    if (digit && index < 7) {
+    if (digit && index < 5) {
       inputRefs.current[index + 1]?.focus()
     }
   }
@@ -71,7 +71,7 @@ export default function SignupPage() {
 
   const handleVerify = async () => {
     const code = otp.join('')
-    if (code.length !== 8) return
+    if (code.length !== 6) return
 
     setError(null)
     setIsPending(true)
@@ -82,7 +82,7 @@ export default function SignupPage() {
 
     if (result && 'error' in result && result.error) {
       setError(result.error)
-      setOtp(['', '', '', '', '', '', '', ''])
+      setOtp(['', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
     }
   }
@@ -139,7 +139,7 @@ export default function SignupPage() {
 
             <Button
               onClick={handleVerify}
-              disabled={otp.join('').length !== 8 || isPending}
+              disabled={otp.join('').length !== 6 || isPending}
               className="w-full rounded-xl bg-foreground text-background hover:bg-foreground/90"
               size="lg"
             >
@@ -148,7 +148,7 @@ export default function SignupPage() {
 
             <div className="flex items-center justify-between">
               <button
-                onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '', '', '']); setError(null) }}
+                onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '']); setError(null) }}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="size-3" />
