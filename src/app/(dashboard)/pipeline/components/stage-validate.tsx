@@ -414,13 +414,78 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
   }, [])
 
   const handleZonesChange = useCallback(
-    async (zones: EditableZone[]) => {
+    (zones: EditableZone[]) => {
       setContextZones(zones)
-      // Persist changes for zones with IDs (saved zones)
-      // New zones (no id) will be created when user runs QC or saves profile
     },
     []
   )
+
+  const handleSaveZones = useCallback(async () => {
+    if (!zonesProfileId) return
+    setZonesLoading(true)
+    let hasError = false
+    for (const zone of contextZones) {
+      const isTemp = !zone.id || zone.id.startsWith("temp-")
+      if (isTemp) {
+        const res = await createContextZone({
+          profile_id: zonesProfileId,
+          name: zone.name,
+          description: zone.description,
+          zone_type: zone.zone_type,
+          kp_start: zone.kp_start,
+          kp_end: zone.kp_end,
+          event_value: zone.event_value,
+          threshold_modifiers: zone.threshold_modifiers,
+          enabled: zone.enabled,
+          is_preset: zone.is_preset,
+          preset_id: zone.preset_id,
+          sort_order: zone.sort_order,
+          user_id: "",
+          org_id: "",
+        })
+        if ("error" in res) {
+          toast.error(res.error)
+          hasError = true
+        }
+      } else {
+        const res = await updateContextZone(zone.id!, {
+          name: zone.name,
+          description: zone.description,
+          zone_type: zone.zone_type,
+          kp_start: zone.kp_start,
+          kp_end: zone.kp_end,
+          event_value: zone.event_value,
+          threshold_modifiers: zone.threshold_modifiers,
+          enabled: zone.enabled,
+          sort_order: zone.sort_order,
+        })
+        if ("error" in res) {
+          toast.error(res.error)
+          hasError = true
+        }
+      }
+    }
+    if (!hasError) {
+      toast.success("Zones saved")
+    }
+    // Reload from server to get real IDs
+    await handleLoadZones(zonesProfileId)
+    setZonesLoading(false)
+  }, [contextZones, zonesProfileId, handleLoadZones])
+
+  const handleDeleteZone = useCallback(async (index: number) => {
+    const zone = contextZones[index]
+    const isTemp = !zone.id || zone.id.startsWith("temp-")
+    if (!isTemp && zone.id) {
+      const res = await deleteContextZone(zone.id)
+      if ("error" in res) {
+        toast.error(res.error)
+        return
+      }
+    }
+    setContextZones((prev) => prev.filter((_, i) => i !== index))
+    if (!isTemp) toast.success("Zone deleted")
+  }, [contextZones])
 
   async function handleRunQC() {
     setValidating(true)
@@ -952,6 +1017,8 @@ export function StageValidate({ state, dispatch, onIssuesFound, validationIssues
             profileId={zonesProfileId}
             onLoadZones={handleLoadZones}
             onChange={handleZonesChange}
+            onSave={handleSaveZones}
+            onDeleteZone={handleDeleteZone}
           />
         )}
 
@@ -1274,12 +1341,16 @@ function ContextZonesSection({
   profileId,
   onLoadZones,
   onChange,
+  onSave,
+  onDeleteZone,
 }: {
   zones: EditableZone[]
   loading: boolean
   profileId: string | null
   onLoadZones: (profileId: string) => void
   onChange: (zones: EditableZone[]) => void
+  onSave: () => void
+  onDeleteZone: (index: number) => void
 }) {
   const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([])
   const [localProfileId, setLocalProfileId] = useState<string | null>(profileId)
@@ -1309,6 +1380,22 @@ function ContextZonesSection({
   }, [zones.length])
 
   const enabledCount = zones.filter((z) => z.enabled).length
+  const hasUnsaved = zones.some((z) => !z.id || z.id.startsWith("temp-"))
+
+  // Wrap onChange to intercept removals and call onDeleteZone
+  const handleEditorChange = useCallback((newZones: EditableZone[]) => {
+    // Detect if a zone was removed
+    if (newZones.length < zones.length) {
+      const removedIndex = zones.findIndex(
+        (z) => !newZones.some((nz) => (nz.id ?? nz) === (z.id ?? z))
+      )
+      if (removedIndex >= 0) {
+        onDeleteZone(removedIndex)
+        return
+      }
+    }
+    onChange(newZones)
+  }, [zones, onChange, onDeleteZone])
 
   return (
     <Card className="rounded-2xl border-teal-200 dark:border-teal-900">
@@ -1357,11 +1444,23 @@ function ContextZonesSection({
           {loading ? (
             <Skeleton className="h-8 w-full" />
           ) : localProfileId ? (
-            <ZoneEditor
-              zones={zones}
-              onChange={onChange}
-              profileId={localProfileId}
-            />
+            <>
+              <ZoneEditor
+                zones={zones}
+                onChange={handleEditorChange}
+                profileId={localProfileId}
+              />
+              {zones.length > 0 && (
+                <Button
+                  size="sm"
+                  onClick={onSave}
+                  disabled={loading}
+                  className="bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600"
+                >
+                  {hasUnsaved ? "Save Zones" : "Update Zones"}
+                </Button>
+              )}
+            </>
           ) : (
             <p className="text-xs text-muted-foreground">
               No validation profiles found. Create a profile to configure context zones.
