@@ -32,24 +32,27 @@ export function NotificationPopover({
         )}
       </div>
 
-      {/* Body */}
+      {/* Body — only show unread notifications */}
       <div className="max-h-96 overflow-y-auto">
-        {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 px-4">
-            <Bell className="size-8 text-muted-foreground/40 mb-2" />
-            <p className="text-xs text-muted-foreground">No notifications yet</p>
-          </div>
-        ) : (
-          <div className="py-1">
-            {notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onClick={onItemClick}
-              />
-            ))}
-          </div>
-        )}
+        {(() => {
+          const unread = notifications.filter((n) => !n.read)
+          return unread.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 px-4">
+              <Bell className="size-8 text-muted-foreground/40 mb-2" />
+              <p className="text-xs text-muted-foreground">All caught up</p>
+            </div>
+          ) : (
+            <div className="py-1">
+              {unread.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onClick={onItemClick}
+                />
+              ))}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )
